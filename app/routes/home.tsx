@@ -1,5 +1,7 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import Index from "../Home/Home";
+import { StockListProvider } from "../store/stockList";
+import { ModalProvider } from "../store/modal";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +11,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Welcome />;
+  return (
+    <ModalProvider>
+      <StockListProvider>
+        <Index />
+      </StockListProvider>
+    </ModalProvider>
+  );
 }
