@@ -9,6 +9,34 @@ export default function Index() {
   const { stockList, removeStock } = useContext(StockListContext);
   const { isModalOpen, setIsModalOpen } = useContext(ModalContext);
   const [editStock, setEditStock] = useState<Stock | null>(null);
+  const warningDate = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
+  const warningCount = 10;
+
+  function compareDate(date: string | undefined) {
+    if (!date) return false;
+    const dateObj = new Date(date).getTime();
+    return dateObj > warningDate;
+  }
+
+  function compareCount(count: string) {
+    return Number(count) > warningCount;
+  }
+
+  // sort by expirationDate, then count, and waring date & count first
+  function sortStockList(a: Stock, b: Stock) {
+    let sortIdx = 0;
+    // expirationDate
+    
+    if (!compareDate(a.expirationDate) && a.expirationDate && b.expirationDate) {
+      sortIdx += new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime() > 0 ? 1 : -1;
+    }
+
+    // count
+    if (!compareCount(a.count) && sortIdx === 0 && a.count && b.count) {
+      sortIdx += Number(a.count) > Number(b.count) ? 1 : -1;
+    }
+    return sortIdx;
+  }
 
   useEffect(() => {
     if(isModalOpen) return;
@@ -20,13 +48,13 @@ export default function Index() {
       <button style={{border: '1px white solid', padding: '5px 10px'}} onClick={() => setIsModalOpen(true)}>新增</button>
       {isModalOpen && <CreateModal stock={editStock} />}
       <ul>
-        {stockList.map((stock) => (
+        {stockList.sort(sortStockList).map((stock) => (
           <li style={{ margin: "10px 0", display: "flex", gap: "10px" }} key={stock.id}>
             <span>{stock.name}</span>
             <span>{stock.type}</span>
-            <span>{stock.count}</span>
+            <span className={stock.count && compareCount(stock.count) ? "" : "text-yellow-500"}>{stock.count}</span>
             <span>{stock.unit}</span>
-            <span>{stock.expirationDate}</span>
+            <span className={stock.expirationDate && compareDate(stock.expirationDate) ? "" : "text-red-500"}>{stock.expirationDate}</span>
             <span>{stock.purchaseDate}</span>
             <span>{stock.remark}</span>
             <span>{stock.totalCalories}</span>
