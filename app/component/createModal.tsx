@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { type Stock, initialStock } from "../interfaces/stock";
+import { stockType, stockUnit } from "../constant/stock";
 import { StockListContext } from "../store/stockList";
 import { ModalContext } from "../store/modal";
 
@@ -14,7 +15,14 @@ export default function CreateModal({ stock }: CreateModalProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    setNewStock({ ...newStock, [id]: value });
+    const expectedType = typeof initialStock[id as keyof typeof initialStock];
+    
+    let parsedValue: string | number = value;
+    if (expectedType === 'number') {
+      parsedValue = value === '' ? 0 : Number(value);
+    }
+    
+    setNewStock({ ...newStock, [id]: parsedValue });
   };
 
   const handleEditStock = () => {
@@ -40,11 +48,9 @@ export default function CreateModal({ stock }: CreateModalProps) {
           <label htmlFor="type">類別</label>
           <select name="type" id="type" value={newStock.type} onChange={handleInputChange}>
             <option value="">請選擇</option>
-            <option value="food">食物</option>
-            <option value="medical">醫療</option>
-            <option value="tool">工具</option>
-            <option value="water">水</option>
-            <option value="other">其他</option>
+            {Object.entries(stockType).map(([key, value]) => (
+              <option key={key} value={key}>{value}</option>
+            ))}
           </select>
         </li>
         <li>
@@ -55,12 +61,9 @@ export default function CreateModal({ stock }: CreateModalProps) {
           <label htmlFor="unit">單位</label>
           <select name="unit" id="unit" value={newStock.unit} onChange={handleInputChange}>
             <option value="">請選擇</option>
-            <option value="g">g</option>
-            <option value="pack">包</option>
-            <option value="can">罐</option>
-            <option value="ml">ml</option>
-            <option value="l">l</option>
-            <option value="piece">個</option>
+            {Object.entries(stockUnit).map(([key, value]) => (
+              <option key={key} value={key}>{value}</option>
+            ))}
           </select>
         </li>
         <li>

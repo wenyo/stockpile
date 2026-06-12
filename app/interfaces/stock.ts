@@ -2,22 +2,22 @@ export interface Stock {
   id: string;
   name: string;
   type: string;
-  count: string;
+  count: number | undefined;
   unit: string;
   expirationDate?: string;
   purchaseDate?: string;
   remark?: string;
-  totalCalories: string | null;
+  totalCalories: number | undefined;
 }
 
 export const initialStock: Stock = {
   id: '',
   name: '',
   type: '',
-  count: '',
+  count: undefined,
   unit: '',
   expirationDate: '',
   purchaseDate: '',
   remark: '',
-  totalCalories: null,
+  totalCalories: undefined,
 };
