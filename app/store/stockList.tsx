@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import type { Stock } from "../interfaces/stock";
+import type { Stock } from "@/interfaces/stock";
 
 const defaultStockList: Stock[] = [
     {

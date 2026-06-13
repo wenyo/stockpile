@@ -1,11 +1,12 @@
 import { useContext, useState, useEffect } from "react";
-import { Trash2, Edit2 } from "lucide-react";
-import type { Stock } from "../interfaces/stock";
-import { stockType, stockUnit } from "../constant/stock";
-import { StockListContext } from "../store/stockList";
-import { ModalContext } from "../store/modal";
-import CreateModal from "../component/createModal";
-import SearchStock from "../component/search";
+import { Trash, Edit2 } from "lucide-react";
+import type { Stock } from "@/interfaces/stock";
+import { stockType, stockUnit } from "@/constant/stock";
+import { StockListContext } from "@/store/stockList";
+import { ModalContext } from "@/store/modal";
+import { Button } from "@/components/ui/button";
+import CreateModal from "@/components/createModal";
+import SearchStock from "@/components/search";
 
 export default function Index() {
   const { stockList, showStockList, removeStock } = useContext(StockListContext);
@@ -48,7 +49,7 @@ export default function Index() {
 
   return (
     <>
-      <button style={{border: '1px white solid', padding: '5px 10px'}} onClick={() => setIsModalOpen(true)}>新增</button>
+      <Button onClick={() => setIsModalOpen(true)}>新增</Button>
       {isModalOpen && <CreateModal stock={editStock} />}
       <SearchStock />
       <ul>
@@ -62,8 +63,8 @@ export default function Index() {
             <span>{stock.purchaseDate}</span>
             <span>{stock.remark}</span>
             <span>{stock.totalCalories}</span>
-            <Trash2 style={{ cursor: "pointer", color: "red" }} onClick={() => removeStock(stock.id)} />
-            <Edit2 style={{ cursor: "pointer", color: "blue" }} onClick={() => {setEditStock(stock); setIsModalOpen(true)}} />
+            <Trash strokeWidth={1.5} color="red" style={{ cursor: "pointer" }} onClick={() => removeStock(stock.id)} />
+            <Edit2 strokeWidth={1.5} color="blue" style={{ cursor: "pointer" }} onClick={() => {setEditStock(stock); setIsModalOpen(true)}} />
           </li>
         ))}
       </ul>

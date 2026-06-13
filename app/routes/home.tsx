@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
-import Index from "../Home/Home";
-import { StockListProvider } from "../store/stockList";
-import { ModalProvider } from "../store/modal";
+import Index from "@/Home/Home";
+import { StockListProvider } from "@/store/stockList";
+import { ModalProvider } from "@/store/modal";
 
 export function meta({}: Route.MetaArgs) {
   return [
