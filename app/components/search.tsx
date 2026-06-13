@@ -5,7 +5,6 @@ import { StockListContext } from "@/store/stockList";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,

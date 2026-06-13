@@ -12,7 +12,7 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  background-color: var(--background);
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -64,11 +64,11 @@ body {
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.148 0.004 228.8);
+  --foreground: oklch(25.091% 0.0015 198.112);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.148 0.004 228.8);
+  --card-foreground: oklch(25.091% 0.0015 198.112);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.148 0.004 228.8);
+  --popover-foreground: oklch(25.091% 0.0015 198.112);
   --primary: oklch(0.508 0.118 165.612);
   --primary-foreground: oklch(0.979 0.021 166.113);
   --secondary: oklch(0.967 0.001 286.375);
@@ -88,17 +88,19 @@ body {
   --chart-5: oklch(0.473 0.137 46.201);
   --radius: 0.45rem;
   --sidebar: oklch(0.987 0.002 197.1);
-  --sidebar-foreground: oklch(0.148 0.004 228.8);
+  --sidebar-foreground: oklch(25.091% 0.0015 198.112);
   --sidebar-primary: oklch(0.596 0.145 163.225);
   --sidebar-primary-foreground: oklch(0.979 0.021 166.113);
   --sidebar-accent: oklch(0.963 0.002 197.1);
   --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
   --sidebar-border: oklch(0.925 0.005 214.3);
   --sidebar-ring: oklch(0.723 0.014 214.4);
+  --text-primary: oklch(0.879 0.169 91.605);
+  --text-secondary: oklch(92.797% 0.00011 271.152);  
 }
 
 .dark {
-  --background: oklch(0.148 0.004 228.8);
+  --background: oklch(25.091% 0.0015 198.112);
   --foreground: oklch(0.987 0.002 197.1);
   --card: oklch(0.218 0.008 223.9);
   --card-foreground: oklch(0.987 0.002 197.1);

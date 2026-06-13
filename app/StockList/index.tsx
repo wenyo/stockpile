@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { Trash, Edit2 } from "lucide-react";
+import { X, Edit2 } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { stockType, stockUnit } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
@@ -48,7 +48,7 @@ export default function Index() {
   }, [isModalOpen])
 
   return (
-    <>
+    <div className="p-4">
       <Button onClick={() => setIsModalOpen(true)}>新增</Button>
       {isModalOpen && <CreateModal stock={editStock} />}
       <SearchStock />
@@ -63,11 +63,11 @@ export default function Index() {
             <span>{stock.purchaseDate}</span>
             <span>{stock.remark}</span>
             <span>{stock.totalCalories}</span>
-            <Trash strokeWidth={1.5} color="red" style={{ cursor: "pointer" }} onClick={() => removeStock(stock.id)} />
+            <X strokeWidth={1.5} color="red" style={{ cursor: "pointer" }} onClick={() => removeStock(stock.id)} />
             <Edit2 strokeWidth={1.5} color="blue" style={{ cursor: "pointer" }} onClick={() => {setEditStock(stock); setIsModalOpen(true)}} />
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }
