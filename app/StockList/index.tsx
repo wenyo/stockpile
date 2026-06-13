@@ -48,7 +48,7 @@ export default function Index() {
   }, [isModalOpen])
 
   return (
-    <div className="p-4">
+    <div className="p-4 text-(--text-secondary)">
       <Button onClick={() => setIsModalOpen(true)}>新增</Button>
       {isModalOpen && <CreateModal stock={editStock} />}
       <SearchStock />

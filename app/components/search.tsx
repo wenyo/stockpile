@@ -38,12 +38,6 @@ export default function SearchStock() {
             </li>
             <li>
               <label htmlFor="type">類別</label>
-              {/* <select name="type" id="type" value={searchStockProps.type} onChange={handleInputChange}>
-                <option value="">請選擇</option>
-                {Object.entries(stockType).map(([key, value]) => (
-                  <option key={key} value={key}>{value}</option>
-                ))}
-              </select> */}
               <Select value={searchStockProps.type} onValueChange={(value) => handleInputChange({ target: { id: 'type', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇" />
@@ -61,12 +55,6 @@ export default function SearchStock() {
             </li>
             <li>
               <label htmlFor="unit">單位</label>
-              {/* <select name="unit" id="unit" value={searchStockProps.unit} onChange={handleInputChange}>
-                <option value="">請選擇</option>
-                {Object.entries(stockUnit).map(([key, value]) => (
-                  <option key={key} value={key}>{value}</option>
-                ))}
-              </select> */}
               <Select value={searchStockProps.unit} onValueChange={(value) => handleInputChange({ target: { id: 'unit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇" />
