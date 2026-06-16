@@ -41,23 +41,6 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const [showStockList, setShowStockList] = useState<String[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
 
-  // init
-  useEffect(() => {
-    const localStorageStockList = localStorage.getItem("stockList");
-    if (localStorageStockList) {
-      setStockList(JSON.parse(localStorageStockList));
-      console.log('init', stockList);
-    }
-    setIsClient(true);
-  }, []);
-
-  // save
-  useEffect(() => {
-    if (isClient) {
-      localStorage.setItem("stockList", JSON.stringify(stockList));
-    }
-  }, [stockList, isClient]);
-
   const addStock = (stock: Stock) => {
     setStockList((prev) => [...prev, stock]);
   };
@@ -72,6 +55,28 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const searchStock = useCallback((searchStock: Stock) => {
+    setSearchParams(searchStock);
+  }, []);
+
+  // init
+  useEffect(() => {
+    const localStorageStockList = localStorage.getItem("stockList");
+    if (localStorageStockList) {
+      setStockList(JSON.parse(localStorageStockList));
+      console.log('init', stockList);
+    }
+    setIsClient(true);
+  }, []);
+
+  // save data
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("stockList", JSON.stringify(stockList));
+    }
+  }, [stockList, isClient]);
+
+  // search
   useEffect(() => {
     if (!searchParams) return;
     
@@ -86,10 +91,6 @@ export function StockListProvider({ children }: { children: ReactNode }) {
       (searchParams.purchaseDate && item.purchaseDate ? new Date(item.purchaseDate) <= new Date(searchParams.purchaseDate) : true) 
     }).map(item => item.id));
   }, [stockList, searchParams]);
-
-  const searchStock = useCallback((searchStock: Stock) => {
-    setSearchParams(searchStock);
-  }, []);
 
   return (
     <StockListContext.Provider value={{ stockList, showStockList, addStock, removeStock, updateStock, searchStock }}>

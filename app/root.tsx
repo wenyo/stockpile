@@ -12,6 +12,7 @@ import "./app.css";
 
 import { ModalProvider } from "@/store/modal";
 import { StockListProvider } from "@/store/stockList";
+import { DashboardProvider } from "@/store/dashboard";
 import Header from "@/components/header";
 
 export const links: Route.LinksFunction = () => [
@@ -49,8 +50,10 @@ export default function App() {
   return (
     <ModalProvider>
       <StockListProvider>
-        <Header />
-        <Outlet />
+        <DashboardProvider>
+          <Header />
+          <Outlet />
+        </DashboardProvider>
       </StockListProvider>
     </ModalProvider>
   );

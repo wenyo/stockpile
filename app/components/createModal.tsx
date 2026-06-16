@@ -96,10 +96,10 @@ export default function CreateModal({ stock }: CreateModalProps) {
           <label htmlFor="remark">備註</label>
           <Input type="text" id="remark" value={newStock.remark} onChange={handleInputChange} />
         </li>
-        {/* for food */}
         
+        {/* for food */}
         <li>
-          <label htmlFor="totalCalories">總熱量</label>
+          <label htmlFor="totalCalories">每單位總熱量</label>
           <Input type="number" id="totalCalories" value={newStock.totalCalories ?? ""} onChange={handleInputChange} />
         </li>
       </ul>
