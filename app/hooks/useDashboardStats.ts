@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { StockListContext } from "@/store/stockList";
 import { DashboardContext } from "@/store/dashboard";
+import { REQUIRED_FIELDS } from "@/interfaces/stock";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
@@ -21,12 +22,29 @@ export function useDashboardStats() {
     return dailyRequirement === 0 ? 0 : Math.floor(totalCalories / dailyRequirement);
   }, [totalCalories, config]);
 
-  // 你甚至可以在這計算過期數量、即將過期項目等...
+  const expiredStock = useMemo(() => {
+    return stockList.filter((stock) => {
+      if (!stock.expirationDate) return false;
+      const today = new Date();
+      const expirationDate = new Date(stock.expirationDate);
+      const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return days <= 30;
+    });
+  }, [stockList]);
+
+  const missingInfoStock = useMemo(() => {
+    return stockList.filter((stock) => {
+      const requiredFields = REQUIRED_FIELDS[stock.type];
+      return requiredFields && requiredFields.some(requiredField => !stock[requiredField])
+    })
+  }, [stockList]);
 
   return {
     config,                  // 讓儀表板元件也能讀到目前的目標設定（如：目標 30 天）
     totalCalories,
     survivalDays,
+    expiredStock,
+    missingInfoStock,
     stockCount: stockList.length
   };
 }

@@ -1,6 +1,7 @@
 import SummaryTable from "@/components/dashboard/summaryTable"
 import SurvivalAnalysis from "@/components/dashboard/survival"
 import StockTypeSummary from "@/components/dashboard/stockTypeSummary"
+import StockTips from "@/components/dashboard/sTockTips"
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
         <SurvivalAnalysis />
         <StockTypeSummary />
       </div>
+      <StockTips />
     </div>
   )
 }

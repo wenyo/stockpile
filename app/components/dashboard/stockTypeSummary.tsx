@@ -1,9 +1,12 @@
-import { Pie, PieChart, Tooltip, type TooltipIndex } from 'recharts';
+import { Pie, PieChart, Tooltip, Legend, type TooltipIndex } from 'recharts';
 import { useContext, useState, useEffect } from 'react';
 import { StockListContext } from '@/store/stockList';
 import { stockType } from '@/constant/stock';
 
-type SummaryItem = { name: string; value: number };
+type SummaryItem = { name: string; value: number; fill?: string };
+
+// 提供一組簡單的色系讓不同類別呈現不同顏色
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CF2', '#F28C8C'];
 
 export default function TwoLevelPieChart({
   isAnimationActive,
@@ -30,7 +33,13 @@ export default function TwoLevelPieChart({
       }
       return acc;
     }, []);
-    setStockTypeSummary(summary);
+    
+    const summaryWithFill = summary.map((item, index) => ({
+      ...item,
+      fill: COLORS[index % COLORS.length]
+    }));
+
+    setStockTypeSummary(summaryWithFill);
   }, [stockList]);
 
   return (
@@ -43,13 +52,15 @@ export default function TwoLevelPieChart({
         <Pie
           data={stockTypeSummary}
           dataKey="value"
+          nameKey="name"
           cx="50%"
           cy="50%"
           outerRadius="50%"
-          fill="#8884d8"
           isAnimationActive={isAnimationActive}
+          label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
         />
         <Tooltip defaultIndex={defaultIndex} />
+        <Legend />
       </PieChart>
     </div>
   );

@@ -1,3 +1,5 @@
+import { stockType } from "@/constant/stock";
+
 export interface Stock {
   id: string;
   name: string;
@@ -20,4 +22,30 @@ export const initialStock: Stock = {
   purchaseDate: '',
   remark: '',
   totalCalories: undefined,
+};
+
+export const REQUIRED_FIELDS: Record<string, (keyof Stock)[]> = {
+  [stockType.food]: [
+    "name",
+    "count",
+    "totalCalories",
+    "expirationDate",
+  ],
+  [stockType.water]: [
+    "name",
+    "count",
+  ],
+  [stockType.medical]: [
+    "name",
+    "count",
+    "expirationDate",
+  ],
+  [stockType.tool]: [
+    "name",
+    "count",
+  ],
+  [stockType.other]: [
+    "name",
+    "count",
+  ],
 };
