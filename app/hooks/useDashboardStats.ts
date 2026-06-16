@@ -7,7 +7,7 @@ export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
   const { config } = useContext(DashboardContext);
 
-  // 1. 計算總熱量 (根據每一項庫存數與熱量)
+  // 總熱量 (根據每一項庫存數與熱量)
   const totalCalories = useMemo(() => {
     return stockList.reduce((acc, stock) => {
        const count = Number(stock.count) || 0;
@@ -16,12 +16,13 @@ export function useDashboardStats() {
     }, 0);
   }, [stockList]);
 
-  // 2. 計算生存天數
+  // 生存天數
   const survivalDays = useMemo(() => {
     const dailyRequirement = config.people * config.onePersonOneDayCalories;
     return dailyRequirement === 0 ? 0 : Math.floor(totalCalories / dailyRequirement);
   }, [totalCalories, config]);
 
+  // 即將到期物資
   const expiredStock = useMemo(() => {
     return stockList.filter((stock) => {
       if (!stock.expirationDate) return false;
@@ -32,11 +33,17 @@ export function useDashboardStats() {
     });
   }, [stockList]);
 
+  // 缺少資訊物資
   const missingInfoStock = useMemo(() => {
     return stockList.filter((stock) => {
       const requiredFields = REQUIRED_FIELDS[stock.type];
       return requiredFields && requiredFields.some(requiredField => !stock[requiredField])
     })
+  }, [stockList]);
+
+  // 最近新增的三項物資
+  const recentStock = useMemo(() => {
+    return stockList.slice(0, 3);
   }, [stockList]);
 
   return {
@@ -45,6 +52,7 @@ export function useDashboardStats() {
     survivalDays,
     expiredStock,
     missingInfoStock,
+    recentStock,
     stockCount: stockList.length
   };
 }

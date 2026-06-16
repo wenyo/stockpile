@@ -1,7 +1,8 @@
-import SummaryTable from "@/components/dashboard/summaryTable"
-import SurvivalAnalysis from "@/components/dashboard/survival"
-import StockTypeSummary from "@/components/dashboard/stockTypeSummary"
-import StockTips from "@/components/dashboard/sTockTips"
+import SummaryTable from "@/components/dashboard/summaryTable";
+import SurvivalAnalysis from "@/components/dashboard/survival";
+import StockTypeSummary from "@/components/dashboard/stockTypeSummary";
+import StockTips from "@/components/dashboard/sTockTips";
+import RecentStock from "@/components/dashboard/recentStock";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
         <StockTypeSummary />
       </div>
       <StockTips />
+      <RecentStock />
     </div>
   )
 }
