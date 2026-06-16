@@ -1,87 +1,99 @@
-# Welcome to React Router!
+# Stockpile
 
-A modern, production-ready template for building full-stack React applications using React Router.
+### Know how long your supplies can support you.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Stockpile is a local-first emergency preparedness inventory management system designed to help individuals and families manage essential supplies, track expiration dates, estimate available calories, and evaluate preparedness readiness.
+
+Unlike traditional food inventory applications, Stockpile focuses on emergency scenarios where internet access may be unavailable and privacy is critical.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+### Inventory Management
 
-## Getting Started
+* Manage food, water, medical supplies, tools, and other emergency resources
+* Create, update, and remove inventory items
+* Categorize supplies for easier tracking
 
-### Installation
+### Survival Analysis
 
-Install the dependencies:
+* Calculate total available calories
+* Estimate survival duration based on household size and daily calorie requirements
+* Visualize preparedness progress toward a target number of days
 
-```bash
-npm install
-```
+### Expiration Tracking
 
-### Development
+* Identify supplies that are approaching expiration
+* Highlight expired or soon-to-expire items
+* Reduce waste through proactive inventory rotation
 
-Start the development server with HMR:
+### Data Quality Check
 
-```bash
-npm run dev
-```
+* Detect items with missing information
+* Identify missing calories, expiration dates, or quantities
+* Improve the accuracy of survival analysis
 
-Your application will be available at `http://localhost:5173`.
+### Local-First & Privacy-Focused
 
-## Building for Production
+* All data is stored locally on the user's device
+* No account registration required
+* No inventory information is uploaded to any server
 
-Create a production build:
+### Offline Ready
 
-```bash
-npm run build
-```
+* Designed as a Progressive Web App (PWA)
+* Continue using the application without internet access
 
-## Deployment
+## Tech Stack
 
-### Docker Deployment
+### Frontend
 
-To build and run using Docker:
+* React 19
+* TypeScript
+* React Router v7
+* Tailwind CSS v4
+* shadcn/ui
 
-```bash
-docker build -t my-app .
+### Visualization
 
-# Run the container
-docker run -p 3000:3000 my-app
-```
+* Recharts
 
-The containerized application can be deployed to any platform that supports Docker, including:
+### Storage
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+* LocalStorage
 
-### DIY Deployment
+## Project Goals
 
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
+Stockpile was created to solve a practical problem:
 
-Make sure to deploy the output of `npm run build`
+Many people prepare emergency supplies, but few know how long those supplies can actually sustain them.
 
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
+This project aims to transform inventory records into actionable preparedness insights, helping users answer questions such as:
 
-## Styling
+* How many days can my supplies support my household?
+* Which items are about to expire?
+* What information is missing from my inventory?
+* What should I prioritize replenishing?
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+## Roadmap
 
----
+### Completed
 
-Built with ❤️ using React Router.
+* Inventory CRUD
+* Local storage persistence
+* Dashboard overview
+* Survival days calculation
+* Expiration tracking
+* Data quality checks
+
+### Planned
+
+* PWA support
+* Household configuration
+* Preparedness score
+* Gap analysis
+* Supply recommendations
+* Data import/export
+
+## License
+
+MIT
