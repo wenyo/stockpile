@@ -3,6 +3,7 @@ import { Progress } from "@/components/ui/progress";
 
 export default function SurvivalAnalysis() {
   const { survivalDays, config } = useDashboardStats();
+  const missingDays = Math.max(0, config.targetDays - survivalDays);
 
   // 計算進度條 (不大於 100)
   const progressPercent = Math.min(100, (survivalDays / config.targetDays) * 100);
@@ -15,7 +16,7 @@ export default function SurvivalAnalysis() {
         <ul>
           <li className="text-(--card-foreground-2) text-sm">目標：{config.targetDays}天</li>
           <li className="text-(--card-foreground-2) text-sm">目前：{survivalDays}天</li>
-          <li className="text-(--card-foreground-2) text-sm">缺少：{config.targetDays - survivalDays}天</li>
+          <li className="text-(--card-foreground-2) text-sm">缺少：{missingDays}天</li>
         </ul>
       </div>
     </div>

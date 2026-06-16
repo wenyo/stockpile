@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
+import { REQUIRED_FIELDS, type MissingInfoItem } from "@/interfaces/stock";
 import { StockListContext } from "@/store/stockList";
 import { DashboardContext } from "@/store/dashboard";
-import { REQUIRED_FIELDS } from "@/interfaces/stock";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
@@ -23,7 +23,7 @@ export function useDashboardStats() {
   }, [totalCalories, config]);
 
   // 即將到期物資
-  const expiredStock = useMemo(() => {
+  const expiringSoonStock = useMemo(() => {
     return stockList.filter((stock) => {
       if (!stock.expirationDate) return false;
       const today = new Date();
@@ -34,11 +34,16 @@ export function useDashboardStats() {
   }, [stockList]);
 
   // 缺少資訊物資
-  const missingInfoStock = useMemo(() => {
-    return stockList.filter((stock) => {
+  const missingInfoStock: MissingInfoItem[] = useMemo(() => {
+    let result:MissingInfoItem[] = []
+    stockList.forEach((stock) => {
       const requiredFields = REQUIRED_FIELDS[stock.type];
-      return requiredFields && requiredFields.some(requiredField => !stock[requiredField])
+      const missingFields = requiredFields.filter(field => !stock[field]);
+      if (missingFields.length > 0) {
+        result.push({ stock, missingFields });
+      }
     })
+    return result;
   }, [stockList]);
 
   // 最近新增的三項物資
@@ -50,7 +55,7 @@ export function useDashboardStats() {
     config,                  // 讓儀表板元件也能讀到目前的目標設定（如：目標 30 天）
     totalCalories,
     survivalDays,
-    expiredStock,
+    expiringSoonStock,
     missingInfoStock,
     recentStock,
     stockCount: stockList.length

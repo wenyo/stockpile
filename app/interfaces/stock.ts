@@ -24,28 +24,36 @@ export const initialStock: Stock = {
   totalCalories: undefined,
 };
 
-export const REQUIRED_FIELDS: Record<string, (keyof Stock)[]> = {
-  [stockType.food]: [
+type StockTypeField = keyof typeof stockType;
+type StockField = keyof Stock;
+
+export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
+  food: [
     "name",
     "count",
     "totalCalories",
     "expirationDate",
   ],
-  [stockType.water]: [
+  water: [
     "name",
     "count",
   ],
-  [stockType.medical]: [
+  medical: [
     "name",
     "count",
     "expirationDate",
   ],
-  [stockType.tool]: [
+  tool: [
     "name",
     "count",
   ],
-  [stockType.other]: [
+  other: [
     "name",
     "count",
   ],
+};
+
+export type MissingInfoItem = {
+  stock: Stock;
+  missingFields: StockField[];
 };
