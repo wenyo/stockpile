@@ -10,12 +10,12 @@ export default function SurvivalAnalysis() {
   
   return (
     <div className="bg-(--card) p-4 rounded-(--radius-sm)">
-      <p className="text-(--card-foreground) text-md">生存能力分析</p>
+      <p className="text-(--card-foreground) text-md">生存能力</p>
       <div >
+        <p className="text-(--card-foreground-2) text-6xl">{survivalDays}天</p>
         <Progress value={progressPercent}/>
         <ul>
           <li className="text-(--card-foreground-2) text-sm">目標：{config.targetDays}天</li>
-          <li className="text-(--card-foreground-2) text-sm">目前：{survivalDays}天</li>
           <li className="text-(--card-foreground-2) text-sm">缺少：{missingDays}天</li>
         </ul>
       </div>

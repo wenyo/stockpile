@@ -1,4 +1,23 @@
 .logo {
-  /* add scss styles here */
-  color: var(--text-primary);
+  position: relative;
+
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: attr(data-text);
+    color: var(--color-neutral-700);
+    z-index: 1;
+  }
+
+  &::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: attr(data-text);
+    color: var(--primary);
+    z-index: 0;
+    -webkit-text-stroke: 5px var(--primary);
+    text-stroke: 5px var(--primary);
+  }
 }

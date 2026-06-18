@@ -36,7 +36,7 @@ export default function TwoLevelPieChart({
     
     const summaryWithFill = summary.map((item, index) => ({
       ...item,
-      fill: COLORS[index % COLORS.length]
+      fill: window.getComputedStyle(document.documentElement).getPropertyValue(`--chart-${index + 1}`)
     }));
 
     setStockTypeSummary(summaryWithFill);
