@@ -1,18 +1,18 @@
 import SummaryTable from "@/components/dashboard/summaryTable";
-import SurvivalAnalysis from "@/components/dashboard/survival";
+import StatusSummary from "@/components/dashboard/statusSummary";
 import StockTypeSummary from "@/components/dashboard/stockTypeSummary";
-import StockTips from "@/components/dashboard/sTockTips";
+import StockTips from "@/components/dashboard/stockTip";
 import RecentStock from "@/components/dashboard/recentStock";
 
 export default function Home() {
   return (
-    <div className="p-4">
-      <SummaryTable />
+    <div className="p-4 flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-2">
-        <SurvivalAnalysis />
-        <StockTypeSummary />
+        <StatusSummary />
       </div>
+      <SummaryTable />
       <StockTips />
+      <StockTypeSummary />
       <RecentStock />
     </div>
   )

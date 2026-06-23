@@ -3,7 +3,7 @@ import { useDashboardStats } from "@/hooks/useDashboardStats";
 export default function SummaryTable() {
   const { survivalDays, totalCalories, stockCount } = useDashboardStats();
   return (
-    <ul className="py-4 grid grid-cols-4 gap-2">
+    <ul className="grid grid-cols-4 gap-2">
       <li className="bg-(--card) p-4 rounded-(--radius-sm)">
         <p className="text-(--card-foreground) text-md">可支撐天數</p>
         <p className="text-(--text-primary) text-2xl font-bold">{survivalDays} 天</p>

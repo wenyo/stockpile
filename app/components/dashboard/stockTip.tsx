@@ -4,7 +4,7 @@ import { useDashboardStats } from "@/hooks/useDashboardStats";
 export default function StockTips() {
   const { expiringSoonStock, missingInfoStock } = useDashboardStats();
   return (
-    <div className="bg-(--card) mt-4 p-4 rounded-(--radius-sm) flex flex-col test">
+    <div className="bg-(--card) p-4 rounded-(--radius-sm) flex flex-col test">
       <p className="text-(--card-foreground) text-lg">物資提醒</p>
       <div className="grid grid-cols-2 gap-2 mt-2 text-(--card-foreground)">
         <div>

@@ -53,6 +53,10 @@ body {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -83,10 +87,9 @@ body {
   --ring: #05f4b1;
 
   /* Primary */
-  --primary: #02a876;
+  --primary: #04d99d;
   --primary-foreground: #f9fbfb;
   
-
   --color-primary-100: #05f4b1;
   --color-primary-200: #04d99d;
   --color-primary-300: #03c08a;
