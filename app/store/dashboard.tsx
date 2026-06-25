@@ -3,6 +3,7 @@ import { createContext, useState, type ReactNode } from "react";
 export type DashboardConfig = {
   people: number;
   targetDays: number;
+  rotationDays: number;
   onePersonOneDayCalories: number;
 };
 
@@ -14,6 +15,7 @@ type DashboardContextType = {
 const defaultSetting: DashboardConfig = {
   people: 1,
   targetDays: 30,
+  rotationDays: 90,
   onePersonOneDayCalories: 2000,
 };
 

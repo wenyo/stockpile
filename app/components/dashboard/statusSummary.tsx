@@ -14,13 +14,14 @@ export default function SurvivalAnalysis() {
     <div className="bg-(--card) p-4 rounded-(--radius-sm) flex flex-col gap-4">
       <p className="text-(--card-foreground) text-md flex items-center gap-2">
         <span>備戰狀態</span>
-        <Box strokeWidth={1.5} size={18}/></p>
+        <Box strokeWidth={1.5} size={18}/>
+      </p>
       <div className="flex items-end gap-2">
         <p className={`${level?.className} text-6xl font-bold`}>{survivalDays}天</p>
-        <p className={`${level?.className} text-lg font-bold`}>{level?.label}</p>
+        <p className={`${level?.className} text-lg font-bold tracking-wider`}>{level?.label}</p>
       </div>
       <Progress value={progressPercent} indicatorColor={level?.bgClassName}/>
-      <ul className="p-2 grid grid-cols-5 gap-2">
+      <ul className="grid grid-cols-5 gap-2">
         <li className="flex justify-between flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
           <span className="text-muted-foreground">目標</span>
           <span>{config.targetDays}天</span>

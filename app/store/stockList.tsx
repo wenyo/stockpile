@@ -64,7 +64,6 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     const localStorageStockList = localStorage.getItem("stockList");
     if (localStorageStockList) {
       setStockList(JSON.parse(localStorageStockList));
-      console.log('init', stockList);
     }
     setIsClient(true);
   }, []);

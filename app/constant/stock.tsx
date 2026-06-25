@@ -1,8 +1,10 @@
 export const stockType: Record<string, string> = {
   food: "食物",
   medical: "醫療",
-  tool: "工具",
   water: "水",
+  light: "照明",
+  communication: "通訊",
+  tool: "工具",
   other: "其他",
 }
 
@@ -52,7 +54,7 @@ export const preparednessLevels = [
   },
   {
     minPercentage: 0,
-    label: "未準備",
+    label: "準備不足",
     className: "text-danger",
     bgClassName: "bg-danger",
   },

@@ -22,6 +22,17 @@ export function useDashboardStats() {
     return dailyRequirement === 0 ? 0 : Math.floor(totalCalories / dailyRequirement);
   }, [totalCalories, config]);
 
+  // 在輪替天數內的物資
+  const withinRotationDaysStock = useMemo(() => {
+    return stockList.filter((stock) => {
+      if (!stock.expirationDate) return false;
+      const today = new Date();
+      const expirationDate = new Date(stock.expirationDate);
+      const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return days <= config.rotationDays && days > config.targetDays;
+    });
+  }, [stockList]);
+
   // 即將到期物資
   const expiringSoonStock = useMemo(() => {
     return stockList.filter((stock) => {
@@ -29,7 +40,18 @@ export function useDashboardStats() {
       const today = new Date();
       const expirationDate = new Date(stock.expirationDate);
       const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return days <= 30;
+      return days <= config.targetDays && days > 0;
+    });
+  }, [stockList]);
+
+  // 已過期物資
+  const expiredStock = useMemo(() => {
+    return stockList.filter((stock) => {
+      if (!stock.expirationDate) return false;
+      const today = new Date();
+      const expirationDate = new Date(stock.expirationDate);
+      const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return days < 0;
     });
   }, [stockList]);
 
@@ -55,7 +77,9 @@ export function useDashboardStats() {
     config,                  // 讓儀表板元件也能讀到目前的目標設定（如：目標 30 天）
     totalCalories,
     survivalDays,
+    withinRotationDaysStock,
     expiringSoonStock,
+    expiredStock,
     missingInfoStock,
     recentStock,
     stockCount: stockList.length
