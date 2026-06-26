@@ -54,9 +54,13 @@ body {
   --color-foreground: var(--foreground);
   --color-background: var(--background);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
   --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -104,13 +108,13 @@ body {
   --success: #02a876;
   --success-foreground: #f9fbfb;
 
-  --warning: #ffd230;
+  --warning: #e8bc1f;
   --warning-foreground: #212222;
 
   --danger: #f5420b;
   --danger-foreground: #f9fbfb;
 
-  --info: #0b97f5;
+  --info: #0a7dc9;
   --info-foreground: #f9fbfb;
 
   /* Text */
@@ -167,4 +171,8 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+.overflow-hidden-ellipsis {
+  @apply overflow-hidden text-ellipsis whitespace-nowrap
 }

@@ -7,7 +7,7 @@ export default function SurvivalAnalysis() {
   const { survivalDays, config, totalCalories } = useDashboardStats();
 
   // 計算進度條 (不大於 100)
-  const progressPercent = Math.min(100, (survivalDays / config.targetDays) * 100);
+  const progressPercent = Math.round(Math.min(100, (survivalDays / config.targetDays) * 100));
   const level = preparednessLevels.find((level) => progressPercent >= level.minPercentage);    
   
   return (
