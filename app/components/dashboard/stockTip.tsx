@@ -1,7 +1,10 @@
+import { useContext, useState } from "react";
+import { Zap, ClipboardPen } from 'lucide-react';
 import { stockFieldLabel } from "@/constant/stock";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { Zap, ClipboardPen } from 'lucide-react';
+import type { Stock } from "@/interfaces/stock";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModalContext } from "@/store/modal";
 
 export default function StockTips() {
   const { withinRotationDaysStock, expiringSoonStock, expiredStock, missingInfoStock } = useDashboardStats();
