@@ -12,7 +12,7 @@ export default function Header() {
         <p className="logo font-serif font-bold text-3xl text-(--primary)" data-text="Stockpile">Stockpile</p>
       </NavLink>
       <nav className="flex gap-4 text-(--text-secondary)">
-        <NavLink to="/" className={activeStyle}>Home</NavLink>
+        <NavLink to="/" className={activeStyle}>Dashboard</NavLink>
         <NavLink to="/stock-list" className={activeStyle}>Stock List</NavLink>
       </nav>
     </header>

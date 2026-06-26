@@ -1,20 +1,6 @@
 import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import type { Stock } from "@/interfaces/stock";
-
-const defaultStockList: Stock[] = [
-    {
-        "id": "1",
-        "name": "name1",
-        "type": "food",
-        "count": 10,
-        "unit": "pack",
-        "expirationDate": "2026-12-31",
-        "purchaseDate": "2026-06-05",
-        "remark": "",
-        "totalCalories": 100,
-        "volume": 100
-    }
-]
+import { sampleStockData } from "@/constant/sampleData";
 
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
 
@@ -37,7 +23,7 @@ export const StockListContext = createContext<StockListContextType>({
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
-  const [stockList, setStockList] = useState<Stock[]>(defaultStockList);
+  const [stockList, setStockList] = useState<Stock[]>(sampleStockData);
   const [isClient, setIsClient] = useState(false);
   const [showStockList, setShowStockList] = useState<String[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
