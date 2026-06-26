@@ -1,6 +1,7 @@
 import { preparednessLevels } from "@/constant/stock";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Box } from "lucide-react";
 
 export default function SurvivalAnalysis() {
@@ -11,38 +12,42 @@ export default function SurvivalAnalysis() {
   const level = preparednessLevels.find((level) => progressPercent >= level.minPercentage);    
   
   return (
-    <div className="bg-(--card) p-4 rounded-(--radius-sm) flex flex-col gap-4">
-      <p className="text-(--card-foreground) text-md flex items-center gap-2">
-        <span>備戰狀態</span>
-        <Box strokeWidth={1.5} size={18}/>
-      </p>
-      <div className="flex items-end gap-2">
-        <p className={`${level?.className} text-6xl font-bold`}>{survivalDays}天</p>
-        <p className={`${level?.className} text-lg font-bold tracking-wider`}>{level?.label}</p>
-      </div>
-      <Progress value={progressPercent} indicatorColor={level?.bgClassName}/>
-      <ul className="grid grid-cols-5 gap-2">
-        <li className="flex justify-between flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
-          <span className="text-muted-foreground">目標</span>
-          <span>{config.targetDays}天</span>
-        </li>
-        <li className="flex justify-between flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
-          <span className="text-muted-foreground">達成率</span>
-          <span>{progressPercent}%</span>
-        </li>
-        <li className="flex justify-between flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
-          <span className="text-muted-foreground">總熱量</span>
-          <span>{currentCalories} kcal</span>
-        </li>
-        <li className="flex justify-center flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
-          <span className="text-muted-foreground">人數</span>
-          <span>{config.people} 人份</span>
-        </li>
-        <li className="flex justify-center flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
-          <span className="text-muted-foreground">每人每日熱量</span>
-          <span>{config.onePersonOneDayCalories} kcal/人/天</span>
-        </li>
-      </ul>
-    </div>
+    <Card className="h-full border-border/50 bg-card/40 backdrop-blur-sm">
+      <CardHeader className="pb-2 md:pb-4">
+        <CardTitle className="text-muted-foreground text-lg font-semibold flex items-center gap-2">
+          <span>備戰狀態</span>
+          <Box strokeWidth={1.5} size={20}/>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4">
+          <p className={`${level?.className} text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter`}>{survivalDays} <span className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-normal text-muted-foreground">天</span></p>
+          <p className={`${level?.className} text-xl md:text-2xl font-bold tracking-wider mb-1`}>{level?.label}</p>
+        </div>
+        <Progress value={progressPercent} indicatorColor={level?.bgClassName} className="mt-2 h-3 md:h-4 w-full" />
+        <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mt-4">
+          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
+            <span className="text-muted-foreground text-sm font-medium mb-1">目標</span>
+            <span className="font-semibold text-lg">{config.targetDays} 天</span>
+          </li>
+          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
+            <span className="text-muted-foreground text-sm font-medium mb-1">達成率</span>
+            <span className="font-semibold text-lg">{progressPercent}%</span>
+          </li>
+          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50 xl:col-span-1 md:col-span-3 lg:col-span-1">
+            <span className="text-muted-foreground text-sm font-medium mb-1">總熱量</span>
+            <span className="font-semibold text-lg">{currentCalories.toLocaleString()} kcal</span>
+          </li>
+          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
+            <span className="text-muted-foreground text-sm font-medium mb-1">人數</span>
+            <span className="font-semibold text-lg">{config.people} 人份</span>
+          </li>
+          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
+            <span className="text-muted-foreground text-sm font-medium mb-1">每日每人熱量</span>
+            <span className="font-semibold text-lg">{config.onePersonOneDayCalories} kcal</span>
+          </li>
+        </ul>
+      </CardContent>
+    </Card>
   )
 }
