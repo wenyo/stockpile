@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { type Stock, initialStock } from "@/interfaces/stock";
 import { stockType, stockUnit } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -20,6 +19,7 @@ interface CreateModalProps {
 
 export default function CreateModal({ stock }: CreateModalProps) {
   const [newStock, setNewStock] = useState<Stock>(stock || initialStock);
+  const [isWater, setIsWater] = useState(false);
   const { addStock, updateStock } = useContext(StockListContext);
   const { setIsModalOpen } = useContext(ModalContext);
 
@@ -47,6 +47,16 @@ export default function CreateModal({ stock }: CreateModalProps) {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    if(newStock.type === "water") {
+      setNewStock({ ...newStock, unit: "ml" });
+      setIsWater(true);
+    } else {
+      setIsWater(false);
+    }
+    
+  }, [newStock.type]);
+
   return (
     <div style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'gray', padding: '20px', borderRadius: '10px', zIndex: 10}}>
       <ul>
@@ -73,7 +83,7 @@ export default function CreateModal({ stock }: CreateModalProps) {
         </li>
         <li>
           <label htmlFor="unit">單位</label>
-          <Select value={newStock.unit} onValueChange={(value) => handleInputChange({ target: { id: 'unit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+          <Select value={newStock.unit} disabled={isWater} onValueChange={(value) => handleInputChange({ target: { id: 'unit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
             <SelectTrigger>
               <SelectValue placeholder="請選擇" />
             </SelectTrigger>

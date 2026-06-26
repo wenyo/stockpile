@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Box } from "lucide-react";
 
 export default function SurvivalAnalysis() {
-  const { survivalDays, config, totalCalories } = useDashboardStats();
+  const { survivalDays, config, currentCalories } = useDashboardStats();
 
   // 計算進度條 (不大於 100)
   const progressPercent = Math.round(Math.min(100, (survivalDays / config.targetDays) * 100));
@@ -32,7 +32,7 @@ export default function SurvivalAnalysis() {
         </li>
         <li className="flex justify-between flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
           <span className="text-muted-foreground">總熱量</span>
-          <span>{totalCalories} kcal</span>
+          <span>{currentCalories} kcal</span>
         </li>
         <li className="flex justify-center flex-col bg-muted p-2 rounded-(--radius-sm) text-sm">
           <span className="text-muted-foreground">人數</span>

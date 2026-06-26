@@ -1,5 +1,6 @@
 import { useContext, useMemo } from "react";
 import { REQUIRED_FIELDS, type MissingInfoItem } from "@/interfaces/stock";
+import { stockType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { DashboardContext } from "@/store/dashboard";
 
@@ -8,7 +9,7 @@ export function useDashboardStats() {
   const { config } = useContext(DashboardContext);
 
   // 總熱量 (根據每一項庫存數與熱量)
-  const totalCalories = useMemo(() => {
+  const currentCalories = useMemo(() => {
     return stockList.reduce((acc, stock) => {
        const count = Number(stock.count) || 0;
        const cals = Number(stock.totalCalories) || 0;
@@ -16,11 +17,62 @@ export function useDashboardStats() {
     }, 0);
   }, [stockList]);
 
+  // 目標熱量
+  const targetCalories = useMemo(() => {
+    return config.people * config.targetDays * config.onePersonOneDayCalories;
+  }, [config]);
+
+  // 剩餘熱量
+  const remainingCalories = useMemo(() => {
+    return targetCalories - currentCalories < 0 ? 0 : targetCalories - currentCalories;
+  }, [targetCalories, currentCalories]);
+
+  // 目前飲水量
+  const currentWater = useMemo(() => {
+    return stockList.reduce((acc, stock) => {
+      if (stock.type === "water") {
+        return acc + Number(stock.count);
+      }
+      return acc;
+    }, 0);
+  }, [stockList]);
+
+  // 目標飲水量
+  const targetWater = useMemo(() => {
+    return config.people * config.targetDays * config.waterPerPersonPerDay;
+  }, [config]);
+
+  // 剩餘飲水量
+  const remainingWater = useMemo(() => {
+    return targetWater - currentWater < 0 ? 0 : targetWater - currentWater;
+  }, [targetWater, currentWater]);
+
+  // 生存天數
+  const survivalFoodDays = useMemo(() => {
+    const dailyRequirement = config.people * config.onePersonOneDayCalories;
+    return dailyRequirement === 0 ? 0 : Math.floor(currentCalories / dailyRequirement);
+  }, [currentCalories, config]);
+
+  // 缺口天數
+  const foodGapDays = useMemo(() => {
+    return config.targetDays - survivalFoodDays < 0 ? 0 : config.targetDays - survivalFoodDays;
+  }, [config, survivalFoodDays]);
+
+  // 飲水天數
+  const survivalWaterDays = useMemo(() => {
+    const dailyRequirement = config.people * config.waterPerPersonPerDay;
+    return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
+  }, [currentWater, config]);
+
+  // 飲水缺口天數
+  const gapWaterDays = useMemo(() => {
+    return config.targetDays - survivalWaterDays < 0 ? 0 : config.targetDays - survivalWaterDays;
+  }, [config, survivalWaterDays]);
+
   // 生存天數
   const survivalDays = useMemo(() => {
-    const dailyRequirement = config.people * config.onePersonOneDayCalories;
-    return dailyRequirement === 0 ? 0 : Math.floor(totalCalories / dailyRequirement);
-  }, [totalCalories, config]);
+    return Math.min(survivalFoodDays, survivalWaterDays);
+  }, [survivalFoodDays, survivalWaterDays]);
 
   // 在輪替天數內的物資
   const withinRotationDaysStock = useMemo(() => {
@@ -68,20 +120,35 @@ export function useDashboardStats() {
     return result;
   }, [stockList]);
 
-  // 最近新增的三項物資
-  const recentStock = useMemo(() => {
-    return stockList.slice(0, 3);
+  // 缺乏的物資種類
+  const missingTypeStock = useMemo(() => {
+    const allTypes = Object.keys(stockType);
+    const existingTypes = stockList.map((stock) => stock.type);
+    return allTypes.filter((type) => !existingTypes.includes(type) && type !== 'other');
   }, [stockList]);
 
   return {
-    config,                  // 讓儀表板元件也能讀到目前的目標設定（如：目標 30 天）
-    totalCalories,
+    config,
+    // kcal
+    currentCalories,
+    targetCalories,
+    remainingCalories,
+    // day
     survivalDays,
+    survivalFoodDays,
+    foodGapDays,
+    survivalWaterDays,
+    gapWaterDays,
+    // water
+    currentWater,
+    targetWater,
+    remainingWater,
+    // stock
     withinRotationDaysStock,
     expiringSoonStock,
     expiredStock,
     missingInfoStock,
-    recentStock,
-    stockCount: stockList.length
+    stockCount: stockList.length,
+    missingTypeStock
   };
 }

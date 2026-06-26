@@ -10,10 +10,9 @@ export const stockType: Record<string, string> = {
 
 export const stockUnit: Record<string, string> = {
   g: "g",
+  ml: "ml",
   pack: "包",
   can: "罐",
-  ml: "ml",
-  l: "l",
   piece: "個",
   other: "其他",
 }
