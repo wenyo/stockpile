@@ -5,6 +5,8 @@ import { sampleStockData } from "@/constant/sampleData";
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
 
 export type StockListContextType = {
+  editStock: Stock | null;
+  setEditStock: (stock: Stock | null) => void;
   stockList: Stock[];
   showStockList: String[];
   addStock: (stock: Stock) => void;
@@ -14,6 +16,8 @@ export type StockListContextType = {
 };
 
 export const StockListContext = createContext<StockListContextType>({
+  editStock: null,
+  setEditStock: () => {},
   stockList: [],
   showStockList: [],
   addStock: () => {},
@@ -23,8 +27,9 @@ export const StockListContext = createContext<StockListContextType>({
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
-  const [stockList, setStockList] = useState<Stock[]>(sampleStockData);
+  const [stockList, setStockList] = useState<Stock[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [editStock, setEditStock] = useState<Stock | null>(null);
   const [showStockList, setShowStockList] = useState<String[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
 
@@ -57,7 +62,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   // save data
   useEffect(() => {
-    if (isClient) {
+    if (isClient && stockList.length > 0) {
       localStorage.setItem("stockList", JSON.stringify(stockList));
     }
   }, [stockList, isClient]);
@@ -79,7 +84,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   }, [stockList, searchParams]);
 
   return (
-    <StockListContext.Provider value={{ stockList, showStockList, addStock, removeStock, updateStock, searchStock }}>
+    <StockListContext.Provider value={{ stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock }}>
       {children}
     </StockListContext.Provider>
   );

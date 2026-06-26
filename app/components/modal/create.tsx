@@ -14,13 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-interface CreateModalProps {
-  stock: Stock | null;
-}
-
-export default function CreateModal({ stock }: CreateModalProps) {
-  const [newStock, setNewStock] = useState<Stock>(stock || initialStock);
-  const { addStock, updateStock } = useContext(StockListContext);
+export default function CreateModal() {
+  const [newStock, setNewStock] = useState<Stock>(initialStock);
+  const { addStock, updateStock, editStock } = useContext(StockListContext);
   const { setIsModalOpen } = useContext(ModalContext);
 
   // 避免背景滾動
@@ -30,6 +26,13 @@ export default function CreateModal({ stock }: CreateModalProps) {
       document.body.style.overflow = "unset";
     };
   }, []);
+
+  // 編輯模式
+  useEffect(() => {
+    if (editStock) {
+      setNewStock(editStock);
+    }
+  }, [editStock]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;

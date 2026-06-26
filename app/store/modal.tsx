@@ -1,20 +1,41 @@
 import { createContext, useState, type ReactNode } from "react";
 
+type ModalType = "create" | "edit" | "welcome" | null;
+
 export type Modal = {
   isModalOpen: boolean;
+  modalType: ModalType;
+  setModalType: (modalType: ModalType) => void;
   setIsModalOpen: (isModalOpen: boolean) => void;
+  openModal: (type: ModalType) => void;
+  closeModal: () => void;
 }
 
 export const ModalContext = createContext<Modal>({
   isModalOpen: false,
+  modalType: "create",
+  setModalType: () => {},
   setIsModalOpen: () => {},
+  openModal: () => {},
+  closeModal: () => {},
 })
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<ModalType>("create");
+
+  function openModal(type: ModalType) {
+    setModalType(type);
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+    setModalType(null);
+  }
 
   return (
-    <ModalContext.Provider value={{ isModalOpen, setIsModalOpen }}>
+    <ModalContext.Provider value={{ isModalOpen, setIsModalOpen, modalType, setModalType, openModal, closeModal }}>
       {children}
     </ModalContext.Provider>
   )

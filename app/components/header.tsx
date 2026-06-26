@@ -1,7 +1,18 @@
 import { NavLink } from "react-router";
+import { ModalContext } from "@/store/modal";
+import { useEffect, useContext } from "react";
 import "./header.scss";
 
 export default function Header() {
+  const { openModal } = useContext(ModalContext);
+
+  useEffect(() => {
+    if (localStorage.getItem("stockList")) {
+      return;
+    }
+    openModal("welcome");
+  }, []);
+
   function activeStyle({ isActive }: { isActive: boolean }) {
     return isActive ? "text-lg underline decoration-(--text-primary) underline-offset-8" : "text-lg"
   }

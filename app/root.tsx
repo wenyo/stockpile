@@ -14,6 +14,7 @@ import { ModalProvider } from "@/store/modal";
 import { StockListProvider } from "@/store/stockList";
 import { DashboardProvider } from "@/store/dashboard";
 import Header from "@/components/header";
+import Modal from "@/components/modal/index";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -51,6 +52,7 @@ export default function App() {
     <ModalProvider>
       <StockListProvider>
         <DashboardProvider>
+          <Modal />
           <Header />
           <Outlet />
         </DashboardProvider>

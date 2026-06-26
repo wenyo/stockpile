@@ -7,13 +7,11 @@ import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import CreateModal from "@/components/createModal";
 import SearchStock from "@/components/search";
 
 export default function Index() {
-  const { stockList, showStockList, removeStock } = useContext(StockListContext);
-  const { isModalOpen, setIsModalOpen } = useContext(ModalContext);
-  const [editStock, setEditStock] = useState<Stock | null>(null);
+  const { stockList, showStockList, removeStock, setEditStock } = useContext(StockListContext);
+  const { isModalOpen, openModal, closeModal } = useContext(ModalContext);
   const warningDate = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
   const warningCount = 10;
 
@@ -53,12 +51,10 @@ export default function Index() {
     <div className="p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold tracking-tight">物資列表</h1>
-        <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1">
+        <Button onClick={() => openModal("create")} className="flex items-center gap-1">
           <Plus size={18} /> 新增物資
         </Button>
       </div>
-
-      {isModalOpen && <CreateModal stock={editStock} />}
       
       <SearchStock />
 
@@ -72,7 +68,7 @@ export default function Index() {
             <li key={stock.id}>
               <Card className="h-full bg-card/40 backdrop-blur-sm border-border/50 hover:bg-card/60 transition-colors flex flex-col relative group">
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                  <button onClick={() => {setEditStock(stock); setIsModalOpen(true)}} className="p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
+                  <button onClick={() => {setEditStock(stock); openModal("edit")}} className="p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
                   <button onClick={() => removeStock(stock.id)} className="p-1.5 bg-danger/10 rounded-md hover:bg-danger/20 text-danger"><X size={16} /></button>
                 </div>
                 
