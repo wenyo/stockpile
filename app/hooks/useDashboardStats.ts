@@ -31,7 +31,11 @@ export function useDashboardStats() {
   const currentWater = useMemo(() => {
     return stockList.reduce((acc, stock) => {
       if (stock.type === "water") {
-        return acc + Number(stock.count);
+        const count = Number(stock.count) || 0;
+        // 如果使用者舊資料是選擇 ml 當作單位，且未填寫 volume，則將其視為 1ml / 件的基礎單位
+        const fallbackVolume = stock.unit === "ml" ? 1 : 0;
+        const vol = Number(stock.volume) || fallbackVolume;
+        return acc + (count * vol);
       }
       return acc;
     }, 0);

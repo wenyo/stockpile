@@ -10,6 +10,7 @@ export interface Stock {
   purchaseDate?: string;
   remark?: string;
   totalCalories: number | undefined;
+  volume: number | undefined;
 }
 
 export const initialStock: Stock = {
@@ -22,6 +23,7 @@ export const initialStock: Stock = {
   purchaseDate: '',
   remark: '',
   totalCalories: undefined,
+  volume: undefined,
 };
 
 type StockTypeField = keyof typeof stockType;
@@ -37,6 +39,7 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
   water: [
     "name",
     "count",
+    "volume",
   ],
   medical: [
     "name",

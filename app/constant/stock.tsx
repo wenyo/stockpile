@@ -21,6 +21,7 @@ export const stockFieldLabel: Record<string, string> = {
   name: "名稱",
   count: "數量",
   totalCalories: "總熱量",
+  volume: "單件容量(ml)",
   expirationDate: "到期日",
   purchaseDate: "購買日期",
   remark: "備註",
