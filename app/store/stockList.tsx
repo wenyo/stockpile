@@ -5,6 +5,8 @@ import { sampleStockData } from "@/constant/sampleData";
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
 
 export type StockListContextType = {
+  isDemo: boolean;
+  setIsDemo: (isDemo: boolean) => void;
   editStock: Stock | null;
   setEditStock: (stock: Stock | null) => void;
   stockList: Stock[];
@@ -13,9 +15,13 @@ export type StockListContextType = {
   removeStock: (id: string) => void;
   updateStock: (id: string, updatedStock: Stock) => void;
   searchStock: (searchStock: Stock) => void;
+  startFromClearingData: () => void;
+  startFromDemoData: () => void;
 };
 
 export const StockListContext = createContext<StockListContextType>({
+  isDemo: false,
+  setIsDemo: () => {},
   editStock: null,
   setEditStock: () => {},
   stockList: [],
@@ -24,9 +30,12 @@ export const StockListContext = createContext<StockListContextType>({
   removeStock: () => {},
   updateStock: () => {},
   searchStock: () => {},
+  startFromClearingData: () => {},
+  startFromDemoData: () => {},
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
+  const [isDemo, setIsDemo] = useState(false);
   const [stockList, setStockList] = useState<Stock[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [editStock, setEditStock] = useState<Stock | null>(null);
@@ -51,8 +60,31 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     setSearchParams(searchStock);
   }, []);
 
+  // start from clearing data
+  const startFromClearingData = () => {
+    setStockList([]);
+    setIsDemo(false);
+  }
+
+  // start from using demo data
+  const startFromDemoData = () => {
+    setIsDemo(false);
+    setStockList(sampleStockData);
+  }
+
+  // demo init
+  useEffect(() => {
+    if(isDemo) {
+      setStockList(sampleStockData);
+    }
+    setIsClient(true);
+  }, [isDemo]);
+
   // init
   useEffect(() => {
+    if(isDemo) {
+      return;
+    }
     const localStorageStockList = localStorage.getItem("stockList");
     if (localStorageStockList) {
       setStockList(JSON.parse(localStorageStockList));
@@ -61,11 +93,11 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // save data
-  useEffect(() => {
-    if (isClient && stockList.length > 0) {
+  useEffect(() => {    
+    if (!isDemo && stockList.length > 0) {
       localStorage.setItem("stockList", JSON.stringify(stockList));
     }
-  }, [stockList, isClient]);
+  }, [stockList, isClient, isDemo]);
 
   // search
   useEffect(() => {
@@ -84,7 +116,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   }, [stockList, searchParams]);
 
   return (
-    <StockListContext.Provider value={{ stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData }}>
       {children}
     </StockListContext.Provider>
   );

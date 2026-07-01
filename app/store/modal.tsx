@@ -1,6 +1,6 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 
-type ModalType = "create" | "edit" | "welcome" | null;
+type ModalType = "create" | "edit" | "welcome" | "demoCheck" | null;
 
 export type Modal = {
   isModalOpen: boolean;
@@ -33,6 +33,13 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setIsModalOpen(false);
     setModalType(null);
   }
+
+  useEffect(() => {
+    if (localStorage.getItem("stockList")) {
+      return;
+    }
+    openModal("welcome");
+  }, []);
 
   return (
     <ModalContext.Provider value={{ isModalOpen, setIsModalOpen, modalType, setModalType, openModal, closeModal }}>
