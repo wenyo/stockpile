@@ -6,7 +6,8 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "serve": "vite preview"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
@@ -36,7 +37,9 @@
     "sass": "^1.101.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "vite-plugin-pwa": "^1.3.0",
+    "workbox-window": "^7.4.1"
   },
   "version": "1.0.0"
 }

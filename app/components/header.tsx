@@ -1,12 +1,14 @@
 import { NavLink } from "react-router";
 import { useContext } from "react";
 import { ModalContext } from "@/store/modal";
+import { StockListContext } from "@/store/stockList";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react"
 import "./header.scss";
 
 export default function Header() {
   const { openModal } = useContext(ModalContext);
+  const { isDemo } = useContext(StockListContext);
   function activeStyle({ isActive }: { isActive: boolean }) {
     return isActive ? "text-lg underline decoration-(--text-primary) underline-offset-8" : "text-lg"
   }
@@ -17,7 +19,7 @@ export default function Header() {
         <NavLink to="/">
           <p className="logo font-serif font-bold text-3xl text-(--primary)" data-text="Stockpile">Stockpile</p>
         </NavLink>
-        <Button variant="outline" size="xs" onClick={() => openModal("demoCheck")}>demo<X /></Button>
+        {isDemo && <Button variant="outline" size="xs" onClick={() => openModal("demoCheck")}>demo<X /></Button>}
       </div>
       <nav className="flex gap-4 text-(--text-secondary)">
         <NavLink to="/" className={activeStyle}>Dashboard</NavLink>
