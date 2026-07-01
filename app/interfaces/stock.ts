@@ -50,6 +50,14 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "name",
     "count",
   ],
+  light: [
+    "name",
+    "count",
+  ],
+  communication: [
+    "name",
+    "count",
+  ],
   other: [
     "name",
     "count",
