@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2 } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { stockType, stockUnit } from "@/constant/stock";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import SearchStock from "@/components/search";
 
 export default function Index() {
-  const { stockList, showStockList, removeStock, setEditStock } = useContext(StockListContext);
+  const { stockList, showStockList, setDeleteStock, setEditStock } = useContext(StockListContext);
   const { isModalOpen, openModal } = useContext(ModalContext);
   const warningDate = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
   const warningCount = 10;
@@ -69,7 +69,7 @@ export default function Index() {
               <Card className="h-full bg-card/40 backdrop-blur-sm border-border/50 hover:bg-card/60 transition-colors flex flex-col relative group">
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                   <button onClick={() => {setEditStock(stock); openModal("edit")}} className="p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
-                  <button onClick={() => removeStock(stock.id)} className="p-1.5 bg-danger/10 rounded-md hover:bg-danger/20 text-danger"><X size={16} /></button>
+                  <button onClick={() => {setDeleteStock(stock); openModal("deleteCheck")}} className="p-1.5 bg-danger/10 rounded-md hover:bg-danger/20 text-danger"><X size={16} /></button>
                 </div>
                 
                 <CardHeader className="pb-3 flex flex-row justify-between items-start pt-5">

@@ -7,6 +7,8 @@ const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !val
 export type StockListContextType = {
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
+  deleteStock: Stock | null;
+  setDeleteStock: (stock: Stock | null) => void;
   editStock: Stock | null;
   setEditStock: (stock: Stock | null) => void;
   stockList: Stock[];
@@ -22,6 +24,8 @@ export type StockListContextType = {
 export const StockListContext = createContext<StockListContextType>({
   isDemo: false,
   setIsDemo: () => {},
+  deleteStock: null,
+  setDeleteStock: () => {},
   editStock: null,
   setEditStock: () => {},
   stockList: [],
@@ -36,8 +40,9 @@ export const StockListContext = createContext<StockListContextType>({
 
 export function StockListProvider({ children }: { children: ReactNode }) {
   const [isDemo, setIsDemo] = useState(false);
-  const [stockList, setStockList] = useState<Stock[]>([]);
+  const [deleteStock, setDeleteStock] = useState<Stock | null>(null);
   const [editStock, setEditStock] = useState<Stock | null>(null);
+  const [stockList, setStockList] = useState<Stock[]>([]);
   const [showStockList, setShowStockList] = useState<String[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
 
@@ -113,7 +118,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   }, [stockList, searchParams]);
 
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData }}>
       {children}
     </StockListContext.Provider>
   );

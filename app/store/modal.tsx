@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 
-type ModalType = "create" | "edit" | "welcome" | "demoCheck" | null;
+type ModalType = "create" | "edit" | "welcome" | "demoCheck" | "deleteCheck" | null;
 
 export type Modal = {
   isModalOpen: boolean;
@@ -34,7 +34,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setModalType(null);
   }
 
-  useEffect(() => {
+  useEffect(() => {    
     if (localStorage.getItem("stockList")) {
       return;
     }

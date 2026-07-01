@@ -2,7 +2,7 @@ import { X, CirclePlay } from 'lucide-react';
 import { useContext } from "react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 export default function DemoCheckModal() {
   const { startFromClearingData, startFromDemoData } = useContext(StockListContext);
