@@ -11,7 +11,7 @@ import SearchStock from "@/components/search";
 
 export default function Index() {
   const { stockList, showStockList, removeStock, setEditStock } = useContext(StockListContext);
-  const { isModalOpen, openModal, closeModal } = useContext(ModalContext);
+  const { isModalOpen, openModal } = useContext(ModalContext);
   const warningDate = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
   const warningCount = 10;
 
@@ -37,7 +37,7 @@ export default function Index() {
 
     // count
     if (!compareCount(a.count) && sortIdx === 0 && a.count && b.count) {
-      sortIdx += Number(a.count) > Number(b.count) ? 1 : -1;
+      sortIdx += Number(a.count) >= Number(b.count) ? 1 : -1;
     }
     return sortIdx;
   }

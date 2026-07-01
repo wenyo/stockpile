@@ -17,7 +17,7 @@ import {
 export default function CreateModal() {
   const [newStock, setNewStock] = useState<Stock>(initialStock);
   const { addStock, updateStock, editStock } = useContext(StockListContext);
-  const { setIsModalOpen } = useContext(ModalContext);
+  const { closeModal } = useContext(ModalContext);
 
   // 避免背景滾動
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function CreateModal() {
     newStock.id ? updateStock(stockToAdd.id, stockToAdd) : addStock(stockToAdd);
     
     setNewStock(initialStock);
-    setIsModalOpen(false);
+    closeModal();
   };
 
   const requiredDom = <span className="text-danger ml-1">*</span>;
@@ -63,7 +63,7 @@ export default function CreateModal() {
   const isEditing = !!newStock.id;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={closeModal}>
       <div 
         className="bg-card w-full max-w-2xl rounded-xl border border-border/50 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()} // 防止點擊內部時關閉
@@ -74,7 +74,7 @@ export default function CreateModal() {
             {isEditing ? <Edit size={22} className="text-info" /> : <PackagePlus size={22} className="text-primary" />}
             {isEditing ? "編輯物資" : "新增物資"}
           </h2>
-          <Button variant="ghost" size="icon" onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={closeModal} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>
@@ -149,7 +149,7 @@ export default function CreateModal() {
 
         {/* Footer */}
         <div className="p-5 md:p-6 border-t border-border/40 bg-muted/10 flex justify-end gap-3 rounded-b-xl">
-          <Button variant="outline" onClick={() => setIsModalOpen(false)} className="px-6 border-border/60 hover:bg-muted/50">
+          <Button variant="outline" onClick={closeModal} className="px-6 border-border/60 hover:bg-muted/50">
             取消
           </Button>
           <Button onClick={handleEditStock} className="px-8 shadow-sm">
