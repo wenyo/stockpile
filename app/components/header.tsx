@@ -3,14 +3,14 @@ import { useContext } from "react";
 import { ModalContext } from "@/store/modal";
 import { StockListContext } from "@/store/stockList";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react"
+import { X, LayoutDashboard, List } from "lucide-react"
 import "./header.scss";
 
 export default function Header() {
   const { openModal } = useContext(ModalContext);
   const { isDemo } = useContext(StockListContext);
   function activeStyle({ isActive }: { isActive: boolean }) {
-    return isActive ? "text-lg underline decoration-(--text-primary) underline-offset-8" : "text-lg"
+    return isActive ? "text-lg text-primary" : "text-lg"
   }
 
   return (
@@ -22,8 +22,8 @@ export default function Header() {
         {isDemo && <Button variant="outline" size="xs" onClick={() => openModal("demoCheck")}>demo<X /></Button>}
       </div>
       <nav className="flex gap-4 text-(--text-secondary)">
-        <NavLink to="/" className={activeStyle}>Dashboard</NavLink>
-        <NavLink to="/stock-list" className={activeStyle}>Stock List</NavLink>
+        <NavLink to="/" className={activeStyle}><LayoutDashboard className="md:hidden" /><span className="hidden md:block">Dashboard</span></NavLink>
+        <NavLink to="/stock-list" className={activeStyle}><List className="md:hidden" /><span className="hidden md:block">Stock List</span></NavLink>
       </nav>
     </header>
   )

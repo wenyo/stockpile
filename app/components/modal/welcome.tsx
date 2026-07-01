@@ -28,7 +28,7 @@ export default function WelcomeModal() {
         <div className="flex justify-between items-center p-5 md:p-6 border-b border-border/40 bg-muted/20">
           <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
             <Package size={22} className="text-primary" />
-            歡迎使用 Stockpile 物資管理系統 👋
+            Stockpile 物資管理系統 👋
           </h2>
           <Button variant="ghost" size="icon" onClick={() => closeModal()} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
@@ -41,15 +41,15 @@ export default function WelcomeModal() {
           <p className="mb-2 text-muted-foreground">建立自己的備戰清單，隨時掌握目前的準備狀況。</p>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2">第一次使用？</p>
-            <p className="mb-2 text-muted-foreground">建立自己的物資清單</p>
-            <Button className="absolute h-3/5 top-2/10 right-4 w-25" onClick={handleStart}>直接開始</Button>
+            <p className="mb-2 w-3/4">第一次使用？</p>
+            <p className="mb-2 text-muted-foreground w-3/4">建立自己的物資清單</p>
+            <Button className="absolute h-3/5 top-2/10 right-4 w-1/4" onClick={handleStart}>直接開始</Button>
           </div>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2">想先看看功能？</p>
-            <p className="mb-2 text-muted-foreground">載入一份完整的範例資料。</p>
-            <Button className="absolute h-3/5 top-2/10 right-4 w-25" variant="outline" onClick={handleDemo}>探索範例</Button>
+            <p className="mb-2 w-3/4">想先看看功能？</p>
+            <p className="mb-2 text-muted-foreground w-3/4">載入一份完整的範例資料。</p>
+            <Button className="absolute h-3/5 top-2/10 right-4 w-1/4" variant="outline" onClick={handleDemo}>探索範例</Button>
           </div>
         </div>
       </div>
