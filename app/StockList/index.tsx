@@ -1,14 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
-import { stockType, stockUnit } from "@/constant/stock";
+import { stockType, stockUnit, WARNING_COUNT } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import SearchStock from "@/components/search";
-import { getStockStatus, sortStockList, WARNING_COUNT } from "@/utils/stock";
+import { getStockStatus, sortStockList } from "@/utils/stock";
 
 export default function Index() {
   const { stockList, showStockList, setDeleteStock, setEditStock } = useContext(StockListContext);
