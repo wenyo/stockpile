@@ -1,3 +1,5 @@
+export const WARNING_COUNT = 10;
+export const WARNING_DAYS = 30;
 export const stockType: Record<string, string> = {
   food: "食物",
   medical: "醫療",

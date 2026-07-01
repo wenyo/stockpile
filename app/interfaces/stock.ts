@@ -60,3 +60,9 @@ export type MissingInfoItem = {
   stock: Stock;
   missingFields: StockField[];
 };
+
+export type StockStatus = {
+  isExpired: boolean;
+  isExpiringSoon: boolean;
+  isLowStock: boolean;
+};
