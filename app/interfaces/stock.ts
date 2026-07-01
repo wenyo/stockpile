@@ -26,8 +26,8 @@ export const initialStock: Stock = {
   volume: undefined,
 };
 
-type StockTypeField = keyof typeof stockType;
 type StockField = keyof Stock;
+type StockTypeField = keyof typeof stockType;
 
 export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
   food: [

@@ -37,7 +37,6 @@ export const StockListContext = createContext<StockListContextType>({
 export function StockListProvider({ children }: { children: ReactNode }) {
   const [isDemo, setIsDemo] = useState(false);
   const [stockList, setStockList] = useState<Stock[]>([]);
-  const [isClient, setIsClient] = useState(false);
   const [editStock, setEditStock] = useState<Stock | null>(null);
   const [showStockList, setShowStockList] = useState<String[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
@@ -77,7 +76,6 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     if(isDemo) {
       setStockList(sampleStockData);
     }
-    setIsClient(true);
   }, [isDemo]);
 
   // init
@@ -89,7 +87,6 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     if (localStorageStockList) {
       setStockList(JSON.parse(localStorageStockList));
     }
-    setIsClient(true);
   }, []);
 
   // save data
@@ -97,7 +94,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     if (!isDemo && stockList.length > 0) {
       localStorage.setItem("stockList", JSON.stringify(stockList));
     }
-  }, [stockList, isClient, isDemo]);
+  }, [stockList, isDemo]);
 
   // search
   useEffect(() => {

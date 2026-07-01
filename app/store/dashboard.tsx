@@ -5,7 +5,7 @@ export type DashboardConfig = {
   targetDays: number;
   rotationDays: number;
   onePersonOneDayCalories: number;
-  waterPerPersonPerDay: number;
+  waterMlPerPersonPerDay: number;
 };
 
 type DashboardContextType = {
@@ -18,7 +18,7 @@ const defaultSetting: DashboardConfig = {
   targetDays: 30,
   rotationDays: 90,
   onePersonOneDayCalories: 2000,
-  waterPerPersonPerDay: 2000,
+  waterMlPerPersonPerDay: 2000,
 };
 
 export const DashboardContext = createContext<DashboardContextType>({

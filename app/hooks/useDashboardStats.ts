@@ -43,7 +43,7 @@ export function useDashboardStats() {
 
   // 目標飲水量
   const targetWater = useMemo(() => {
-    return config.people * config.targetDays * config.waterPerPersonPerDay;
+    return config.people * config.targetDays * config.waterMlPerPersonPerDay;
   }, [config]);
 
   // 剩餘飲水量
@@ -64,7 +64,7 @@ export function useDashboardStats() {
 
   // 飲水天數
   const survivalWaterDays = useMemo(() => {
-    const dailyRequirement = config.people * config.waterPerPersonPerDay;
+    const dailyRequirement = config.people * config.waterMlPerPersonPerDay;
     return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
   }, [currentWater, config]);
 
