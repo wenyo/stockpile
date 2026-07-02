@@ -78,6 +78,10 @@ export function useDashboardStats() {
     return Math.min(survivalFoodDays, survivalWaterDays);
   }, [survivalFoodDays, survivalWaterDays]);
 
+  const progressPercent = useMemo(() => {
+    return Math.round(Math.min(100, (survivalDays / config.targetDays) * 100));
+  }, [survivalDays, config.targetDays]);
+
   // 在輪替天數內的物資
   const withinRotationDaysStock = useMemo(() => {
     return stockList.filter((stock) => {
@@ -133,6 +137,7 @@ export function useDashboardStats() {
 
   return {
     config,
+    progressPercent,
     // kcal
     currentCalories,
     targetCalories,

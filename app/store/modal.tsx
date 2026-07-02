@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 
-type ModalType = "create" | "edit" | "welcome" | "demoCheck" | "deleteCheck" | null;
+type ModalType = "create" | "edit" | "welcome" | "demoCheck" | "deleteCheck" | "statusInfo" | null;
 
 export type Modal = {
   isModalOpen: boolean;

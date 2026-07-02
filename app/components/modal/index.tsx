@@ -4,6 +4,7 @@ import CreateModal from "@/components/modal/create";
 import WelcomeModal from "@/components/modal/welcome";
 import DemoCheckModal from "@/components/modal/demoCheck";
 import DeleteCheckModal from "@/components/modal/deleteCheck";
+import StatusInfoModal from "@/components/modal/statusInfo";
 
 export default function Modal() {
   const { isModalOpen, modalType } = useContext(ModalContext);
@@ -20,6 +21,7 @@ export default function Modal() {
       {modalType === "welcome" && <WelcomeModal />}
       {modalType === "demoCheck" && <DemoCheckModal />}
       {modalType === "deleteCheck" && <DeleteCheckModal />}
+      {modalType === "statusInfo" && <StatusInfoModal />}
     </div>)
   )
 }
