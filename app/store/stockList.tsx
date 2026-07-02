@@ -12,7 +12,7 @@ export type StockListContextType = {
   editStock: Stock | null;
   setEditStock: (stock: Stock | null) => void;
   stockList: Stock[];
-  showStockList: String[];
+  showStockList: string[];
   addStock: (stock: Stock) => void;
   removeStock: (id: string) => void;
   updateStock: (id: string, updatedStock: Stock) => void;
@@ -39,11 +39,12 @@ export const StockListContext = createContext<StockListContextType>({
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [deleteStock, setDeleteStock] = useState<Stock | null>(null);
   const [editStock, setEditStock] = useState<Stock | null>(null);
   const [stockList, setStockList] = useState<Stock[]>([]);
-  const [showStockList, setShowStockList] = useState<String[]>([]);
+  const [showStockList, setShowStockList] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
 
   const addStock = (stock: Stock) => {
@@ -92,18 +93,22 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     if (localStorageStockList) {
       setStockList(JSON.parse(localStorageStockList));
     }
+    setIsInitialized(true); // 標記為已載入
   }, []);
 
   // save data
-  useEffect(() => {    
-    if (!isDemo && stockList.length > 0) {
+  useEffect(() => {
+    if (isInitialized && !isDemo) {
       localStorage.setItem("stockList", JSON.stringify(stockList));
     }
   }, [stockList, isDemo]);
 
   // search
   useEffect(() => {
-    if (!searchParams) return;
+    if (!searchParams) {
+      setShowStockList(stockList.map(item => item.id)); 
+      return;
+    }
     
     setShowStockList(stockList.filter((item) => {
       if (checkStockIsEmpty(searchParams)) return true;     

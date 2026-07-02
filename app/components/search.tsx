@@ -29,7 +29,7 @@ export default function SearchStock() {
     return () => {
       clearTimeout(timeoutId);
     }
-  }, [searchStockProps]);
+  }, [searchStockProps, searchStock]);
 
   return (
     <Card className="bg-card/40 backdrop-blur-sm border-border/50 mb-6">
