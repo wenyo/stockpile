@@ -1,10 +1,15 @@
+import { useContext } from "react";
 import { Zap, ClipboardPen } from 'lucide-react';
 import { stockFieldLabel } from "@/constant/stock";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { ModalContext } from "@/store/modal";
+import { StockListContext } from "@/store/stockList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function StockTips() {
   const { stockCount, withinRotationDaysStock, expiringSoonStock, expiredStock, missingInfoStock } = useDashboardStats();
+  const { setEditStock } = useContext(StockListContext);
+  const { openModal } = useContext(ModalContext);
 
   const showCount = 4;
   const priorityItemsCommonClassName = 'bg-muted/30 p-4 rounded-xl border border-border/40 flex flex-col gap-2 transition-colors hover:bg-muted/50';
@@ -60,7 +65,7 @@ export default function StockTips() {
               stockCount === 0 ? (
                 <li className="col-span-full py-4 text-center text-base text-muted-foreground">目前無庫存</li>
               ) : missingInfoStock.length > 0 ? missingInfoStock.slice(0, showCount).map((item) => (
-                <li key={item.stock.id} className={`${priorityItemsCommonClassName}`}>
+                <li key={item.stock.id} className={`${priorityItemsCommonClassName} cursor-pointer`} onClick={() => { setEditStock(item.stock); openModal("edit"); }}>
                   <span className="font-semibold text-base overflow-hidden-ellipsis">{item.stock.name}</span>
                   <span className="text-sm text-muted-foreground overflow-hidden-ellipsis">{item.missingFields.map((field) => stockFieldLabel[field]).join(', ')}</span>
                 </li>

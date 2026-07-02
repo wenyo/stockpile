@@ -16,17 +16,15 @@ import {
 
 export default function CreateModal() {
   const [newStock, setNewStock] = useState<Stock>(initialStock);
-  const { addStock, updateStock, editStock } = useContext(StockListContext);
+  const { addStock, updateStock, editStock, setEditStock } = useContext(StockListContext);
   const { closeModal } = useContext(ModalContext);
 
-  // 避免背景滾動
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
+   useEffect(() => {
     return () => {
-      document.body.style.overflow = "unset";
-    };
+      setEditStock(null);
+    }
   }, []);
-
+  
   // 編輯模式
   useEffect(() => {
     if (editStock) {

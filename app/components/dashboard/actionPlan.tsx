@@ -20,7 +20,7 @@ export default function ActionPlan() {
           <div className="flex flex-col p-4 bg-muted/30 rounded-xl border border-border/40 gap-2">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-base">食物</span>
-              <Badge variant={foodGapDays > 0 ? "destructive" : "secondary"} className="opacity-90 text-sm px-2 py-0.5">{foodGapDays} 天份</Badge>
+              <Badge variant={foodGapDays > 0 ? "destructive" : "secondary"} className="opacity-90 text-sm px-2 py-0.5">約 {foodGapDays} 天份</Badge>
             </div>
             <p className="text-sm text-muted-foreground">缺口約 <span className="font-medium text-foreground text-base">{remainingCalories.toLocaleString()}</span> kcal</p>
           </div>
@@ -28,7 +28,7 @@ export default function ActionPlan() {
           <div className="flex flex-col p-4 bg-muted/30 rounded-xl border border-border/40 gap-2">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-base">飲用水</span>
-              <Badge variant={gapWaterDays > 0 ? "destructive" : "secondary"} className="opacity-90 text-sm px-2 py-0.5">{gapWaterDays} 天份</Badge>
+              <Badge variant={gapWaterDays > 0 ? "destructive" : "secondary"} className="opacity-90 text-sm px-2 py-0.5">約 {gapWaterDays} 天份</Badge>
             </div>
             <p className="text-sm text-muted-foreground">缺口約 <span className="font-medium text-foreground text-base">{remainingWater.toLocaleString()}</span> ml</p>
           </div>

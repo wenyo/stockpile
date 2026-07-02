@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { stockType, stockUnit, WARNING_COUNT } from "@/constant/stock";
@@ -12,12 +12,7 @@ import { getStockStatus, sortStockList } from "@/utils/stock";
 
 export default function Index() {
   const { stockList, showStockList, setDeleteStock, setEditStock } = useContext(StockListContext);
-  const { isModalOpen, openModal } = useContext(ModalContext);
-
-  useEffect(() => {
-    if (isModalOpen) return;
-    setEditStock(null);
-  }, [isModalOpen]);
+  const { openModal } = useContext(ModalContext);
 
   const visibleStockList = stockList
     .filter((item) => showStockList.includes(item.id))
