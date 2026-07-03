@@ -315,7 +315,7 @@ export const sampleStockData: Stock[] = [
   },
   {
     id: "sample-028",
-    name: "銀髮友善食品",
+    name: "亞培安素",
     type: "food",
     count: 11,
     unit: "pack",

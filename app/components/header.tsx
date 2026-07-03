@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { ModalContext } from "@/store/modal";
 import { StockListContext } from "@/store/stockList";
 import { Button } from "@/components/ui/button";
-import { X, LayoutDashboard, List } from "lucide-react"
+import { X, LayoutDashboard, List, Settings } from "lucide-react"
 import "./header.scss";
 
 export default function Header() {
@@ -24,6 +24,7 @@ export default function Header() {
       <nav className="flex gap-4 text-(--text-secondary)">
         <NavLink to="/" className={activeStyle}><LayoutDashboard className="md:hidden" /><span className="hidden md:block">Dashboard</span></NavLink>
         <NavLink to="/stock-list" className={activeStyle}><List className="md:hidden" /><span className="hidden md:block">Stock List</span></NavLink>
+        <NavLink to="/setting" className={activeStyle}><Settings className="md:hidden" /><span className="hidden md:block">Setting</span></NavLink>
       </nav>
     </header>
   )

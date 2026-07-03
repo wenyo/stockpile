@@ -1,5 +1,6 @@
-wireframe
+# wireframe
 
+## Home
 ┌────────────────────────────────────────────┐
 │ Stockpile Dashboard                        │
 │ Last Updated: 2026-06-13 14:32             │
@@ -51,7 +52,7 @@ wireframe
 
 
 
-Stock List
+## Stock List
 
 Search
 
@@ -72,12 +73,13 @@ Water
 Medical
 Lighting
 
-────────────────────────
 
-Sort
 
-Latest
+## Setting
 
-Expiration
+1. 制定家庭成員：成人、小孩、寵物
+2. 依照家庭成員
+  1. 制定每日熱量攝取：2000 kcal/人/天
+  2. 制定每日飲水量：2L/人/天
+3. 設定目標天數
 
-Name
