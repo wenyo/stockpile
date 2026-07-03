@@ -38,6 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
         <link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.webmanifest`} />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <Meta />
         <Links />
       </head>
