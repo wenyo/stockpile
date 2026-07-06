@@ -2,11 +2,11 @@ import { useContext, useMemo } from "react";
 import { REQUIRED_FIELDS, type MissingInfoItem } from "@/interfaces/stock";
 import { stockType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
-import { DashboardContext } from "@/store/dashboard";
+import { SettingContext } from "@/store/setting";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
-  const { config } = useContext(DashboardContext);
+  const { config } = useContext(SettingContext);
 
   // 總熱量 (根據每一項庫存數與熱量)
   const currentCalories = useMemo(() => {

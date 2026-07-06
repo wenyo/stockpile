@@ -12,7 +12,7 @@ import "./app.css";
 
 import { ModalProvider } from "@/store/modal";
 import { StockListProvider } from "@/store/stockList";
-import { DashboardProvider } from "@/store/dashboard";
+import { SettingProvider } from "@/store/setting";
 import { PWABadge } from "@/components/pwa-badge";
 import Header from "@/components/header";
 import Modal from "@/components/modal/index";
@@ -57,11 +57,11 @@ export default function App() {
       <PWABadge />
       <ModalProvider>
         <StockListProvider>
-          <DashboardProvider>
+          <SettingProvider>
             <Modal />
             <Header />
             <Outlet />
-          </DashboardProvider>
+          </SettingProvider>
         </StockListProvider>
       </ModalProvider>
     </>
