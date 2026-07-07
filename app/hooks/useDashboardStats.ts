@@ -6,7 +6,7 @@ import { SettingContext } from "@/store/setting";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
-  const { config } = useContext(SettingContext);
+  const { config, setting } = useContext(SettingContext);
 
   // 總熱量 (根據每一項庫存數與熱量)
   const currentCalories = useMemo(() => {
@@ -19,7 +19,8 @@ export function useDashboardStats() {
 
   // 目標熱量
   const targetCalories = useMemo(() => {
-    return config.people * config.targetDays * config.onePersonOneDayCalories;
+    // return config.people * setting.targetDays * config.onePersonOneDayCalories;
+    return 0;
   }, [config]);
 
   // 剩餘熱量
@@ -43,7 +44,8 @@ export function useDashboardStats() {
 
   // 目標飲水量
   const targetWater = useMemo(() => {
-    return config.people * config.targetDays * config.waterMlPerPersonPerDay;
+    // return config.people * setting.targetDays * config.waterMlPerPersonPerDay;
+    return 0;
   }, [config]);
 
   // 剩餘飲水量
@@ -53,24 +55,26 @@ export function useDashboardStats() {
 
   // 生存天數
   const survivalFoodDays = useMemo(() => {
-    const dailyRequirement = config.people * config.onePersonOneDayCalories;
-    return dailyRequirement === 0 ? 0 : Math.floor(currentCalories / dailyRequirement);
+    // const dailyRequirement = config.people * config.onePersonOneDayCalories;
+    // return dailyRequirement === 0 ? 0 : Math.floor(currentCalories / dailyRequirement);
+    return 0;
   }, [currentCalories, config]);
 
   // 缺口天數
   const foodGapDays = useMemo(() => {
-    return config.targetDays - survivalFoodDays < 0 ? 0 : config.targetDays - survivalFoodDays;
+    return setting.targetDays - survivalFoodDays < 0 ? 0 : setting.targetDays - survivalFoodDays;
   }, [config, survivalFoodDays]);
 
   // 飲水天數
   const survivalWaterDays = useMemo(() => {
-    const dailyRequirement = config.people * config.waterMlPerPersonPerDay;
-    return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
+    // const dailyRequirement = config.people * config.waterMlPerPersonPerDay;
+    // return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
+    return 0;
   }, [currentWater, config]);
 
   // 飲水缺口天數
   const gapWaterDays = useMemo(() => {
-    return config.targetDays - survivalWaterDays < 0 ? 0 : config.targetDays - survivalWaterDays;
+    return setting.targetDays - survivalWaterDays < 0 ? 0 : setting.targetDays - survivalWaterDays;
   }, [config, survivalWaterDays]);
 
   // 生存天數
@@ -79,8 +83,8 @@ export function useDashboardStats() {
   }, [survivalFoodDays, survivalWaterDays]);
 
   const progressPercent = useMemo(() => {
-    return Math.round(Math.min(100, (survivalDays / config.targetDays) * 100));
-  }, [survivalDays, config.targetDays]);
+    return Math.round(Math.min(100, (survivalDays / setting.targetDays) * 100));
+  }, [survivalDays, setting.targetDays]);
 
   // 在輪替天數內的物資
   const withinRotationDaysStock = useMemo(() => {
@@ -89,7 +93,7 @@ export function useDashboardStats() {
       const today = new Date();
       const expirationDate = new Date(stock.expirationDate);
       const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return days <= config.rotationDays && days > config.targetDays;
+      return days <= setting.rotationDays && days > setting.targetDays;
     });
   }, [stockList]);
 
@@ -100,7 +104,7 @@ export function useDashboardStats() {
       const today = new Date();
       const expirationDate = new Date(stock.expirationDate);
       const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return days <= config.targetDays && days > 0;
+      return days <= setting.targetDays && days > 0;
     });
   }, [stockList]);
 

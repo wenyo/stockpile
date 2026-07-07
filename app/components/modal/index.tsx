@@ -1,6 +1,8 @@
 import { useContext, useEffect } from "react";
+import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
-import CreateModal from "@/components/modal/create";
+import CreateModal from "@/components/modal/createStock";
+import CreateFamilyModal from "@/components/modal/createFamily";
 import WelcomeModal from "@/components/modal/welcome";
 import DemoCheckModal from "@/components/modal/demoCheck";
 import DeleteCheckModal from "@/components/modal/deleteCheck";
@@ -15,13 +17,14 @@ export default function Modal() {
   }, [isModalOpen]);
   
   return (
-    (isModalOpen && <div className="modal">
-      {modalType === "create" && <CreateModal />}
-      {modalType === "edit" && <CreateModal />}
-      {modalType === "welcome" && <WelcomeModal />}
-      {modalType === "demoCheck" && <DemoCheckModal />}
-      {modalType === "deleteCheck" && <DeleteCheckModal />}
-      {modalType === "statusInfo" && <StatusInfoModal />}
+    (isModalOpen && modalType && <div className="modal">
+      {modalType === modalTypeConstant.CREATE && <CreateModal />}
+      {modalType === modalTypeConstant.EDIT && <CreateModal />}
+      {modalType === modalTypeConstant.WELCOME && <WelcomeModal />}
+      {modalType === modalTypeConstant.DEMO_CHECK && <DemoCheckModal />}
+      {modalType === modalTypeConstant.DELETE_CHECK && <DeleteCheckModal />}
+      {modalType === modalTypeConstant.STATUS_INFO && <StatusInfoModal />}
+      {modalType === modalTypeConstant.CREATE_FAMILY && <CreateFamilyModal />}
     </div>)
   )
 }

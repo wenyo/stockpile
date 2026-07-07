@@ -1,9 +1,12 @@
 export const WARNING_COUNT = 10;
 export const WARNING_DAYS = 30;
 export const stockType: Record<string, string> = {
-  food: "食物",
+  food: "一般食物",
+  babyMilk: "嬰兒主食", // 列入生存必要計算
+  babyFood: "嬰兒副食", // 不列入生存必要計算
+  petFood: "寵物飼料",
   medical: "醫療",
-  water: "水",
+  water: "飲用水",
   light: "照明",
   communication: "通訊",
   tool: "工具",

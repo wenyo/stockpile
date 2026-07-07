@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
+import { modalTypeConstant } from "@/interfaces/modal";
 import { stockType, stockUnit, WARNING_COUNT } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
@@ -22,7 +23,7 @@ export default function Index() {
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-4 md:mb-6">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">物資列表</h1>
-        <Button onClick={() => openModal("create")} className="flex items-center gap-1">
+        <Button onClick={() => openModal(modalTypeConstant.CREATE)} className="flex items-center gap-1">
           <Plus size={18} /> 新增物資
         </Button>
       </div>
@@ -34,8 +35,8 @@ export default function Index() {
           <MobileStockRow
             key={stock.id}
             stock={stock}
-            onEdit={() => { setEditStock(stock); openModal("edit"); }}
-            onDelete={() => { setDeleteStock(stock); openModal("deleteCheck"); }}
+            onEdit={() => { setEditStock(stock); openModal(modalTypeConstant.EDIT); }}
+            onDelete={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }}
           />
         ))}
       </ul>
@@ -48,8 +49,8 @@ export default function Index() {
             <li key={stock.id}>
               <Card className="h-full bg-card/40 backdrop-blur-sm border-border/50 hover:bg-card/60 transition-colors flex flex-col relative group">
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                  <button onClick={() => { setEditStock(stock); openModal("edit"); }} className="p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
-                  <button onClick={() => { setDeleteStock(stock); openModal("deleteCheck"); }} className="p-1.5 bg-danger/10 rounded-md hover:bg-danger/20 text-danger"><X size={16} /></button>
+                  <button onClick={() => { setEditStock(stock); openModal(modalTypeConstant.EDIT); }} className="cursor-pointer p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
+                  <button onClick={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }} className="cursor-pointer p-1.5 bg-danger/10 rounded-md hover:bg-danger/20 text-danger"><X size={16} /></button>
                 </div>
 
                 <CardHeader className="pb-3 flex flex-row justify-between items-start pt-5">
