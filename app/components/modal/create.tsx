@@ -132,12 +132,12 @@ export default function CreateModal() {
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="expirationDate" className="text-sm font-semibold text-muted-foreground">保存期限{checkIsRequired("expirationDate")}</label>
-              <Input type="date" id="expirationDate" value={newStock.expirationDate} onChange={handleInputChange} className="h-10 border-border/60 text-sm md:text-base" />
+              <Input type="date" id="expirationDate" value={newStock.expirationDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
             </li>
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">購買日期{checkIsRequired("purchaseDate")}</label>
-              <Input type="date" id="purchaseDate" value={newStock.purchaseDate} onChange={handleInputChange} className="h-10 border-border/60 text-sm md:text-base" />
+              <Input type="date" id="purchaseDate" value={newStock.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
             </li>
 
             <li className="flex flex-col gap-1.5 col-span-2">

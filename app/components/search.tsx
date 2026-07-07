@@ -79,11 +79,11 @@ export default function SearchStock() {
           </li>
           <li className="flex flex-col gap-2">
             <label htmlFor="expirationDate" className="text-sm font-semibold text-muted-foreground">保存期限小於 (即將到期)</label>
-            <Input type="date" id="expirationDate" value={searchStockProps.expirationDate} onChange={handleInputChange} className="h-10 text-base"/>
+            <Input type="date" id="expirationDate" value={searchStockProps.expirationDate} onChange={handleInputChange} className="appearance-none h-10 text-base"/>
           </li>
           <li className="flex flex-col gap-2">
             <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">購買日期小於</label>
-            <Input type="date" id="purchaseDate" value={searchStockProps.purchaseDate} onChange={handleInputChange} className="h-10 text-base"/>
+            <Input type="date" id="purchaseDate" value={searchStockProps.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 text-base"/>
           </li>
         </ul>
       </CardContent>
