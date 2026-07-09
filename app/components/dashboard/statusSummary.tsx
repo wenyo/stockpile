@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SurvivalAnalysis() {
-  const { survivalDays, config, currentCalories, progressPercent } = useDashboardStats();
+  const { survivalDays, household, currentCalories, progressPercent } = useDashboardStats();
   const { openModal } = useContext(ModalContext);
   const { setting } = useContext(SettingContext);
 
@@ -44,11 +44,11 @@ export default function SurvivalAnalysis() {
           </li>
           {/* <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
             <span className="text-muted-foreground text-sm font-medium mb-1">人數</span>
-            <span className="font-semibold text-lg">{config.people} 人份</span>
+            <span className="font-semibold text-lg">{household.people} 人份</span>
           </li>
           <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
             <span className="text-muted-foreground text-sm font-medium mb-1">每日每人熱量</span>
-            <span className="font-semibold text-lg">{config.onePersonOneDayCalories} kcal</span>
+            <span className="font-semibold text-lg">{household.onePersonOneDayCalories} kcal</span>
           </li> */}
         </ul>
       </CardContent>

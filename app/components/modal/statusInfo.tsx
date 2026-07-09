@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 export default function StatusInfoModal() {
-  const { config, progressPercent } = useDashboardStats();
+  const { setting, progressPercent } = useDashboardStats();
   const { closeModal } = useContext(ModalContext);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={closeModal}>
@@ -29,7 +29,7 @@ export default function StatusInfoModal() {
         <div className="p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           <p className="text-sm text-muted-foreground -mt-1">
             依「目前準備天數 ÷ 目標天數」的達成率判定等級。以你目前設定的目標
-            <span className="font-semibold text-foreground"> {config.targetDays} 天</span>
+            <span className="font-semibold text-foreground"> {setting.targetDays} 天</span>
             換算，各等級對應天數如下：
           </p>
           <div className="rounded-lg border border-border/60 overflow-hidden mt-2">
@@ -43,7 +43,7 @@ export default function StatusInfoModal() {
             </thead>
             <tbody>
               {preparednessLevels.map((level, index) => {
-                const minDays = Math.round((config.targetDays * level.minPercentage) / 100);
+                const minDays = Math.round((setting.targetDays * level.minPercentage) / 100);
                 const isCurrent =
                   progressPercent >= level.minPercentage &&
                   (index === 0 || progressPercent < preparednessLevels[index - 1].minPercentage);

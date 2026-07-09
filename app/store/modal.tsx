@@ -12,7 +12,7 @@ export type Modal = {
 
 export const ModalContext = createContext<Modal>({
   isModalOpen: false,
-  modalType: modalTypeConstant.CREATE,
+  modalType: modalTypeConstant.STOCK,
   setModalType: () => {},
   setIsModalOpen: () => {},
   openModal: () => {},

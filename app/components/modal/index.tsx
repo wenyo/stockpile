@@ -18,13 +18,12 @@ export default function Modal() {
   
   return (
     (isModalOpen && modalType && <div className="modal">
-      {modalType === modalTypeConstant.CREATE && <CreateModal />}
-      {modalType === modalTypeConstant.EDIT && <CreateModal />}
+      {modalType === modalTypeConstant.STOCK && <CreateModal />}
       {modalType === modalTypeConstant.WELCOME && <WelcomeModal />}
       {modalType === modalTypeConstant.DEMO_CHECK && <DemoCheckModal />}
       {modalType === modalTypeConstant.DELETE_CHECK && <DeleteCheckModal />}
       {modalType === modalTypeConstant.STATUS_INFO && <StatusInfoModal />}
-      {modalType === modalTypeConstant.CREATE_FAMILY && <CreateFamilyModal />}
+      {modalType === modalTypeConstant.FAMILY && <CreateFamilyModal />}
     </div>)
   )
 }

@@ -1,12 +1,11 @@
 
 export const modalTypeConstant: Record<string, string> = {
-  CREATE: "create",
-  EDIT: "edit",
+  STOCK: "stock",
   WELCOME: "welcome",
   DEMO_CHECK: "demoCheck",
   DELETE_CHECK: "deleteCheck",
   STATUS_INFO: "statusInfo",
-  CREATE_FAMILY: "createFamily",
+  FAMILY: "Family",
 }
 
 export type ModalType = typeof modalTypeConstant[keyof typeof modalTypeConstant] | null;
