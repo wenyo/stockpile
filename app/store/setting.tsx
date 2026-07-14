@@ -1,8 +1,9 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 import { type HouseholdMember } from "@/interfaces/family";
 import { type FeedTag } from "@/interfaces/stock";
 
 import { sampleHouseholdData, sampleFeedTags } from "@/constant/sampleData";
+import { StockListContext } from "@/store/stockList";
 
 export type SettingConfig = {
   targetDays: number;
@@ -71,18 +72,39 @@ export function SettingProvider({ children }: { children: ReactNode }) {
 
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const { isDemo } = useContext(StockListContext);
 
   useEffect(() => {
-    localStorage.setItem("stockpile_setting", JSON.stringify(setting));
-  }, [setting]);
+    setIsInitialized(true);
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("stockpile_household", JSON.stringify(household));
-  }, [household]);
+    if (isDemo) {
+      setSetting(defaultSetting);
+      setHousehold(sampleHouseholdData);
+      setFeedTags(sampleFeedTags);
+    }
+  }, [isDemo]);
 
   useEffect(() => {
-    localStorage.setItem("stockpile_feedTags", JSON.stringify(feedTags));
-  }, [feedTags]);
+    if (isInitialized && !isDemo) {
+      localStorage.setItem("stockpile_setting", JSON.stringify(setting));
+    }
+  }, [setting, isDemo, isInitialized]);
+
+  useEffect(() => {
+    if (isInitialized && !isDemo) {
+      localStorage.setItem("stockpile_household", JSON.stringify(household));
+    }
+  }, [household, isDemo, isInitialized]);
+
+  useEffect(() => {
+    if (isInitialized && !isDemo) {
+      localStorage.setItem("stockpile_feedTags", JSON.stringify(feedTags));
+    }
+  }, [feedTags, isDemo, isInitialized]);
 
   const updateSetting = (newSetting: Partial<SettingConfig>) => {
     setSetting((prevSetting) => ({ ...prevSetting, ...newSetting }));
