@@ -16,6 +16,7 @@ import { SettingProvider } from "@/store/setting";
 import { PWABadge } from "@/components/pwa-badge";
 import Header from "@/components/header";
 import Modal from "@/components/modal/index";
+import { Toaster } from "@/components/ui/sonner";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -61,6 +62,7 @@ export default function App() {
             <Modal />
             <Header />
             <Outlet />
+            <Toaster />
           </SettingProvider>
         </StockListProvider>
       </ModalProvider>

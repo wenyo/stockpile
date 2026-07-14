@@ -2,9 +2,11 @@ import { useState, useContext, useEffect } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
 import { stockType, stockItemUnit, stockUnit, stockFieldLabel } from "@/constant/stock";
+import { getStockStatus } from "@/utils/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 import { ModalContext } from "@/store/modal";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
 import {
@@ -17,7 +19,7 @@ import {
 
 export default function CreateModal() {
   const [newStock, setNewStock] = useState<Stock>(initialStock);
-  const { addStock, updateStock, editStock, setEditStock } = useContext(StockListContext);
+  const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
   const { feedTags } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
 
@@ -46,7 +48,25 @@ export default function CreateModal() {
 
   const handleEditStock = () => {
     const stockToAdd = { ...newStock, id: newStock.id || Date.now().toString() };
-    newStock.id ? updateStock(stockToAdd.id, stockToAdd) : addStock(stockToAdd);
+    
+    if (newStock.id) {
+       const oldStock = stockList.find(s => s.id === newStock.id);
+       const oldStatus = oldStock ? getStockStatus(oldStock) : null;
+       const newStatus = getStockStatus(stockToAdd);
+       
+       const oldWasPriority = oldStatus?.isExpired || oldStatus?.isExpiringSoon || oldStatus?.isLowStock;
+       const newIsPriority = newStatus.isExpired || newStatus.isExpiringSoon || newStatus.isLowStock;
+
+       updateStock(stockToAdd.id, stockToAdd);
+
+       if (activeTab === "priority" && oldWasPriority && !newIsPriority) {
+          toast("已更新", {
+            description: "此項目已移出優先處理清單",
+          });
+       }
+    } else {
+       addStock(stockToAdd);
+    }
 
     setNewStock(initialStock);
     closeModal();

@@ -9,17 +9,26 @@ import { SettingContext } from "@/store/setting";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchStock from "@/components/search";
-import { getStockStatus, sortStockList } from "@/utils/stock";
+import { getStockStatus } from "@/utils/stock";
 
 export default function Index() {
-  const { stockList, showStockList, setDeleteStock, setEditStock } = useContext(StockListContext);
+  const { stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const { feedTags } = useContext(SettingContext);
 
   const visibleStockList = stockList
     .filter((item) => showStockList.includes(item.id))
-    .sort(sortStockList);
+    .sort((a,b) => Number(b.id) - Number(a.id));
+
+  const priorityItems = visibleStockList.filter((item) => {
+    const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(item);
+    return isExpired || isExpiringSoon || isLowStock;
+  });
+
+  const currentTab = priorityItems.length === 0 ? "all" : activeTab;
+  const displayList = currentTab === "priority" ? priorityItems : visibleStockList;
 
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
@@ -32,8 +41,24 @@ export default function Index() {
 
       <SearchStock />
 
+      <Tabs value={currentTab} onValueChange={setActiveTab} className="mb-4 md:mb-6">
+        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsTrigger value="priority" disabled={priorityItems.length === 0}>
+            優先處理
+            {priorityItems.length > 0 && (
+              <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 text-[10px] leading-none h-auto">
+                {priorityItems.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="all">
+            全部 ({visibleStockList.length})
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <ul className="flex flex-col divide-y divide-border/50 border-y border-border/50 md:hidden">
-        {visibleStockList.map((stock) => {
+        {displayList.map((stock) => {
           const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : undefined;
           return (
             <MobileStockRow
@@ -48,7 +73,7 @@ export default function Index() {
       </ul>
 
       <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {visibleStockList.map((stock) => {
+        {displayList.map((stock) => {
           const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
           const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : null;
 
@@ -128,7 +153,7 @@ export default function Index() {
         })}
       </ul>
 
-      {visibleStockList.length === 0 && (
+      {displayList.length === 0 && (
         <div className="py-12 md:py-20 text-center flex flex-col items-center opacity-70">
           <Package2 size={40} className="text-muted-foreground mb-4" />
           <p className="text-lg md:text-xl font-medium text-muted-foreground">目前沒有物資，或查無結果</p>

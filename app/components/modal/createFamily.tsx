@@ -4,6 +4,7 @@ import { type HouseholdMember, initialHouseholdMember } from "@/interfaces/famil
 import { identityConstants } from "@/constant/family";
 import { stockFieldLabel } from "@/constant/stock";
 import { type FeedPortion } from "@/interfaces/stock";
+import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,8 @@ import {
 } from "@/components/ui/select";
 
 export default function CreateFamilyModal() {
-  const { closeModal } = useContext(ModalContext);
-  const { addHousehold, updateHousehold, editHousehold, setEditHousehold, feedTags, addFeedTag } = useContext(SettingContext);
+  const { closeModal, openModal } = useContext(ModalContext);
+  const { addHousehold, updateHousehold, editHousehold, setEditHousehold, feedTags, addFeedTag, setDeleteHousehold } = useContext(SettingContext);
   const [newFamilyInfo, setNewFamilyInfo] = useState<HouseholdMember>(initialHouseholdMember);
   const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
   const isEdit = editHousehold?.id;
@@ -100,6 +101,12 @@ export default function CreateFamilyModal() {
       addHousehold(newFamilyInfo);
     }
     closeCreateFamilyModal();
+  };
+
+  const handleDelete = () => {
+    if (!editHousehold) return;
+    setDeleteHousehold(editHousehold);
+    openModal(modalTypeConstant.DELETE_CHECK);
   };
 
   useEffect(() => {
@@ -271,7 +278,12 @@ export default function CreateFamilyModal() {
 
         {/* Footer */}
         <div className="shrink-0 p-4 md:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border/40 bg-muted/10 flex justify-end gap-3">
-          <Button variant="outline" onClick={closeModal} className="px-6 border-border/60 hover:bg-muted/50">
+          {isEdit && (
+            <Button variant="ghost" onClick={handleDelete} className="px-4 text-danger hover:bg-danger/10 hover:text-danger mr-auto">
+              刪除成員
+            </Button>
+          )}
+          <Button variant="outline" onClick={closeCreateFamilyModal} className="px-6 border-border/60 hover:bg-muted/50">
             取消
           </Button>
           <Button className="px-8 shadow-sm" onClick={submit}>
