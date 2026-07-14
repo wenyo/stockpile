@@ -11,8 +11,6 @@ export const stockType: Record<string, string> = {
 }
 
 export const stockUnit: Record<string, string> = {
-  g: "g",
-  ml: "ml",
   pack: "包",
   can: "罐",
   piece: "個",
