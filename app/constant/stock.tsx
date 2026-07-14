@@ -12,9 +12,7 @@ export const stockType = {
   other: "其他",
 } as const;
 
-export const stockUnit = {
-  g: "g",
-  ml: "ml",
+export const stockUnit: Record<string, string> = {
   pack: "包",
   can: "罐",
   piece: "個",
