@@ -1,5 +1,8 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 import { type HouseholdMember } from "@/interfaces/family";
+import { type FeedTag } from "@/interfaces/stock";
+
+import { sampleHouseholdData, sampleFeedTags } from "@/constant/sampleData";
 
 export type SettingConfig = {
   targetDays: number;
@@ -17,24 +20,19 @@ type SettingContextType = {
   setEditHousehold: (newHousehold: HouseholdMember | null) => void;
   deleteHousehold: HouseholdMember | null;
   setDeleteHousehold: (newHousehold: HouseholdMember | null) => void;
+  feedTags: FeedTag[];
+  addFeedTag: (newTag: Pick<FeedTag, "label" | "appliesToStockType">) => string;
 };
 
 const defaultSetting: SettingConfig = {
   targetDays: 30,
   rotationDays: 90,
 };
-const defaultHouseholdMember: HouseholdMember = {
-  id: "sample_1",
-  identity: "adult",
-  name: "家庭成員 1",
-  dailyKcalNeed: 2000,
-  dailyMlWater: 2000,
-};
 
 export const SettingContext = createContext<SettingContextType>({
   setting: defaultSetting,
   updateSetting: () => {},
-  household: [defaultHouseholdMember],
+  household: sampleHouseholdData,
   updateHousehold: () => {},
   addHousehold: () => {},
   removeHousehold: () => {},
@@ -42,13 +40,49 @@ export const SettingContext = createContext<SettingContextType>({
   setEditHousehold: () => {},
   deleteHousehold: null,
   setDeleteHousehold: () => {},
+  feedTags: [],
+  addFeedTag: () => "",
 });
 
 export function SettingProvider({ children }: { children: ReactNode }) {
-  const [setting, setSetting] = useState<SettingConfig>(defaultSetting);
-  const [household, setHousehold] = useState<HouseholdMember[]>([defaultHouseholdMember]);
+  const [setting, setSetting] = useState<SettingConfig>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("stockpile_setting");
+      if (saved) return JSON.parse(saved);
+    }
+    return defaultSetting;
+  });
+  
+  const [household, setHousehold] = useState<HouseholdMember[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("stockpile_household");
+      if (saved) return JSON.parse(saved);
+    }
+    return sampleHouseholdData;
+  });
+  
+  const [feedTags, setFeedTags] = useState<FeedTag[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("stockpile_feedTags");
+      if (saved) return JSON.parse(saved);
+    }
+    return sampleFeedTags;
+  });
+
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem("stockpile_setting", JSON.stringify(setting));
+  }, [setting]);
+
+  useEffect(() => {
+    localStorage.setItem("stockpile_household", JSON.stringify(household));
+  }, [household]);
+
+  useEffect(() => {
+    localStorage.setItem("stockpile_feedTags", JSON.stringify(feedTags));
+  }, [feedTags]);
 
   const updateSetting = (newSetting: Partial<SettingConfig>) => {
     setSetting((prevSetting) => ({ ...prevSetting, ...newSetting }));
@@ -71,8 +105,14 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     setHousehold((prevHousehold) => prevHousehold.filter((member) => member.id !== id));
   };
 
+  const addFeedTag = (newTag: Pick<FeedTag, "label" | "appliesToStockType">) => {
+    const id = `tag_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    setFeedTags((prev) => [...prev, { ...newTag, id }]);
+    return id;
+  };
+
   return (
-    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold }}>
+    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, feedTags, addFeedTag }}>
       {children}
     </SettingContext.Provider>
   );

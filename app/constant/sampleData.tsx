@@ -1,4 +1,82 @@
 import type { Stock } from "@/interfaces/stock";
+import type { HouseholdMember } from "@/interfaces/family";
+import type { FeedTag } from "@/interfaces/stock";
+
+export const sampleFeedTags: FeedTag[] = [
+  {
+    id: "tag_sample_milk",
+    label: "配方奶",
+    appliesToStockType: "infantStapleFood",
+  },
+  {
+    id: "tag_sample_dogfood",
+    label: "一般乾糧",
+    appliesToStockType: "petStapleFood",
+  },
+  {
+    id: "tag_sample_dogcan",
+    label: "主食罐",
+    appliesToStockType: "petStapleFood",
+  }
+];
+
+export const sampleHouseholdData: HouseholdMember[] = [
+  {
+    id: "sample_1",
+    identity: "adult",
+    name: "爸爸",
+    dailyKcalNeed: 2200,
+    dailyMlWater: 2500,
+  },
+  {
+    id: "sample_2",
+    identity: "adult",
+    name: "媽媽",
+    dailyKcalNeed: 1800,
+    dailyMlWater: 2000,
+  },
+  {
+    id: "sample_3",
+    identity: "child",
+    name: "阿明",
+    dailyKcalNeed: 1500,
+    dailyMlWater: 1500,
+  },
+  {
+    id: "sample_4",
+    identity: "infant",
+    name: "二寶",
+    dailyMlWater: 500,
+    feedPortions: [
+      {
+        feedTagId: "tag_sample_milk",
+        amount: 800,
+        unit: "ml",
+        frequencyDays: 1,
+      }
+    ]
+  },
+  {
+    id: "sample_5",
+    identity: "pet",
+    name: "狗狗 (布丁)",
+    dailyMlWater: 500,
+    feedPortions: [
+      {
+        feedTagId: "tag_sample_dogfood",
+        amount: 150,
+        unit: "g",
+        frequencyDays: 1,
+      },
+      {
+        feedTagId: "tag_sample_dogcan",
+        amount: 1,
+        unit: "unit",
+        frequencyDays: 7,
+      }
+    ]
+  }
+];
 
 export const sampleStockData: Stock[] = [
   {

@@ -6,7 +6,7 @@ import { SettingContext } from "@/store/setting";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
-  const { household, setting } = useContext(SettingContext);
+  const { household, setting, feedTags } = useContext(SettingContext);
 
   // 總熱量 (根據每一項庫存數與熱量)
   const currentCalories = useMemo(() => {
@@ -19,8 +19,9 @@ export function useDashboardStats() {
 
   // 目標熱量
   const targetCalories = useMemo(() => {
-    // return household.people * setting.targetDays * household.onePersonOneDayCalories;
-    return 0;
+    return household.reduce((acc, member) => {
+      return acc + (member.dailyKcalNeed || 0);
+    }, 0) * setting.targetDays;
   }, [household]);
 
   // 剩餘熱量
@@ -44,8 +45,11 @@ export function useDashboardStats() {
 
   // 目標飲水量
   const targetWater = useMemo(() => {
-    // return household.people * setting.targetDays * household.waterMlPerPersonPerDay;
-    return 0;
+    let dailyRequirement = 0;
+    for (const member of household) {
+      dailyRequirement += member.dailyMlWater || 0;
+    }
+    return dailyRequirement === 0 ? 0 : Math.floor(dailyRequirement * setting.targetDays);
   }, [household]);
 
   // 剩餘飲水量
@@ -55,9 +59,11 @@ export function useDashboardStats() {
 
   // 生存天數
   const survivalFoodDays = useMemo(() => {
-    // const dailyRequirement = household.people * household.onePersonOneDayCalories;
-    // return dailyRequirement === 0 ? 0 : Math.floor(currentCalories / dailyRequirement);
-    return 0;
+    let dailyRequirement = 0;
+    for (const member of household) {
+      dailyRequirement += member.dailyKcalNeed || 0;
+    }
+    return dailyRequirement === 0 ? 0 : Math.floor(currentCalories / dailyRequirement);
   }, [currentCalories, household]);
 
   // 缺口天數
@@ -67,9 +73,11 @@ export function useDashboardStats() {
 
   // 飲水天數
   const survivalWaterDays = useMemo(() => {
-    // const dailyRequirement = household.people * household.waterMlPerPersonPerDay;
-    // return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
-    return 0;
+    let dailyRequirement = 0;
+    for (const member of household) {
+      dailyRequirement += member.dailyMlWater || 0;
+    }
+    return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
   }, [currentWater, household]);
 
   // 飲水缺口天數
@@ -135,9 +143,95 @@ export function useDashboardStats() {
   // 缺乏的物資種類
   const missingTypeStock = useMemo(() => {
     const allTypes = Object.keys(stockType);
-    const existingTypes = stockList.map((stock) => stock.type);
+    const existingTypes = stockList.map((stock) => stock.type as string);
     return allTypes.filter((type) => !existingTypes.includes(type) && type !== 'other');
   }, [stockList]);
+
+  // Feed Tag 統計計算
+  const feedTagStats = useMemo(() => {
+    const stats: Record<string, { dailyNeed: number, stockTotal: number, days: number, label: string, appliesToStockType?: string }> = {};
+    
+    // 1. 計算每個 Tag 的每日需求總量
+    household.forEach(member => {
+      if (member.feedPortions) {
+        member.feedPortions.forEach(portion => {
+          if (!portion.feedTagId) return;
+          if (!stats[portion.feedTagId]) {
+            const tag = feedTags.find(t => t.id === portion.feedTagId);
+            stats[portion.feedTagId] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
+          }
+          stats[portion.feedTagId].dailyNeed += (portion.amount / (portion.frequencyDays || 1));
+        });
+      }
+    });
+
+    // 2. 累加對應的庫存總量
+    stockList.forEach(stock => {
+      if (stock.feedTagId && stats[stock.feedTagId] && (stock.type === "infantStapleFood" || stock.type === "petStapleFood")) {
+        const count = Number(stock.count) || 0;
+        // 若沒有 volume 則預設為 1 (避免乘 0)，實際上新增表單已有必填要求
+        const vol = Number(stock.volume) || 1;
+        stats[stock.feedTagId].stockTotal += (count * vol);
+      }
+    });
+
+    // 3. 計算可支撐天數
+    Object.keys(stats).forEach(tagId => {
+      const s = stats[tagId];
+      s.days = s.dailyNeed > 0 ? Math.floor(s.stockTotal / s.dailyNeed) : 0;
+    });
+
+    return stats;
+  }, [household, stockList, feedTags]);
+
+  // 嬰兒與寵物成員個別的瓶頸天數
+  const specialMemberStatus = useMemo(() => {
+    let infantDays = Infinity;
+    let petDays = Infinity;
+    let infantBottleneck = '';
+    let petBottleneck = '';
+    let hasInfant = false;
+    let hasPet = false;
+
+    household.forEach(member => {
+      if (member.identity === 'infant') {
+        hasInfant = true;
+        if (member.feedPortions && member.feedPortions.length > 0) {
+          member.feedPortions.forEach(portion => {
+            if (portion.feedTagId && feedTagStats[portion.feedTagId]) {
+              const { days, label } = feedTagStats[portion.feedTagId];
+              if (days < infantDays) {
+                infantDays = days;
+                infantBottleneck = label;
+              }
+            }
+          });
+        }
+      } else if (member.identity === 'pet') {
+        hasPet = true;
+        if (member.feedPortions && member.feedPortions.length > 0) {
+          member.feedPortions.forEach(portion => {
+            if (portion.feedTagId && feedTagStats[portion.feedTagId]) {
+              const { days, label } = feedTagStats[portion.feedTagId];
+              if (days < petDays) {
+                petDays = days;
+                petBottleneck = label;
+              }
+            }
+          });
+        }
+      }
+    });
+
+    // 如果都有設定，但找不到天數的情境防呆
+    if (infantDays === Infinity) infantDays = 0;
+    if (petDays === Infinity) petDays = 0;
+
+    return {
+      infant: hasInfant ? { days: infantDays, bottleneck: infantBottleneck || '未設定主食' } : null,
+      pet: hasPet ? { days: petDays, bottleneck: petBottleneck || '未設定主食' } : null,
+    };
+  }, [household, feedTagStats]);
 
   return {
     household,
@@ -163,6 +257,8 @@ export function useDashboardStats() {
     expiredStock,
     missingInfoStock,
     stockCount: stockList.length,
-    missingTypeStock
+    missingTypeStock,
+    feedTagStats,
+    specialMemberStatus,
   };
 }

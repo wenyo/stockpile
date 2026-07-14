@@ -1,4 +1,4 @@
-import { stockType, stockItemUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
@@ -11,6 +11,7 @@ export interface Stock {
   remark?: string;
   totalCalories: number | undefined;
   volume: number | undefined;
+  volumeUnit?: keyof typeof stockUnit;
   feedTagId?: string; // 只有 type 為 petFood/babyFood/babyMilk 時才會用到
 }
 
@@ -25,6 +26,8 @@ export const initialStock: Stock = {
   remark: '',
   totalCalories: undefined,
   volume: undefined,
+  volumeUnit: undefined,
+  feedTagId: undefined,
 };
 
 type StockField = keyof Stock;
@@ -43,6 +46,8 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "expirationDate",
     "unit",
     "volume",
+    "volumeUnit",
+    "feedTagId",
   ],
   infantNonStapleFood: [
     "name",
@@ -54,7 +59,9 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
     "unit",
     "volume",
+    "volumeUnit",
     "expirationDate",
+    "feedTagId",
   ],
   petNonStapleFood: [
     "name",
@@ -100,24 +107,15 @@ export type StockStatus = {
   isLowStock: boolean;
 };
 
-type FeedTag = {
+export type FeedTag = {
   id: string;
   label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
-  appliesToStockType: "petFood" | "babyFood" | "babyMilk"; // 這個 tag 屬於哪個 stockType 底下
+  appliesToStockType: "infantStapleFood" | "petStapleFood"; // 這個 tag 屬於哪個 stockType 底下
 };
 
-type FeedPortion = {
+export type FeedPortion = {
   feedTagId: string;
   amount: number;
   unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
   frequencyDays: number; // 每幾天餵食一次，預設 1（天天）
-};
-
-type HouseholdMember = {
-  id: string;
-  identity: "adult" | "child" | "elderly" | "infant" | "pet";
-  label?: string; // 使用者自訂名稱，如「大寶」「Momo」
-  dailyNeed?: number; // 成人/兒童/長者用，選填，不填用系統預設值
-  dailyMilkNeed?: number; // 嬰兒奶量，必填，家長自行輸入，不做估算
-  feedPortions?: FeedPortion[]; // 嬰兒（副食品可另計）/寵物的飲食組成，支援多品項混食
 };

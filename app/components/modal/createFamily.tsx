@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext } from "react";
-import { X, UsersRound, UserRoundPen } from "lucide-react";
+import { X, UsersRound, UserRoundPen, Plus, Trash2 } from "lucide-react";
 import { type HouseholdMember, initialHouseholdMember } from "@/interfaces/family";
 import { identityConstants } from "@/constant/family";
 import { stockUnit } from "@/constant/stock";
+import { type FeedPortion } from "@/interfaces/stock";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
 import { Button } from "@/components/ui/button";
@@ -17,14 +18,14 @@ import {
 
 export default function CreateFamilyModal() {
   const { closeModal } = useContext(ModalContext);
-  const { addHousehold, updateHousehold, editHousehold } = useContext(SettingContext);
-  const [ newFamilyInfo, setNewFamilyInfo ] = useState<HouseholdMember>(initialHouseholdMember);
+  const { addHousehold, updateHousehold, editHousehold, setEditHousehold, feedTags, addFeedTag } = useContext(SettingContext);
+  const [newFamilyInfo, setNewFamilyInfo] = useState<HouseholdMember>(initialHouseholdMember);
+  const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
   const isEdit = editHousehold?.id;
-  const foodConfig = newFamilyInfo.identity === "infant"
-    ? { key: "dailyBabyFoodNeed", data: newFamilyInfo.dailyBabyFoodNeed }
-    : newFamilyInfo.identity === "pet"
-    ? { key: "dailyPetFoodNeed", data: newFamilyInfo.dailyPetFoodNeed }
-    : null;
+  
+  const showFeedPortion = newFamilyInfo.identity === "infant" || newFamilyInfo.identity === "pet";
+  const appliesToStockType = newFamilyInfo.identity === "infant" ? "infantStapleFood" : "petStapleFood";
+  const availableTags = feedTags.filter((t) => t.appliesToStockType === appliesToStockType);
 
   const updateField = (keyPath: string, value: string | number) => {
     setNewFamilyInfo((prev) => {
@@ -57,13 +58,48 @@ export default function CreateFamilyModal() {
     updateField(id, value);
   };
 
+  const setFeedPortions = (portions: FeedPortion[]) => {
+    setNewFamilyInfo((prev) => ({ ...prev, feedPortions: portions }));
+  };
+
+  const addFeedPortion = () => {
+    setFeedPortions([
+      ...(newFamilyInfo.feedPortions || []),
+      { feedTagId: "", amount: 0, unit: "g", frequencyDays: 1 }
+    ]);
+  };
+
+  const removeFeedPortion = (idx: number) => {
+    const list = [...(newFamilyInfo.feedPortions || [])];
+    list.splice(idx, 1);
+    setFeedPortions(list);
+  };
+
+  const updateFeedPortion = (idx: number, key: keyof FeedPortion, val: any) => {
+    const list = [...(newFamilyInfo.feedPortions || [])];
+    list[idx] = { ...list[idx], [key]: val };
+    setFeedPortions(list);
+  };
+
+  const confirmCreateTag = () => {
+    if (!newTagInput || !newTagInput.label.trim()) return;
+    const tagId = addFeedTag({ label: newTagInput.label.trim(), appliesToStockType });
+    updateFeedPortion(newTagInput.idx, "feedTagId", tagId);
+    setNewTagInput(null);
+  };
+
+  const closeCreateFamilyModal = () => {
+    closeModal();
+    setEditHousehold(null);
+  }
+
   const submit = () => {
     if (isEdit) {
       updateHousehold(newFamilyInfo);
     } else {
       addHousehold(newFamilyInfo);
     }
-    closeModal();
+    closeCreateFamilyModal();
   };
 
   useEffect(() => {
@@ -75,20 +111,19 @@ export default function CreateFamilyModal() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-      onClick={closeModal}
+      onClick={closeCreateFamilyModal}
     >
       <div
         className="bg-card w-full h-dvh sm:h-auto sm:max-h-[85vh] sm:max-w-2xl sm:rounded-xl border-0 sm:border border-border/50 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
         >
-        <p>{JSON.stringify(newFamilyInfo, null, 2)}</p>
         {/* Header */}
         <div className="shrink-0 flex justify-between items-center p-4 md:p-6 border-b border-border/40 bg-muted/20">
           <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 text-foreground">
             {isEdit ? <UserRoundPen size={20} className="text-info" /> : <UsersRound size={20} className="text-primary" />}
             {isEdit ? "編輯家庭成員" : "新增家庭成員"}
           </h2>
-          <Button variant="ghost" size="icon" onClick={closeModal} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={closeCreateFamilyModal} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>
@@ -102,7 +137,7 @@ export default function CreateFamilyModal() {
             </li>
             <li className="flex flex-col gap-1.5">
               <label htmlFor="identity" className="text-sm font-semibold text-muted-foreground">身份</label>
-              <Select value={newFamilyInfo.identity} onValueChange={(value) => handleSelectChange(value, "identity")}>
+              <Select value={newFamilyInfo.identity} onValueChange={(value) => { handleSelectChange(value, "identity"); setNewTagInput(null); }}>
                 <SelectTrigger className="h-10 border-border/60">
                   <SelectValue placeholder="選擇分類..." />
                 </SelectTrigger>
@@ -117,39 +152,120 @@ export default function CreateFamilyModal() {
               <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">每日飲水量 (ml)</label>
               <Input value={newFamilyInfo.dailyMlWater} onChange={handleInputChange} type="number" id="dailyMlWater" className="h-10 border-border/60" placeholder="e.g. 2000" />
             </li>
-            {!foodConfig && <li className="flex flex-col gap-1.5">
+            {!showFeedPortion && <li className="flex flex-col gap-1.5">
               <label htmlFor="dailyKcalNeed" className="text-sm font-semibold text-muted-foreground">每日熱量需求 (kcal)</label>
-              <Input value={newFamilyInfo.dailyKcalNeed} onChange={handleInputChange} type="number" id="dailyKcalNeed" className="h-10 border-border/60" placeholder="e.g. 2000" />
+              <Input value={newFamilyInfo.dailyKcalNeed || ""} onChange={handleInputChange} type="number" id="dailyKcalNeed" className="h-10 border-border/60" placeholder="e.g. 2000" />
             </li>}
-            {/* infant || pet */}
-            {
-              foodConfig && (
-                <>
-                  <li className="col-span-full my-4 border-b border-border/40"></li>
-                  <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.amount`} className="text-sm font-semibold text-muted-foreground">每天{identityConstants[newFamilyInfo.identity]}食物量</label>
-                    <Input value={foodConfig.data?.amount || ""} onChange={handleInputChange} type="number" id={`${foodConfig.key}.amount`} className="h-10 border-border/60" placeholder="" />
-                  </li>
-                  <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.unit`} className="text-sm font-semibold text-muted-foreground">{identityConstants[newFamilyInfo.identity]}食物單位</label>
-                    <Select value={foodConfig.data?.unit} onValueChange={(value) => handleSelectChange(value, `${foodConfig.key}.unit`)}>
-                      <SelectTrigger className="h-10 border-border/60" id={`${foodConfig.key}.unit`}>
-                        <SelectValue placeholder="選擇單位..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(stockUnit).map(([key, value]) => (
-                          <SelectItem key={key} value={key}>{value}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </li>
-                  <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.frequencyDays`} className="text-sm font-semibold text-muted-foreground">每天{identityConstants[newFamilyInfo.identity]}食物頻率 (天)</label>
-                    <Input value={foodConfig.data?.frequencyDays || ""} onChange={handleInputChange} type="number" id={`${foodConfig.key}.frequencyDays`} className="h-10 border-border/60" placeholder="" />
-                  </li>
-                </>
-              )
-            }
+            
+            {showFeedPortion && (
+              <li className="col-span-full">
+                <div className="my-4 border-b border-border/40"></div>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-semibold text-muted-foreground">搭配主食與需求量</h3>
+                  <Button onClick={addFeedPortion} variant="outline" size="sm" className="h-8 gap-1 border-border/60">
+                    <Plus size={14} /> 新增主食
+                  </Button>
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  {(newFamilyInfo.feedPortions || []).length === 0 ? (
+                    <div className="text-center py-6 bg-muted/20 border border-dashed border-border/60 rounded-xl text-muted-foreground text-sm">
+                      尚未新增任何主食設定
+                    </div>
+                  ) : (
+                    (newFamilyInfo.feedPortions || []).map((portion, idx) => (
+                      <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col gap-3 relative">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute -top-3 -right-3 h-8 w-8 bg-background border border-border/50 text-danger hover:text-danger hover:bg-danger/10 rounded-full shadow-sm"
+                          onClick={() => removeFeedPortion(idx)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                        
+                        {newTagInput?.idx === idx ? (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">建立新標籤</label>
+                            <div className="flex gap-2">
+                              <Input 
+                                autoFocus
+                                className="h-9 border-border/60" 
+                                placeholder="如：皇家幼貓乾糧..." 
+                                value={newTagInput.label} 
+                                onChange={(e) => setNewTagInput({ ...newTagInput, label: e.target.value })} 
+                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag()}
+                              />
+                              <Button type="button" size="sm" className="h-9" onClick={confirmCreateTag}>確定</Button>
+                              <Button type="button" size="sm" className="h-9" variant="outline" onClick={() => setNewTagInput(null)}>取消</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">餵食標籤</label>
+                            <Select 
+                              value={portion.feedTagId} 
+                              onValueChange={(val) => {
+                                if (val === "__CREATE__") setNewTagInput({ idx, label: "" });
+                                else updateFeedPortion(idx, "feedTagId", val);
+                              }}
+                            >
+                              <SelectTrigger className="h-9 border-border/60">
+                                <SelectValue placeholder="選擇或建立標籤..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableTags.map((tag) => (
+                                  <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
+                                ))}
+                                <div className="h-px bg-border my-1" />
+                                <SelectItem value="__CREATE__" className="font-semibold text-primary focus:bg-primary/10">
+                                  + 新增餵食標籤
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">每次餵食量</label>
+                            <div className="flex gap-2">
+                              <Input 
+                                type="number" 
+                                className="h-9 border-border/60" 
+                                value={portion.amount || ""} 
+                                onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
+                              />
+                              <Select value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)}>
+                                <SelectTrigger className="h-9 w-24 shrink-0 border-border/60">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="g">g</SelectItem>
+                                  <SelectItem value="ml">ml</SelectItem>
+                                  <SelectItem value="unit">份</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率 (天)</label>
+                            <Input 
+                              type="number" 
+                              className="h-9 border-border/60" 
+                              value={portion.frequencyDays || ""} 
+                              onChange={(e) => updateFeedPortion(idx, "frequencyDays", e.target.value === "" ? 0 : Number(e.target.value))} 
+                              placeholder="每 X 天"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </li>
+            )}
           </ul>
         </div>
 

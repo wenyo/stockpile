@@ -1,4 +1,5 @@
 import { stockItemUnit } from '@/constant/stock';
+import type { FeedPortion } from '@/interfaces/stock';
 import { identityConstants } from '@/constant/family';
 
 export type Identity = keyof typeof identityConstants;
@@ -9,16 +10,7 @@ export type HouseholdMember = {
   name: string;            // 使用者自己取的名字,方便辨識,如「大寶」「二寶」「貓咪 Momo」
   dailyKcalNeed?: number;        // 成人/兒童/長者用
   dailyMlWater: number;
-  dailyBabyFoodNeed?: {         // 嬰兒專用,個體自己填    
-    amount: number;             // 量/每餐
-    unit: keyof typeof stockItemUnit;
-    frequencyDays: number;
-  };
-  dailyPetFoodNeed?: {            // 寵物專用,個體自己填
-    amount: number;             // 量/每餐
-    unit: keyof typeof stockItemUnit;
-    frequencyDays: number;
-  };
+  feedPortions?: FeedPortion[];  // 嬰兒 / 寵物的飲食組成，支援多品項混食
 };
 
 export const initialHouseholdMember: HouseholdMember = {
