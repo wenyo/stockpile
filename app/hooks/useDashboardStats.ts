@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
 import { REQUIRED_FIELDS, type MissingInfoItem } from "@/interfaces/stock";
-import { stockType } from "@/constant/stock";
+import { stockType, notRequiredType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 
@@ -144,7 +144,7 @@ export function useDashboardStats() {
   const missingTypeStock = useMemo(() => {
     const allTypes = Object.keys(stockType);
     const existingTypes = stockList.map((stock) => stock.type as string);
-    return allTypes.filter((type) => !existingTypes.includes(type) && type !== 'other');
+    return allTypes.filter((type) => !notRequiredType.includes(type) && !existingTypes.includes(type));
   }, [stockList]);
 
   // Feed Tag 統計計算

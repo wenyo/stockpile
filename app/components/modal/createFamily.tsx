@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { X, UsersRound, UserRoundPen, Plus, Trash2 } from "lucide-react";
 import { type HouseholdMember, initialHouseholdMember } from "@/interfaces/family";
 import { identityConstants } from "@/constant/family";
-import { stockUnit } from "@/constant/stock";
+import { stockFieldLabel } from "@/constant/stock";
 import { type FeedPortion } from "@/interfaces/stock";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
@@ -132,7 +132,7 @@ export default function CreateFamilyModal() {
         <div className="bg-background flex-1 overflow-y-auto p-4 md:p-6">
           <ul className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">名稱</label>
+              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}</label>
               <Input value={newFamilyInfo.name} onChange={handleInputChange} type="text" id="name" className="h-10 border-border/60" placeholder="e.g. 爸爸, 媽媽, 小明" />
             </li>
             <li className="flex flex-col gap-1.5">
@@ -202,7 +202,7 @@ export default function CreateFamilyModal() {
                           </div>
                         ) : (
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">餵食標籤</label>
+                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
                             <Select 
                               value={portion.feedTagId} 
                               onValueChange={(val) => {
@@ -219,7 +219,7 @@ export default function CreateFamilyModal() {
                                 ))}
                                 <div className="h-px bg-border my-1" />
                                 <SelectItem value="__CREATE__" className="font-semibold text-primary focus:bg-primary/10">
-                                  + 新增餵食標籤
+                                  + 新增{stockFieldLabel.feedTagId}
                                 </SelectItem>
                               </SelectContent>
                             </Select>
@@ -228,7 +228,7 @@ export default function CreateFamilyModal() {
                         
                         <div className="grid grid-cols-2 gap-3">
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">每次餵食量</label>
+                            <label className="text-xs font-semibold text-muted-foreground">每日餵食量</label>
                             <div className="flex gap-2">
                               <Input 
                                 type="number" 
@@ -250,7 +250,7 @@ export default function CreateFamilyModal() {
                           </div>
                           
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率 (天)</label>
+                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率(天)</label>
                             <Input 
                               type="number" 
                               className="h-9 border-border/60" 

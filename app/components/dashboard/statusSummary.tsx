@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Box, Info, PawPrint, Baby } from "lucide-react";
-import { preparednessLevels } from "@/constant/stock";
+import { preparednessLevels, stockFieldLabel } from "@/constant/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
@@ -39,14 +39,6 @@ export default function SurvivalAnalysis() {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4 flex flex-col gap-3">
-          {relevantTags.length > 1 && (
-            <div className="flex justify-between items-center bg-muted/30 p-3 rounded-lg border border-border/50">
-              <span className="text-sm font-medium text-muted-foreground">最早耗盡的品項</span>
-              <span className={`text-sm font-semibold ${isCrisis ? "text-danger" : "text-warning"}`}>
-                {status.bottleneck}
-              </span>
-            </div>
-          )}
           {relevantTags.length > 0 && (
             <div>
               <span className="text-xs font-semibold text-muted-foreground mb-2 block">各標籤庫存狀態</span>
@@ -90,7 +82,7 @@ export default function SurvivalAnalysis() {
             <span className="font-semibold text-lg">{progressPercent}%</span>
           </li>
           <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50 xl:col-span-1 md:col-span-3 lg:col-span-1">
-            <span className="text-muted-foreground text-sm font-medium mb-1">總熱量</span>
+            <span className="text-muted-foreground text-sm font-medium mb-1">{stockFieldLabel.totalCalories}</span>
             <span className="font-semibold text-lg">{currentCalories.toLocaleString()} kcal</span>
           </li>
           {/* <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">

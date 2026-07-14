@@ -52,7 +52,7 @@ export default function StockRisk() {
               missingTypeStock.map((type) => (
                 <div key={type} className="flex items-center gap-3 p-3 md:p-4 bg-danger/10 text-danger rounded-xl border border-danger/20">
                   <AlertTriangle strokeWidth={1.5} size={20} />
-                  <span className="text-base font-semibold">缺少 {stockType[type]}</span>
+                  <span className="text-base font-semibold">缺少 {stockType[type as keyof typeof stockType]}</span>
                 </div>
               ))
             ) : (

@@ -14,6 +14,8 @@ export const stockType = {
   other: "其他",
 } as const;
 
+export const notRequiredType = ["infantNonStapleFood", "petNonStapleFood", "other"];
+
 export const stockUnit: Record<string, string> = {
   g: 'g',
   ml: 'ml',
@@ -34,10 +36,14 @@ export const stockFieldLabel = {
   name: "名稱",
   count: "數量",
   totalCalories: "總熱量",
-  volume: "單件容量(ml)",
+  volume: "單件容量/重量",
+  volumeUnit: "容量/重量單位",
+  unit: "計數單位",
+  type: "類別",
   expirationDate: "到期日",
   purchaseDate: "購買日期",
   remark: "備註",
+  feedTagId: "餵食標籤",
 } as const;
 
 export const preparednessLevels = [

@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
-import { stockType, stockItemUnit, WARNING_COUNT } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
@@ -78,7 +78,7 @@ export default function Index() {
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground font-medium">單件容量</span>
                         <span className="text-base font-semibold text-foreground">
-                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">ml</span>
+                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{stockUnit[stock.volumeUnit as keyof typeof stockUnit]}</span>
                         </span>
                       </div>
                     )}
@@ -96,7 +96,7 @@ export default function Index() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {stock.expirationDate && (
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground font-medium">到期日</span>
+                        <span className="text-xs text-muted-foreground font-medium">{stockFieldLabel.expirationDate}</span>
                         <span className={isExpiringSoon ? "text-danger font-semibold" : "font-medium"}>{stock.expirationDate}</span>
                       </div>
                     )}
@@ -108,7 +108,7 @@ export default function Index() {
                     )}
                     {stock.remark && (
                       <div className="flex flex-col col-span-2 mt-1 pt-2 border-t border-border/40">
-                        <span className="text-xs text-muted-foreground font-medium">備註</span>
+                        <span className="text-xs text-muted-foreground font-medium">{stockFieldLabel.remark}</span>
                         <span className="font-medium text-foreground">{stock.remark}</span>
                       </div>
                     )}
@@ -179,7 +179,7 @@ function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
             {stock.volume && (
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">單件容量</span>
-                <span className="font-medium">{stock.volume} ml</span>
+                <span className="font-medium">{stock.volume} {stock.volumeUnit}</span>
               </div>
             )}
             {stock.totalCalories && (
@@ -190,7 +190,7 @@ function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
             )}
             {stock.expirationDate && (
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">到期日</span>
+                <span className="text-xs text-muted-foreground">{stockFieldLabel.expirationDate}</span>
                 <span className={isExpiringSoon ? "text-danger font-semibold" : "font-medium"}>{stock.expirationDate}</span>
               </div>
             )}
@@ -204,7 +204,7 @@ function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
 
           {stock.remark && (
             <div className="pt-1.5 border-t border-border/40">
-              <span className="text-xs text-muted-foreground block">備註</span>
+              <span className="text-xs text-muted-foreground block">{stockFieldLabel.remark}</span>
               <span className="font-medium">{stock.remark}</span>
             </div>
           )}

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
-import { stockType, stockItemUnit, stockUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 import { ModalContext } from "@/store/modal";
@@ -87,12 +87,12 @@ export default function CreateModal() {
         <div className="bg-background flex-1 overflow-y-auto p-4 md:p-6">
           <ul className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
             <li className="flex flex-col gap-1.5 col-span-2">
-              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">名稱{checkIsRequired("name")}</label>
+              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}{checkIsRequired("name")}</label>
               <Input type="text" id="name" value={newStock.name} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 礦泉水, 止痛藥..." />
             </li>
 
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="type" className="text-sm font-semibold text-muted-foreground">類別{requiredDom}</label>
+              <label htmlFor="type" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.type}{requiredDom}</label>
               <Select value={newStock.type} onValueChange={(value) => handleInputChange({ target: { id: 'type', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                 <SelectTrigger className="h-10 border-border/60">
                   <SelectValue placeholder="選擇分類..." />
@@ -120,12 +120,12 @@ export default function CreateModal() {
             </li>
 
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="count" className="text-sm font-semibold text-muted-foreground">數量{checkIsRequired("count")}</label>
+              <label htmlFor="count" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.count}{checkIsRequired("count")}</label>
               <Input type="number" id="count" value={newStock.count ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="0" />
             </li>
 
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="volume" className="text-sm font-semibold text-muted-foreground">單件容量/重量{checkIsRequired("volume")}</label>
+              <label htmlFor="volume" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.volume}{checkIsRequired("volume")}</label>
               <div className="flex gap-2">
                 <Input type="number" id="volume" value={newStock.volume ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 600" />
                 <Select value={newStock.volumeUnit} onValueChange={(value) => handleInputChange({ target: { id: 'volumeUnit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
@@ -153,21 +153,21 @@ export default function CreateModal() {
             </li>
 
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">購買日期{checkIsRequired("purchaseDate")}</label>
+              <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.purchaseDate}{checkIsRequired("purchaseDate")}</label>
               <Input type="date" id="purchaseDate" value={newStock.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
             </li>
 
             <li className="flex flex-col gap-1.5 col-span-2">
-              <label htmlFor="remark" className="text-sm font-semibold text-muted-foreground">備註{checkIsRequired("remark")}</label>
+              <label htmlFor="remark" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.remark}{checkIsRequired("remark")}</label>
               <Input type="text" id="remark" value={newStock.remark} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
             </li>
 
             {isTagRequired && (
               <li className="flex flex-col gap-1.5 col-span-2">
-                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">餵食標籤{requiredDom}</label>
+                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
                 {availableTags.length === 0 ? (
                   <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
-                    <span>尚未建立相關餵食標籤，請先至「家庭成員」設定中新增主食。</span>
+                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增主食。</span>
                   </div>
                 ) : (
                   <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
