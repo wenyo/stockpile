@@ -1,10 +1,11 @@
 import { useContext, useState } from "react";
-import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
+import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
+import { SettingContext } from "@/store/setting";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import { getStockStatus, sortStockList } from "@/utils/stock";
 export default function Index() {
   const { stockList, showStockList, setDeleteStock, setEditStock } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
+  const { feedTags } = useContext(SettingContext);
 
   const visibleStockList = stockList
     .filter((item) => showStockList.includes(item.id))
@@ -31,19 +33,24 @@ export default function Index() {
       <SearchStock />
 
       <ul className="flex flex-col divide-y divide-border/50 border-y border-border/50 md:hidden">
-        {visibleStockList.map((stock) => (
-          <MobileStockRow
-            key={stock.id}
-            stock={stock}
-            onEdit={() => { setEditStock(stock); openModal(modalTypeConstant.STOCK); }}
-            onDelete={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }}
-          />
-        ))}
+        {visibleStockList.map((stock) => {
+          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : undefined;
+          return (
+            <MobileStockRow
+              key={stock.id}
+              stock={stock}
+              feedTag={feedTag}
+              onEdit={() => { setEditStock(stock); openModal(modalTypeConstant.STOCK); }}
+              onDelete={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }}
+            />
+          );
+        })}
       </ul>
 
       <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {visibleStockList.map((stock) => {
           const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
+          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : null;
 
           return (
             <li key={stock.id}>
@@ -58,6 +65,7 @@ export default function Index() {
                     <CardTitle className="text-xl font-bold pr-14 leading-tight">{stock.name}</CardTitle>
                     <div className="flex flex-wrap gap-2">
                       {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
+                      {feedTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
                       {isLowStock && <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"><AlertTriangle size={12} />庫存低於 {WARNING_COUNT}</Badge>}
                       {isExpiringSoon && <Badge variant="destructive" className="flex items-center gap-1 text-warning"><Calendar size={12} />即將到期</Badge>}
                       {isExpired && <Badge variant="destructive" className="flex items-center gap-1 text-danger"><Calendar size={12} />已過期</Badge>}
@@ -132,11 +140,12 @@ export default function Index() {
 
 type MobileStockRowProps = {
   stock: Stock;
+  feedTag?: { id: string; label: string };
   onEdit: () => void;
   onDelete: () => void;
 };
 
-function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
+function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProps) {
   const [expanded, setExpanded] = useState(false);
   const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
   const statusColor = isExpired ? "bg-danger" : isExpiringSoon || isLowStock ? "bg-warning" : "bg-transparent";
@@ -173,6 +182,7 @@ function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
         <div className="px-3 pb-3 pl-6 flex flex-col gap-2 text-sm">
           <div className="flex flex-wrap gap-1.5">
             {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
+            {feedTag && <Badge variant="outline" className="opacity-90 flex items-center gap-1 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
           </div>
 
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">

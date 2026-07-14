@@ -85,15 +85,6 @@ export function useDashboardStats() {
     return setting.targetDays - survivalWaterDays < 0 ? 0 : setting.targetDays - survivalWaterDays;
   }, [household, survivalWaterDays]);
 
-  // 生存天數
-  const survivalDays = useMemo(() => {
-    return Math.min(survivalFoodDays, survivalWaterDays);
-  }, [survivalFoodDays, survivalWaterDays]);
-
-  const progressPercent = useMemo(() => {
-    return Math.round(Math.min(100, (survivalDays / setting.targetDays) * 100));
-  }, [survivalDays, setting.targetDays]);
-
   // 在輪替天數內的物資
   const withinRotationDaysStock = useMemo(() => {
     return stockList.filter((stock) => {
@@ -232,6 +223,18 @@ export function useDashboardStats() {
       pet: hasPet ? { days: petDays, bottleneck: petBottleneck || '未設定主食' } : null,
     };
   }, [household, feedTagStats]);
+
+    // 生存天數
+  const survivalDays = useMemo(() => {
+    const days = [survivalFoodDays, survivalWaterDays];
+    if (specialMemberStatus.infant) days.push(specialMemberStatus.infant.days);
+    if (specialMemberStatus.pet) days.push(specialMemberStatus.pet.days);
+    return Math.min(...days);
+  }, [survivalFoodDays, survivalWaterDays, specialMemberStatus]);
+
+  const progressPercent = useMemo(() => {
+    return Math.round(Math.min(100, (survivalDays / setting.targetDays) * 100));
+  }, [survivalDays, setting.targetDays]);
 
   return {
     household,

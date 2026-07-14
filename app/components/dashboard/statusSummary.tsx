@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { Box, Info, PawPrint, Baby } from "lucide-react";
+import { identityConstants } from "@/constant/family";
 import { preparednessLevels, stockFieldLabel } from "@/constant/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
@@ -61,6 +62,19 @@ export default function SurvivalAnalysis() {
   const hasPet = !!specialMemberStatus?.pet;
   const hasSpecial = hasInfant || hasPet;
 
+  const breakdown = household.reduce((acc, curr) => {
+    acc[curr.identity] = (acc[curr.identity] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const breakdownText = [
+    breakdown.adult ? `${breakdown.adult}${identityConstants.adult}` : '',
+    breakdown.elderly ? `${breakdown.elderly}${identityConstants.elderly}` : '',
+    breakdown.child ? `${breakdown.child}${identityConstants.child}` : '',
+    breakdown.infant ? `${breakdown.infant}${identityConstants.infant}` : '',
+    breakdown.pet ? `${breakdown.pet}${identityConstants.pet}` : '',
+  ].filter(Boolean).join('、');
+
   return (
     <div className={`grid grid-cols-1 ${hasSpecial ? 'xl:grid-cols-3' : ''} gap-3 md:gap-4`}>
       <Card className={`flex flex-col h-full border-border/50 bg-card/40 backdrop-blur-sm ${hasSpecial ? 'xl:col-span-2' : ''}`}>
@@ -89,14 +103,21 @@ export default function SurvivalAnalysis() {
             <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">{stockFieldLabel.totalCalories}</span>
             <span className="font-semibold text-base md:text-lg">{currentCalories.toLocaleString()} kcal</span>
           </li>
-          <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
-            <span className="text-muted-foreground text-sm font-medium mb-1">家聽成員數</span>
-            <span className="font-semibold text-lg">{household.length}</span>
+          <li className="flex justify-between flex-col bg-muted/50 p-3 md:p-4 rounded-xl text-sm md:text-base border border-border/50">
+            <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">家庭成員數</span>
+            <div className="group relative flex items-center gap-1.5 cursor-pointer w-max outline-none" tabIndex={0}>
+              <span className="font-semibold text-base md:text-lg leading-none">{household.length}</span>
+              <Info size={14} className="text-muted-foreground opacity-60" />
+              
+              {breakdownText && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-popover text-popover-foreground border border-border shadow-md rounded-md text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all pointer-events-none z-50">
+                  {breakdownText}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-border"></div>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-popover -mt-[1px]"></div>
+                </div>
+              )}
+            </div>
           </li>
-          {/* <li className="flex justify-between flex-col bg-muted/50 p-4 rounded-xl text-base border border-border/50">
-            <span className="text-muted-foreground text-sm font-medium mb-1">每日每人熱量</span>
-            <span className="font-semibold text-lg">{household.onePersonOneDayCalories} kcal</span>
-          </li> */}
         </ul>
       </CardContent>
     </Card>
@@ -104,10 +125,10 @@ export default function SurvivalAnalysis() {
     {hasSpecial && (
       <div className="flex flex-col gap-3 md:gap-4 h-full xl:col-span-1">
         <div className={hasInfant ? "flex-1" : "hidden"}>
-          {renderSpecialStatus("嬰幼兒主食狀態", specialMemberStatus?.infant || null, "infantStapleFood")}
+          {renderSpecialStatus(`${identityConstants.infant}主食狀態`, specialMemberStatus?.infant || null, "infantStapleFood")}
         </div>
         <div className={hasPet ? "flex-1" : "hidden"}>
-          {renderSpecialStatus("寵物主食狀態", specialMemberStatus?.pet || null, "petStapleFood")}
+          {renderSpecialStatus(`${identityConstants.pet}主食狀態`, specialMemberStatus?.pet || null, "petStapleFood")}
         </div>
       </div>
     )}

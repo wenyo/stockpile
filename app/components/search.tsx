@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react"
 import { type Stock, initialStock } from "@/interfaces/stock";
 import { stockType, stockItemUnit, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
+import { SettingContext } from "@/store/setting";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import { Search } from "lucide-react";
 export default function SearchStock() {
   const [searchStockProps, setSearchStockProps] = useState<Stock>(initialStock)
   const { searchStock } = useContext(StockListContext);
+  const { feedTags } = useContext(SettingContext);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -84,6 +86,20 @@ export default function SearchStock() {
           <li className="flex flex-col gap-2">
             <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.purchaseDate}小於</label>
             <Input type="date" id="purchaseDate" value={searchStockProps.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 text-base"/>
+          </li>
+          <li className="flex flex-col gap-2">
+            <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
+            <Select value={searchStockProps.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+              <SelectTrigger className="h-10 text-base">
+                <SelectValue placeholder="所有標籤" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">所有標籤</SelectItem>
+                {feedTags.map((tag) => (
+                  <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </li>
         </ul>
       </CardContent>

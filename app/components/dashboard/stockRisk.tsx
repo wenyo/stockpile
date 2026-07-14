@@ -1,5 +1,6 @@
 import { Droplet, Soup, Activity, AlertTriangle, Baby, PawPrint, HeartPulse, Flame, Zap, PackageOpen, Wrench, ShieldAlert } from 'lucide-react';
 import { stockType } from "@/constant/stock";
+import { identityConstants } from "@/constant/family";
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -24,16 +25,16 @@ export default function StockRisk() {
   const targetDays = setting.targetDays || 1;
 
   const survivalPillars = [
-    { label: "成人飲用水", icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
-    { label: "成人食物", icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
+    { label: `${identityConstants.adult}飲用水`, icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
+    { label: `${identityConstants.adult}食物`, icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
   ];
 
   if (specialMemberStatus?.infant) {
-    survivalPillars.push({ label: "嬰兒主食", icon: <Baby strokeWidth={1.5} size={18} />, days: specialMemberStatus.infant.days, barColor: "bg-primary", textColor: "text-primary" });
+    survivalPillars.push({ label: `${identityConstants.infant}主食`, icon: <Baby strokeWidth={1.5} size={18} />, days: specialMemberStatus.infant.days, barColor: "bg-primary", textColor: "text-primary" });
   }
 
   if (specialMemberStatus?.pet) {
-    survivalPillars.push({ label: "寵物主食", icon: <PawPrint strokeWidth={1.5} size={18} />, days: specialMemberStatus.pet.days, barColor: "bg-amber-600", textColor: "text-amber-600" });
+    survivalPillars.push({ label: `${identityConstants.pet}主食`, icon: <PawPrint strokeWidth={1.5} size={18} />, days: specialMemberStatus.pet.days, barColor: "bg-amber-600", textColor: "text-amber-600" });
   }
 
   // 排序：最短天數排前面以抓出瓶頸
@@ -87,7 +88,7 @@ export default function StockRisk() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Progress value={percent} indicatorColor={pillar.barColor} className="h-2.5 flex-1 opacity-90" />
-                    <span className="text-xs font-semibold text-muted-foreground min-w-[36px] text-right">{percent}%</span>
+                    <span className="text-xs font-semibold text-muted-foreground min-w-[36px] text-right">{percent >= 100 ? '已達標' : `${percent}%`}</span>
                   </div>
                 </div>
               );
