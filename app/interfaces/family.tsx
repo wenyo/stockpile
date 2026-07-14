@@ -1,4 +1,4 @@
-import { stockUnit } from '@/constant/stock';
+import { stockItemUnit } from '@/constant/stock';
 import { identityConstants } from '@/constant/family';
 
 export type Identity = keyof typeof identityConstants;
@@ -11,12 +11,12 @@ export type HouseholdMember = {
   dailyMlWater: number;
   dailyBabyFoodNeed?: {         // 嬰兒專用,個體自己填    
     amount: number;             // 量/每餐
-    unit: keyof typeof stockUnit;
+    unit: keyof typeof stockItemUnit;
     frequencyDays: number;
   };
   dailyPetFoodNeed?: {            // 寵物專用,個體自己填
     amount: number;             // 量/每餐
-    unit: keyof typeof stockUnit;
+    unit: keyof typeof stockItemUnit;
     frequencyDays: number;
   };
 };

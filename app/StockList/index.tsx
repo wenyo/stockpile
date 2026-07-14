@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
-import { stockType, stockUnit, WARNING_COUNT } from "@/constant/stock";
+import { stockType, stockItemUnit, WARNING_COUNT } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export default function Index() {
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-muted-foreground font-medium flex items-center gap-1"><Package2 size={12} /> 總量</span>
                       <span className={`text-lg font-bold ${isLowStock ? "text-warning" : "text-foreground"}`}>
-                        {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockUnit[stock.unit] : ""}</span>
+                        {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
                       </span>
                     </div>
 
@@ -163,7 +163,7 @@ function MobileStockRow({ stock, onEdit, onDelete }: MobileStockRowProps) {
 
         <span className="text-sm font-semibold shrink-0">
           {stock.count ?? "-"}
-          <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockUnit[stock.unit] : ""}</span>
+          <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
         </span>
 
         <ChevronDown size={16} className={`shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />

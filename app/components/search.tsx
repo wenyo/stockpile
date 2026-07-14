@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react"
 import { type Stock, initialStock } from "@/interfaces/stock";
-import { stockType, stockUnit } from "@/constant/stock";
+import { stockType, stockItemUnit } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import {
   Select,
@@ -71,7 +71,7 @@ export default function SearchStock() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">所有單位</SelectItem>
-                {Object.entries(stockUnit).map(([key, value]) => (
+                {Object.entries(stockItemUnit).map(([key, value]) => (
                   <SelectItem key={key} value={key}>{value}</SelectItem>
                 ))}
               </SelectContent>

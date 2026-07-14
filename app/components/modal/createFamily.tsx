@@ -127,11 +127,11 @@ export default function CreateFamilyModal() {
                 <>
                   <li className="col-span-full my-4 border-b border-border/40"></li>
                   <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.amount`} className="text-sm font-semibold text-muted-foreground">每餐{identityConstants[newFamilyInfo.identity]}食物量</label>
+                    <label htmlFor={`${foodConfig.key}.amount`} className="text-sm font-semibold text-muted-foreground">每天{identityConstants[newFamilyInfo.identity]}食物量</label>
                     <Input value={foodConfig.data?.amount || ""} onChange={handleInputChange} type="number" id={`${foodConfig.key}.amount`} className="h-10 border-border/60" placeholder="" />
                   </li>
                   <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.unit`} className="text-sm font-semibold text-muted-foreground">每餐{identityConstants[newFamilyInfo.identity]}食物單位</label>
+                    <label htmlFor={`${foodConfig.key}.unit`} className="text-sm font-semibold text-muted-foreground">{identityConstants[newFamilyInfo.identity]}食物單位</label>
                     <Select value={foodConfig.data?.unit} onValueChange={(value) => handleSelectChange(value, `${foodConfig.key}.unit`)}>
                       <SelectTrigger className="h-10 border-border/60" id={`${foodConfig.key}.unit`}>
                         <SelectValue placeholder="選擇單位..." />
@@ -144,7 +144,7 @@ export default function CreateFamilyModal() {
                     </Select>
                   </li>
                   <li className="flex flex-col gap-1.5">
-                    <label htmlFor={`${foodConfig.key}.frequencyDays`} className="text-sm font-semibold text-muted-foreground">每餐{identityConstants[newFamilyInfo.identity]}食物頻率 (天)</label>
+                    <label htmlFor={`${foodConfig.key}.frequencyDays`} className="text-sm font-semibold text-muted-foreground">每天{identityConstants[newFamilyInfo.identity]}食物頻率 (天)</label>
                     <Input value={foodConfig.data?.frequencyDays || ""} onChange={handleInputChange} type="number" id={`${foodConfig.key}.frequencyDays`} className="h-10 border-border/60" placeholder="" />
                   </li>
                 </>

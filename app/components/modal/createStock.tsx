@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
-import { stockType, stockUnit } from "@/constant/stock";
+import { stockType, stockItemUnit } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button"
@@ -108,7 +108,7 @@ export default function CreateModal() {
                   <SelectValue placeholder="選擇單位..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(stockUnit).map(([key, value]) => (
+                  {Object.entries(stockItemUnit).map(([key, value]) => (
                     <SelectItem key={key} value={key}>{value}</SelectItem>
                   ))}
                 </SelectContent>
