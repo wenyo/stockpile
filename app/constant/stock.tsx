@@ -1,9 +1,8 @@
 export const WARNING_COUNT = 10;
 export const WARNING_DAYS = 30;
-export const stockType: Record<string, string> = {
+export const stockType = {
   food: "一般食物",
   babyMilk: "嬰兒主食", // 列入生存必要計算
-  babyFood: "嬰兒副食", // 不列入生存必要計算
   petFood: "寵物飼料",
   medical: "醫療",
   water: "飲用水",
@@ -11,18 +10,21 @@ export const stockType: Record<string, string> = {
   communication: "通訊",
   tool: "工具",
   other: "其他",
-}
+} as const;
 
-export const stockUnit: Record<string, string> = {
+export const stockUnit = {
   g: "g",
   ml: "ml",
   pack: "包",
   can: "罐",
   piece: "個",
+  bottle: "瓶",
+  pair: "雙",
+  roll: "捲",
   other: "其他",
-}
+} as const;
 
-export const stockFieldLabel: Record<string, string> = {
+export const stockFieldLabel = {
   name: "名稱",
   count: "數量",
   totalCalories: "總熱量",
@@ -30,7 +32,7 @@ export const stockFieldLabel: Record<string, string> = {
   expirationDate: "到期日",
   purchaseDate: "購買日期",
   remark: "備註",
-}
+} as const;
 
 export const preparednessLevels = [
   {

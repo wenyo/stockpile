@@ -1,11 +1,11 @@
-import { stockType } from "@/constant/stock";
+import { stockType, stockUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
   name: string;
-  type: string;
+  type: keyof typeof stockType;
   count: number | undefined;
-  unit: string;
+  unit: keyof typeof stockUnit;
   expirationDate?: string;
   purchaseDate?: string;
   remark?: string;
@@ -16,9 +16,9 @@ export interface Stock {
 export const initialStock: Stock = {
   id: '',
   name: '',
-  type: '',
+  type: '' as keyof typeof stockType,
   count: undefined,
-  unit: '',
+  unit: '' as keyof typeof stockUnit,
   expirationDate: '',
   purchaseDate: '',
   remark: '',
@@ -34,6 +34,16 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "name",
     "count",
     "totalCalories",
+    "expirationDate",
+  ],
+  babyMilk: [
+    "name",
+    "count",
+    "expirationDate",
+  ],
+  petFood: [
+    "name",
+    "count",
     "expirationDate",
   ],
   water: [

@@ -4,4 +4,4 @@ export const identityConstants = {
   child: "兒童",
   infant: "嬰兒",
   pet: "寵物",
-};
+} as const;
