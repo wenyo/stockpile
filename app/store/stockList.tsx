@@ -7,6 +7,7 @@ const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !val
 export type StockListContextType = {
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
+  isInitialized: boolean;
   deleteStock: Stock | null;
   setDeleteStock: (stock: Stock | null) => void;
   editStock: Stock | null;
@@ -26,6 +27,7 @@ export type StockListContextType = {
 export const StockListContext = createContext<StockListContextType>({
   isDemo: false,
   setIsDemo: () => {},
+  isInitialized: false,
   deleteStock: null,
   setDeleteStock: () => {},
   editStock: null,
@@ -129,7 +131,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   }, [stockList, searchParams]);
 
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab }}>
       {children}
     </StockListContext.Provider>
   );

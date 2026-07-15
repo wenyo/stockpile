@@ -11,7 +11,7 @@ export type SettingConfig = {
 };
 
 type SettingContextType = {
-  setting: SettingConfig;
+  setting: SettingConfig | null;
   updateSetting: (newSetting: Partial<SettingConfig>) => void;
   household: HouseholdMember[];
   updateHousehold: (newHousehold: Partial<HouseholdMember>) => void;
@@ -31,7 +31,7 @@ const defaultSetting: SettingConfig = {
 };
 
 export const SettingContext = createContext<SettingContextType>({
-  setting: defaultSetting,
+  setting: null,
   updateSetting: () => {},
   household: [],
   updateHousehold: () => {},
@@ -46,41 +46,44 @@ export const SettingContext = createContext<SettingContextType>({
 });
 
 export function SettingProvider({ children }: { children: ReactNode }) {
-  const [setting, setSetting] = useState<SettingConfig>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("stockpile_setting");
-      if (saved) return JSON.parse(saved);
-    }
-    return defaultSetting;
-  });
-  
-  const [household, setHousehold] = useState<HouseholdMember[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("stockpile_household");
-      if (saved) return JSON.parse(saved);
-    }
-    return sampleHouseholdData;
-  });
-  
-  const [feedTags, setFeedTags] = useState<FeedTag[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("stockpile_feedTags");
-      if (saved) return JSON.parse(saved);
-    }
-    return sampleFeedTags;
-  });
-
+  const [setting, setSetting] = useState<SettingConfig>(defaultSetting);
+  const [household, setHousehold] = useState<HouseholdMember[]>([]);
+  const [feedTags, setFeedTags] = useState<FeedTag[]>([]);
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const { isDemo } = useContext(StockListContext);
 
-  useEffect(() => {
+  // init
+  useEffect(() => {    
+    if(isDemo) {
+      return;
+    }
+
+    const localStorageSetting = localStorage.getItem("stockpile_setting");
+    if (localStorageSetting) {
+      setSetting(JSON.parse(localStorageSetting));
+    }
+
+    const localStorageHousehold = localStorage.getItem("stockpile_household");
+    if (localStorageHousehold) {
+      setHousehold(JSON.parse(localStorageHousehold));
+    }
+
+    const localStorageFeedTags = localStorage.getItem("stockpile_feedTags");
+    if (localStorageFeedTags) {
+      setFeedTags(JSON.parse(localStorageFeedTags));
+    }
+
     setIsInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+
     if (isDemo) {
       setSetting(defaultSetting);
       setHousehold(sampleHouseholdData);
@@ -96,19 +99,19 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     if (isInitialized && !isDemo) {
       localStorage.setItem("stockpile_setting", JSON.stringify(setting));
     }
-  }, [setting, isDemo, isInitialized]);
+  }, [setting, isDemo]);
 
   useEffect(() => {
     if (isInitialized && !isDemo) {
       localStorage.setItem("stockpile_household", JSON.stringify(household));
     }
-  }, [household, isDemo, isInitialized]);
+  }, [household, isDemo]);
 
   useEffect(() => {
     if (isInitialized && !isDemo) {
       localStorage.setItem("stockpile_feedTags", JSON.stringify(feedTags));
     }
-  }, [feedTags, isDemo, isInitialized]);
+  }, [feedTags, isDemo]);
 
   const updateSetting = (newSetting: Partial<SettingConfig>) => {
     setSetting((prevSetting) => ({ ...prevSetting, ...newSetting }));
