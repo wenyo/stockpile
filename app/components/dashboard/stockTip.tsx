@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { Zap, ClipboardPen } from 'lucide-react';
 import { stockFieldLabel } from "@/constant/stock";
+import { modalTypeConstant } from "@/interfaces/modal";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { ModalContext } from "@/store/modal";
 import { StockListContext } from "@/store/stockList";
@@ -65,10 +66,10 @@ export default function StockTips() {
               stockCount === 0 ? (
                 <li className="col-span-full py-4 text-center text-base text-muted-foreground">目前無庫存</li>
               ) : missingInfoStock.length > 0 ? missingInfoStock.slice(0, showCount).map((item) => (
-                <li key={item.stock.id} className={`${priorityItemsCommonClassName} cursor-pointer`} onClick={() => { setEditStock(item.stock); openModal("edit"); }}>
-                  <span className="font-semibold text-base overflow-hidden-ellipsis">{item.stock.name}</span>
-                  <span className="text-sm text-muted-foreground overflow-hidden-ellipsis">{item.missingFields.map((field) => stockFieldLabel[field]).join(', ')}</span>
-                </li>
+                  <li key={item.stock.id} className={`${priorityItemsCommonClassName} cursor-pointer`} onClick={() => { setEditStock(item.stock); openModal(modalTypeConstant.STOCK); }}>
+                    <span className="font-semibold text-base overflow-hidden-ellipsis">{item.stock.name}</span>
+                    <span className="text-sm text-muted-foreground overflow-hidden-ellipsis">{item.missingFields.map((field) => stockFieldLabel[field as keyof typeof stockFieldLabel]).join(', ')}</span>
+                  </li>
               )) : (
                 <li className="col-span-full py-4 text-center text-base text-muted-foreground">所有資料皆已完善</li>
               )

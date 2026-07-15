@@ -1,29 +1,33 @@
-import { stockType } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
   name: string;
-  type: string;
+  type: keyof typeof stockType;
   count: number | undefined;
-  unit: string;
+  unit: keyof typeof stockItemUnit;
   expirationDate?: string;
   purchaseDate?: string;
   remark?: string;
   totalCalories: number | undefined;
   volume: number | undefined;
+  volumeUnit?: keyof typeof stockUnit;
+  feedTagId?: string; // 只有 type 為 petFood/babyFood/babyMilk 時才會用到
 }
 
 export const initialStock: Stock = {
   id: '',
   name: '',
-  type: '',
+  type: '' as keyof typeof stockType,
   count: undefined,
-  unit: '',
+  unit: '' as keyof typeof stockItemUnit,
   expirationDate: '',
   purchaseDate: '',
   remark: '',
   totalCalories: undefined,
   volume: undefined,
+  volumeUnit: undefined,
+  feedTagId: undefined,
 };
 
 type StockField = keyof Stock;
@@ -34,6 +38,34 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "name",
     "count",
     "totalCalories",
+    "expirationDate",
+  ],
+  infantStapleFood: [
+    "name",
+    "count",
+    "expirationDate",
+    "unit",
+    "volume",
+    "volumeUnit",
+    "feedTagId",
+  ],
+  infantNonStapleFood: [
+    "name",
+    "count",
+    "expirationDate",
+  ],
+  petStapleFood: [
+    "name",
+    "count",
+    "unit",
+    "volume",
+    "volumeUnit",
+    "expirationDate",
+    "feedTagId",
+  ],
+  petNonStapleFood: [
+    "name",
+    "count",
     "expirationDate",
   ],
   water: [
@@ -73,4 +105,17 @@ export type StockStatus = {
   isExpired: boolean;
   isExpiringSoon: boolean;
   isLowStock: boolean;
+};
+
+export type FeedTag = {
+  id: string;
+  label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
+  appliesToStockType: "infantStapleFood" | "petStapleFood"; // 這個 tag 屬於哪個 stockType 底下
+};
+
+export type FeedPortion = {
+  feedTagId: string;
+  amount: number;
+  unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
+  frequencyDays: number; // 每幾天餵食一次，預設 1（天天）
 };

@@ -19,6 +19,8 @@ export type StockListContextType = {
   searchStock: (searchStock: Stock) => void;
   startFromClearingData: () => void;
   startFromDemoData: () => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 };
 
 export const StockListContext = createContext<StockListContextType>({
@@ -36,6 +38,8 @@ export const StockListContext = createContext<StockListContextType>({
   searchStock: () => {},
   startFromClearingData: () => {},
   startFromDemoData: () => {},
+  activeTab: "priority",
+  setActiveTab: () => {},
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
@@ -46,6 +50,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const [stockList, setStockList] = useState<Stock[]>([]);
   const [showStockList, setShowStockList] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
+  const [activeTab, setActiveTab] = useState("priority");
 
   const addStock = (stock: Stock) => {
     setStockList((prev) => [...prev, stock]);
@@ -114,16 +119,17 @@ export function StockListProvider({ children }: { children: ReactNode }) {
       if (checkStockIsEmpty(searchParams)) return true;     
 
       return (searchParams.name ? item.name.includes(searchParams.name) : true) &&
-      (searchParams.type && searchParams.type !== "all" ? item.type === searchParams.type : true) &&
-      (searchParams.unit && searchParams.unit !== "all" ? item.unit === searchParams.unit : true) &&
+      (searchParams.type && (searchParams.type as string) !== "all" ? item.type === searchParams.type : true) &&
+      (searchParams.unit && (searchParams.unit as string) !== "all" ? item.unit === searchParams.unit : true) &&
       (searchParams.count && item.count ? Number(item.count) <= Number(searchParams.count) : true) &&
       (searchParams.expirationDate && item.expirationDate ? new Date(item.expirationDate) <= new Date(searchParams.expirationDate) : true) &&
-      (searchParams.purchaseDate && item.purchaseDate ? new Date(item.purchaseDate) <= new Date(searchParams.purchaseDate) : true) 
+      (searchParams.purchaseDate && item.purchaseDate ? new Date(item.purchaseDate) <= new Date(searchParams.purchaseDate) : true) &&
+      (searchParams.feedTagId && (searchParams.feedTagId as string) !== "all" ? item.feedTagId === searchParams.feedTagId : true) 
     }).map(item => item.id));
   }, [stockList, searchParams]);
 
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab }}>
       {children}
     </StockListContext.Provider>
   );

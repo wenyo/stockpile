@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
-
-type ModalType = "create" | "edit" | "welcome" | "demoCheck" | "deleteCheck" | "statusInfo" | null;
+import { type ModalType, modalTypeConstant } from "@/interfaces/modal";
 
 export type Modal = {
   isModalOpen: boolean;
@@ -13,7 +12,7 @@ export type Modal = {
 
 export const ModalContext = createContext<Modal>({
   isModalOpen: false,
-  modalType: "create",
+  modalType: modalTypeConstant.STOCK,
   setModalType: () => {},
   setIsModalOpen: () => {},
   openModal: () => {},
@@ -22,7 +21,7 @@ export const ModalContext = createContext<Modal>({
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<ModalType>("create");
+  const [modalType, setModalType] = useState<ModalType>(null);
 
   function openModal(type: ModalType) {
     setModalType(type);

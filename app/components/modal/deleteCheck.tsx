@@ -1,16 +1,22 @@
 import { X } from 'lucide-react';
 import { useContext } from "react";
 import { StockListContext } from "@/store/stockList";
+import { SettingContext } from "@/store/setting";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button"
 
 export default function DeleteCheck() {
   const { closeModal } = useContext(ModalContext);
   const { deleteStock, removeStock } = useContext(StockListContext);
+  const { deleteHousehold, removeHousehold } = useContext(SettingContext);
+  const deleteConfig = deleteStock ? 
+    { name: deleteStock.name, id: deleteStock.id, remove: removeStock } : 
+    deleteHousehold ? 
+    { name: deleteHousehold.name, id: deleteHousehold.id, remove: removeHousehold } : null;
 
   function handleDelete() {
-    if (deleteStock) {
-      removeStock(deleteStock.id);
+    if (deleteConfig) {
+      deleteConfig.remove(deleteConfig.id);
     }
     closeModal();
   }
@@ -32,7 +38,7 @@ export default function DeleteCheck() {
           </Button>
         </div>
         <div className="p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-          <p>確定要刪除<span className="font-bold text-primary mx-2">{deleteStock?.name}</span>嗎？</p>
+          <p>確定要刪除<span className="font-bold text-primary mx-2">{deleteConfig?.name}</span>嗎？</p>
           <div className="flex justify-end gap-2 mt-6">
             <Button variant="outline" onClick={() => closeModal()}>取消</Button>
             <Button onClick={handleDelete}>刪除</Button>
