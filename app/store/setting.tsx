@@ -33,7 +33,7 @@ const defaultSetting: SettingConfig = {
 export const SettingContext = createContext<SettingContextType>({
   setting: defaultSetting,
   updateSetting: () => {},
-  household: sampleHouseholdData,
+  household: [],
   updateHousehold: () => {},
   addHousehold: () => {},
   removeHousehold: () => {},
@@ -85,6 +85,10 @@ export function SettingProvider({ children }: { children: ReactNode }) {
       setSetting(defaultSetting);
       setHousehold(sampleHouseholdData);
       setFeedTags(sampleFeedTags);
+    } else {
+      setSetting(defaultSetting);
+      setHousehold([]);
+      setFeedTags([]);
     }
   }, [isDemo]);
 
