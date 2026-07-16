@@ -125,6 +125,33 @@ export default function CreateModal() {
               </Select>
             </li>
 
+            {isTagRequired && (
+              <li className="flex flex-col gap-1.5">
+                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
+                {availableTags.length === 0 ? (
+                  <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
+                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增主食。</span>
+                  </div>
+                ) : (
+                  <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+                    <SelectTrigger className="h-10 border-border/60">
+                      <SelectValue placeholder="請選擇餵食標籤..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTags.map((tag) => (
+                        <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </li>
+            )}
+
+            <li className="flex flex-col gap-1.5">
+              <label htmlFor="count" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.count}{checkIsRequired("count")}</label>
+              <Input type="number" id="count" value={newStock.count ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="0" />
+            </li>
+
             <li className="flex flex-col gap-1.5">
               <label htmlFor="unit" className="text-sm font-semibold text-muted-foreground">單位{checkIsRequired("unit")}</label>
               <Select value={newStock.unit} onValueChange={(value) => handleInputChange({ target: { id: 'unit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
@@ -140,11 +167,6 @@ export default function CreateModal() {
             </li>
 
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="count" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.count}{checkIsRequired("count")}</label>
-              <Input type="number" id="count" value={newStock.count ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="0" />
-            </li>
-
-            <li className="flex flex-col gap-1.5">
               <label htmlFor="volume" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.volume}{checkIsRequired("volume")}</label>
               <div className="flex gap-2">
                 <Input type="number" id="volume" value={newStock.volume ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 600" />
@@ -154,7 +176,6 @@ export default function CreateModal() {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(stockUnit).map(([key, value]) => {
-                      if (key === 'unit') return null;
                       return <SelectItem key={key} value={key}>{value}</SelectItem>
                     })}
                   </SelectContent>
@@ -181,28 +202,6 @@ export default function CreateModal() {
               <label htmlFor="remark" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.remark}{checkIsRequired("remark")}</label>
               <Input type="text" id="remark" value={newStock.remark} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
             </li>
-
-            {isTagRequired && (
-              <li className="flex flex-col gap-1.5 col-span-2">
-                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
-                {availableTags.length === 0 ? (
-                  <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
-                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增主食。</span>
-                  </div>
-                ) : (
-                  <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
-                    <SelectTrigger className="h-10 border-border/60">
-                      <SelectValue placeholder="請選擇餵食標籤..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTags.map((tag) => (
-                        <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </li>
-            )}
           </ul>
         </div>
 

@@ -7,6 +7,8 @@ import { SettingContext } from "@/store/setting";
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
   const { household, setting, feedTags } = useContext(SettingContext);
+  
+  const currentSetting = setting || { targetDays: 30, rotationDays: 90 };
 
   // 總熱量 (根據每一項庫存數與熱量)
   const currentCalories = useMemo(() => {
@@ -21,8 +23,8 @@ export function useDashboardStats() {
   const targetCalories = useMemo(() => {
     return household.reduce((acc, member) => {
       return acc + (member.dailyKcalNeed || 0);
-    }, 0) * setting.targetDays;
-  }, [household]);
+    }, 0) * currentSetting.targetDays;
+  }, [household, currentSetting.targetDays]);
 
   // 剩餘熱量
   const remainingCalories = useMemo(() => {
@@ -48,9 +50,20 @@ export function useDashboardStats() {
     let dailyRequirement = 0;
     for (const member of household) {
       dailyRequirement += member.dailyMlWater || 0;
+      if (member.feedPortions) {
+        member.feedPortions.forEach((portion) => {
+          if (portion.waterAmount) {
+            const freqValue = portion.frequencyValue || 1;
+            const dailyWater = portion.frequencyType === "timesPerDay"
+              ? portion.waterAmount * freqValue
+              : portion.waterAmount / freqValue;
+            dailyRequirement += dailyWater;
+          }
+        });
+      }
     }
-    return dailyRequirement === 0 ? 0 : Math.floor(dailyRequirement * setting.targetDays);
-  }, [household]);
+    return dailyRequirement === 0 ? 0 : Math.floor(dailyRequirement * currentSetting.targetDays);
+  }, [household, currentSetting.targetDays]);
 
   // 剩餘飲水量
   const remainingWater = useMemo(() => {
@@ -68,22 +81,33 @@ export function useDashboardStats() {
 
   // 缺口天數
   const foodGapDays = useMemo(() => {
-    return setting.targetDays - survivalFoodDays < 0 ? 0 : setting.targetDays - survivalFoodDays;
-  }, [household, survivalFoodDays]);
+    return currentSetting.targetDays - survivalFoodDays < 0 ? 0 : currentSetting.targetDays - survivalFoodDays;
+  }, [currentSetting.targetDays, survivalFoodDays]);
 
   // 飲水天數
   const survivalWaterDays = useMemo(() => {
     let dailyRequirement = 0;
     for (const member of household) {
       dailyRequirement += member.dailyMlWater || 0;
+      if (member.feedPortions) {
+        member.feedPortions.forEach((portion) => {
+          if (portion.waterAmount) {
+            const freqValue = portion.frequencyValue || 1;
+            const dailyWater = portion.frequencyType === "timesPerDay"
+              ? portion.waterAmount * freqValue
+              : portion.waterAmount / freqValue;
+            dailyRequirement += dailyWater;
+          }
+        });
+      }
     }
     return dailyRequirement === 0 ? 0 : Math.floor(currentWater / dailyRequirement);
   }, [currentWater, household]);
 
   // 飲水缺口天數
   const gapWaterDays = useMemo(() => {
-    return setting.targetDays - survivalWaterDays < 0 ? 0 : setting.targetDays - survivalWaterDays;
-  }, [household, survivalWaterDays]);
+    return currentSetting.targetDays - survivalWaterDays < 0 ? 0 : currentSetting.targetDays - survivalWaterDays;
+  }, [currentSetting.targetDays, survivalWaterDays]);
 
   // 在輪替天數內的物資
   const withinRotationDaysStock = useMemo(() => {
@@ -92,9 +116,9 @@ export function useDashboardStats() {
       const today = new Date();
       const expirationDate = new Date(stock.expirationDate);
       const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return days <= setting.rotationDays && days > setting.targetDays;
+      return days <= currentSetting.rotationDays && days > currentSetting.targetDays;
     });
-  }, [stockList]);
+  }, [stockList, currentSetting.rotationDays, currentSetting.targetDays]);
 
   // 即將到期物資
   const expiringSoonStock = useMemo(() => {
@@ -103,9 +127,9 @@ export function useDashboardStats() {
       const today = new Date();
       const expirationDate = new Date(stock.expirationDate);
       const days = Math.floor((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      return days <= setting.targetDays && days > 0;
+      return days <= currentSetting.targetDays && days > 0;
     });
-  }, [stockList]);
+  }, [stockList, currentSetting.targetDays]);
 
   // 已過期物資
   const expiredStock = useMemo(() => {
@@ -151,7 +175,11 @@ export function useDashboardStats() {
             const tag = feedTags.find(t => t.id === portion.feedTagId);
             stats[portion.feedTagId] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
           }
-          stats[portion.feedTagId].dailyNeed += (portion.amount / (portion.frequencyDays || 1));
+          const freqValue = portion.frequencyValue || 1;
+          const dailyAmount = portion.frequencyType === "timesPerDay" 
+            ? portion.amount * freqValue 
+            : portion.amount / freqValue;
+          stats[portion.feedTagId].dailyNeed += dailyAmount;
         });
       }
     });
@@ -233,8 +261,8 @@ export function useDashboardStats() {
   }, [survivalFoodDays, survivalWaterDays, specialMemberStatus]);
 
   const progressPercent = useMemo(() => {
-    return Math.round(Math.min(100, (survivalDays / setting.targetDays) * 100));
-  }, [survivalDays, setting.targetDays]);
+    return Math.round(Math.min(100, (survivalDays / currentSetting.targetDays) * 100));
+  }, [survivalDays, currentSetting.targetDays]);
 
   return {
     household,

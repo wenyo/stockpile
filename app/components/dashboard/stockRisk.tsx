@@ -22,7 +22,7 @@ const getIcon = (type: string) => typeIconMap[type] || <PackageOpen strokeWidth=
 export default function StockRisk() {
   const { missingTypeStock, survivalFoodDays, survivalWaterDays, specialMemberStatus, setting } = useDashboardStats();
 
-  const targetDays = setting.targetDays || 1;
+  const targetDays = setting?.targetDays || 30;
 
   const survivalPillars = [
     { label: `${identityConstants.adult}飲用水`, icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },

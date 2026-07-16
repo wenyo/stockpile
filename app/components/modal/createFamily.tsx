@@ -56,7 +56,15 @@ export default function CreateFamilyModal() {
   };
 
   const handleSelectChange = (value: string, id: string) => {
-    updateField(id, value);
+    if (id === "identity") {
+      setNewFamilyInfo((prev) => ({
+        ...prev,
+        identity: value as any,
+        dailyMlWater: value === "infant" ? 0 : prev.dailyMlWater,
+      }));
+    } else {
+      updateField(id, value);
+    }
   };
 
   const setFeedPortions = (portions: FeedPortion[]) => {
@@ -66,7 +74,7 @@ export default function CreateFamilyModal() {
   const addFeedPortion = () => {
     setFeedPortions([
       ...(newFamilyInfo.feedPortions || []),
-      { feedTagId: "", amount: 0, unit: "g", frequencyDays: 1 }
+      { feedTagId: "", amount: 0, unit: "g", frequencyType: "timesPerDay", frequencyValue: 1 }
     ]);
   };
 
@@ -156,7 +164,7 @@ export default function CreateFamilyModal() {
               </Select>
             </li>
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">每日飲水量 (ml)</label>
+              <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">{newFamilyInfo.identity === 'infant' ? '每日額外飲水量 (ml)' : '每日飲水量 (ml)'}</label>
               <Input value={newFamilyInfo.dailyMlWater} onChange={handleInputChange} type="number" id="dailyMlWater" className="h-10 border-border/60" placeholder="e.g. 2000" />
             </li>
             {!showFeedPortion && <li className="flex flex-col gap-1.5">
@@ -233,9 +241,30 @@ export default function CreateFamilyModal() {
                           </div>
                         )}
                         
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">每日餵食量</label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                          <div className="flex flex-col gap-1.5 md:col-span-2">
+                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率</label>
+                            <div className="flex gap-2">
+                              <Select value={portion.frequencyType || "timesPerDay"} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)}>
+                                <SelectTrigger className="h-9 border-border/60">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="timesPerDay">一天幾次</SelectItem>
+                                  <SelectItem value="daysPerTime">幾天一次</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input 
+                                type="number" 
+                                className="h-9 w-24 border-border/60" 
+                                value={portion.frequencyValue || ""} 
+                                onChange={(e) => updateFeedPortion(idx, "frequencyValue", e.target.value === "" ? 0 : Number(e.target.value))} 
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-1.5 md:col-span-2">
+                            <label className="text-xs font-semibold text-muted-foreground">單次餵食量</label>
                             <div className="flex gap-2">
                               <Input 
                                 type="number" 
@@ -244,7 +273,7 @@ export default function CreateFamilyModal() {
                                 onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
                               />
                               <Select value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)}>
-                                <SelectTrigger className="h-9 w-24 shrink-0 border-border/60">
+                                <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -255,17 +284,19 @@ export default function CreateFamilyModal() {
                               </Select>
                             </div>
                           </div>
-                          
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率(天)</label>
-                            <Input 
-                              type="number" 
-                              className="h-9 border-border/60" 
-                              value={portion.frequencyDays || ""} 
-                              onChange={(e) => updateFeedPortion(idx, "frequencyDays", e.target.value === "" ? 0 : Number(e.target.value))} 
-                              placeholder="每 X 天"
-                            />
-                          </div>
+
+                          {newFamilyInfo.identity === "infant" && (
+                            <div className="flex flex-col gap-1.5 col-span-2 md:col-span-4 border-t border-border/40 pt-3 mt-1">
+                              <label className="text-xs font-semibold text-muted-foreground">搭配水量 (ml) - 泡奶用</label>
+                              <Input 
+                                type="number" 
+                                className="h-9 border-border/60" 
+                                value={portion.waterAmount ?? ""} 
+                                onChange={(e) => updateFeedPortion(idx, "waterAmount", e.target.value === "" ? undefined : Number(e.target.value))} 
+                                placeholder="例如: 150"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))

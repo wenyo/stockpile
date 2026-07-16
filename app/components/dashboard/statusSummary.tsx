@@ -93,7 +93,7 @@ export default function SurvivalAnalysis() {
         <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2.5 md:gap-3 mt-3 md:mt-4">
           <li className="flex justify-between flex-col bg-muted/50 p-3 md:p-4 rounded-xl text-sm md:text-base border border-border/50">
             <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">目標</span>
-            <span className="font-semibold text-base md:text-lg">{setting.targetDays} 天</span>
+            <span className="font-semibold text-base md:text-lg">{setting?.targetDays || 30} 天</span>
           </li>
           <li className="flex justify-between flex-col bg-muted/50 p-3 md:p-4 rounded-xl text-sm md:text-base border border-border/50">
             <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">達成率</span>
