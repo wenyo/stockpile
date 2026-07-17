@@ -62,7 +62,7 @@ export default function SettingComponent() {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 md:w-32">
-              <Input type="number" name="targetDays" className="h-10 text-center text-lg font-semibold" value={setting.targetDays} onChange={(e) => updateSetting({ targetDays: Number(e.target.value) })} />
+              <Input type="number" name="targetDays" className="h-10 text-center text-lg font-semibold" value={setting?.targetDays || 30} onChange={(e) => updateSetting({ targetDays: Number(e.target.value) })} />
               <span className="text-muted-foreground font-medium whitespace-nowrap">天</span>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function SettingComponent() {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 md:w-32">
-              <Input type="number" name="rotationDays" className="h-10 text-center text-lg font-semibold" value={setting.rotationDays} onChange={(e) => updateSetting({ rotationDays: Number(e.target.value) })} />
+              <Input type="number" name="rotationDays" className="h-10 text-center text-lg font-semibold" value={setting?.rotationDays || 90} onChange={(e) => updateSetting({ rotationDays: Number(e.target.value) })} />
               <span className="text-muted-foreground font-medium whitespace-nowrap">天</span>
             </div>
           </div>

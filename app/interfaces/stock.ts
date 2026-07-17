@@ -117,5 +117,7 @@ export type FeedPortion = {
   feedTagId: string;
   amount: number;
   unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
-  frequencyDays: number; // 每幾天餵食一次，預設 1（天天）
+  waterAmount?: number; // 單次搭配水量 ml (主要給嬰兒泡奶用)
+  frequencyType: "timesPerDay" | "daysPerTime"; // 一天幾次 / 幾天一次
+  frequencyValue: number; // 頻率數值
 };

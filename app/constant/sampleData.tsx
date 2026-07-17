@@ -46,13 +46,15 @@ export const sampleHouseholdData: HouseholdMember[] = [
     id: "sample_4",
     identity: "infant",
     name: "二寶",
-    dailyMlWater: 500,
+    dailyMlWater: 0,
     feedPortions: [
       {
         feedTagId: "tag_sample_milk",
-        amount: 800,
-        unit: "ml",
-        frequencyDays: 1,
+        amount: 25,
+        unit: "g",
+        waterAmount: 150,
+        frequencyType: "timesPerDay",
+        frequencyValue: 5,
       }
     ]
   },
@@ -64,15 +66,17 @@ export const sampleHouseholdData: HouseholdMember[] = [
     feedPortions: [
       {
         feedTagId: "tag_sample_dogfood",
-        amount: 150,
+        amount: 75,
         unit: "g",
-        frequencyDays: 1,
+        frequencyType: "timesPerDay",
+        frequencyValue: 2,
       },
       {
         feedTagId: "tag_sample_dogcan",
         amount: 1,
         unit: "unit",
-        frequencyDays: 7,
+        frequencyType: "daysPerTime",
+        frequencyValue: 7,
       }
     ]
   }
