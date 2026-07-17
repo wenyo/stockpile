@@ -7,6 +7,7 @@ import { type FeedPortion } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
+import { StockListContext } from "@/store/stockList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +21,7 @@ import {
 export default function CreateFamilyModal() {
   const { closeModal, openModal } = useContext(ModalContext);
   const { addHousehold, updateHousehold, editHousehold, setEditHousehold, feedTags, addFeedTag, setDeleteHousehold } = useContext(SettingContext);
+  const { stockList } = useContext(StockListContext);
   const [newFamilyInfo, setNewFamilyInfo] = useState<HouseholdMember>(initialHouseholdMember);
   const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
   const isEdit = editHousehold?.id;
@@ -188,7 +190,10 @@ export default function CreateFamilyModal() {
                       尚未新增任何主食設定
                     </div>
                   ) : (
-                    (newFamilyInfo.feedPortions || []).map((portion, idx) => (
+                    (newFamilyInfo.feedPortions || []).map((portion, idx) => {
+                      const isTagUsedInStock = portion.feedTagId ? stockList.some(s => s.feedTagId === portion.feedTagId) : false;
+                      
+                      return (
                       <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col gap-3 relative">
                         <Button 
                           variant="ghost" 
@@ -272,7 +277,7 @@ export default function CreateFamilyModal() {
                                 value={portion.amount || ""} 
                                 onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
                               />
-                              <Select value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)}>
+                              <Select disabled={isTagUsedInStock} value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)}>
                                 <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -283,6 +288,9 @@ export default function CreateFamilyModal() {
                                 </SelectContent>
                               </Select>
                             </div>
+                            {isTagUsedInStock && (
+                              <span className="text-[11px] text-info font-medium tracking-wide">※ 已有庫存物資，鎖定單位</span>
+                            )}
                           </div>
 
                           {newFamilyInfo.identity === "infant" && (
@@ -299,7 +307,7 @@ export default function CreateFamilyModal() {
                           )}
                         </div>
                       </div>
-                    ))
+                    )})
                   )}
                 </div>
               </li>

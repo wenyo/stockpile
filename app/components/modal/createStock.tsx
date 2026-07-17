@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useMemo } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
 import { stockType, stockItemUnit, stockUnit, stockFieldLabel } from "@/constant/stock";
@@ -20,7 +20,7 @@ import {
 export default function CreateModal() {
   const [newStock, setNewStock] = useState<Stock>(initialStock);
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
-  const { feedTags } = useContext(SettingContext);
+  const { feedTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
 
    useEffect(() => {
@@ -34,6 +34,25 @@ export default function CreateModal() {
       setNewStock(editStock);
     }
   }, [editStock]);
+
+  const selectedTagUnit = useMemo(() => {
+    if (!newStock.feedTagId) return null;
+    for (const member of household) {
+      if (member.feedPortions) {
+        const portion = member.feedPortions.find(p => p.feedTagId === newStock.feedTagId);
+        if (portion && portion.unit) {
+          return portion.unit;
+        }
+      }
+    }
+    return null;
+  }, [newStock.feedTagId, household]);
+
+  useEffect(() => {
+    if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
+      setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
+    }
+  }, [selectedTagUnit, newStock.volumeUnit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -168,18 +187,23 @@ export default function CreateModal() {
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="volume" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.volume}{checkIsRequired("volume")}</label>
-              <div className="flex gap-2">
-                <Input type="number" id="volume" value={newStock.volume ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 600" />
-                <Select value={newStock.volumeUnit} onValueChange={(value) => handleInputChange({ target: { id: 'volumeUnit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
-                  <SelectTrigger className="h-10 w-24 shrink-0 border-border/60">
-                    <SelectValue placeholder="單位" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(stockUnit).map(([key, value]) => {
-                      return <SelectItem key={key} value={key}>{value}</SelectItem>
-                    })}
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex gap-2">
+                  <Input type="number" id="volume" value={newStock.volume ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 600" />
+                  <Select disabled={!!selectedTagUnit} value={newStock.volumeUnit} onValueChange={(value) => handleInputChange({ target: { id: 'volumeUnit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+                    <SelectTrigger className="h-10 w-24 shrink-0 border-border/60">
+                      <SelectValue placeholder="單位" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(stockUnit).map(([key, value]) => {
+                        return <SelectItem key={key} value={key}>{value}</SelectItem>
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedTagUnit && (
+                  <span className="text-[11px] text-info font-medium tracking-wide">※ 已帶入此標籤在家庭成員中設定的單位，鎖定以防計算錯誤</span>
+                )}
               </div>
             </li>
 
