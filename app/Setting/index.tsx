@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { X, Edit2, Plus, Target, RotateCw, UsersRound, Baby, PawPrint, User, Smile, Download, Upload, ShieldCheck, Smartphone, Info } from "lucide-react";
+import { Plus, Target, RotateCw, UsersRound, Baby, PawPrint, User, Smile, Download, Upload, ShieldCheck, Smartphone, Info, MessageCircleQuestionMark } from "lucide-react";
 import { type HouseholdMember } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
@@ -203,12 +203,13 @@ export default function SettingComponent() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/40 backdrop-blur-sm">
+        <Card className="border-border/50 bg-card/40 backdrop-blur-sm relative">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg text-info">
               <Smartphone size={20} />
               強烈建議安裝 PWA
             </CardTitle>
+            <MessageCircleQuestionMark size={20} onClick={() => openModal(modalTypeConstant.PWA_NOTICE)} className="absolute top-5 right-5 cursor-pointer text-muted-foreground hover:bg-muted/60" />
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
