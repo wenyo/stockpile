@@ -2,7 +2,7 @@ export const WARNING_COUNT = 10;
 export const WARNING_DAYS = 30;
 export const stockType = {
   food: "一般食物",
-  infantStapleFood: "嬰兒主食", // 列入生存必要計算
+  infantStapleFood: "嬰幼兒主食", // 列入生存必要計算
   infantNonStapleFood: "嬰兒副食品", // 不列入生存必要計算
   petStapleFood: "寵物主食", // 列入生存必要計算
   petNonStapleFood: "寵物副食品", // 不列入生存必要計算

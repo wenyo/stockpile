@@ -7,16 +7,17 @@ import { Button } from "@/components/ui/button"
 
 export default function DeleteCheck() {
   const { closeModal } = useContext(ModalContext);
-  const { deleteStock, removeStock } = useContext(StockListContext);
-  const { deleteHousehold, removeHousehold } = useContext(SettingContext);
+  const { deleteStock, setDeleteStock, removeStock } = useContext(StockListContext);
+  const { deleteHousehold, setDeleteHousehold, removeHousehold } = useContext(SettingContext);
   const deleteConfig = deleteStock ? 
-    { name: deleteStock.name, id: deleteStock.id, remove: removeStock } : 
+    { name: deleteStock.name, id: deleteStock.id, remove: removeStock, setDelete: setDeleteStock } : 
     deleteHousehold ? 
-    { name: deleteHousehold.name, id: deleteHousehold.id, remove: removeHousehold } : null;
+    { name: deleteHousehold.name, id: deleteHousehold.id, remove: removeHousehold, setDelete: setDeleteHousehold } : null;
 
   function handleDelete() {
     if (deleteConfig) {
       deleteConfig.remove(deleteConfig.id);
+      deleteConfig.setDelete(null);
     }
     closeModal();
   }

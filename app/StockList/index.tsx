@@ -34,7 +34,7 @@ export default function Index() {
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-4 md:mb-6">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">物資列表</h1>
-        <Button onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1">
+        <Button id="tour-add-stock-btn" onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1">
           <Plus size={18} /> 新增物資
         </Button>
       </div>
@@ -78,7 +78,7 @@ export default function Index() {
           const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : null;
 
           return (
-            <li key={stock.id}>
+            <li key={stock.id} id={stock.id.includes("tour-demo-stock") ? "tour-demo-stock-desktop" : undefined}>
               <Card className="h-full bg-card/40 backdrop-blur-sm border-border/50 hover:bg-card/60 transition-colors flex flex-col relative group">
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                   <button onClick={() => { setEditStock(stock); openModal(modalTypeConstant.STOCK); }} className="cursor-pointer p-1.5 bg-muted/80 rounded-md hover:bg-muted text-info"><Edit2 size={16} /></button>
@@ -176,7 +176,7 @@ function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProp
   const statusColor = isExpired ? "bg-danger" : isExpiringSoon || isLowStock ? "bg-warning" : "bg-transparent";
 
   return (
-    <li className="bg-card/30">
+    <li className="bg-card/30" id={stock.id.includes("tour-demo-stock") ? "tour-demo-stock-mobile" : undefined}>
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}

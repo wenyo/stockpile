@@ -22,6 +22,7 @@ export type StockListContextType = {
   startFromDemoData: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  replaceStockList: (newList: Stock[]) => void;
 };
 
 export const StockListContext = createContext<StockListContextType>({
@@ -42,6 +43,7 @@ export const StockListContext = createContext<StockListContextType>({
   startFromDemoData: () => {},
   activeTab: "priority",
   setActiveTab: () => {},
+  replaceStockList: () => {},
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
@@ -130,8 +132,10 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     }).map(item => item.id));
   }, [stockList, searchParams]);
 
+  const replaceStockList = (newList: Stock[]) => setStockList(newList);
+
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab, replaceStockList }}>
       {children}
     </StockListContext.Provider>
   );
