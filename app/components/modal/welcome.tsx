@@ -1,21 +1,29 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { X, Package } from "lucide-react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 export default function WelcomeModal() {
   const { setIsDemo } = useContext(StockListContext);
   const { closeModal } = useContext(ModalContext);
+  const [showTour, setShowTour] = useState(true);
+
+  function finishWelcome() {
+    closeModal();
+    if (showTour) {
+      setTimeout(() => window.dispatchEvent(new Event("start-tour")), 300);
+    }
+  }
 
   function handleStart() {
     setIsDemo(false);
-    closeModal();
+    finishWelcome();
   }
 
   function handleDemo() {
     setIsDemo(true);
-    closeModal();
+    finishWelcome();
   }
   
   return (
@@ -50,6 +58,19 @@ export default function WelcomeModal() {
             <p className="mb-2 w-3/4">想先看看功能？</p>
             <p className="mb-2 text-muted-foreground w-3/4">載入一份完整的範例資料。</p>
             <Button className="absolute h-3/5 top-2/10 right-4 w-1/4" variant="outline" onClick={handleDemo}>探索範例</Button>
+          </div>
+          
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <input 
+              type="checkbox" 
+              id="show-tour" 
+              checked={showTour} 
+              onChange={(e) => setShowTour(e.target.checked)} 
+              className="w-4 h-4 rounded border-border/50 text-primary cursor-pointer accent-primary"
+            />
+            <label htmlFor="show-tour" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
+              開始後，同時進行系統教學導覽 (推薦新手)
+            </label>
           </div>
         </div>
       </div>

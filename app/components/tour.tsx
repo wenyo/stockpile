@@ -82,15 +82,6 @@ export default function AppTour() {
     return () => window.removeEventListener("start-tour", handleStartTour);
   }, []);
 
-  useEffect(() => {
-    // Only auto-start once when initialized
-    if (!isInitialized) return;
-    const hasSeenTour = localStorage.getItem("stockpile_has_seen_tour");
-    if (!hasSeenTour) {
-      setRun(true);
-      localStorage.setItem("stockpile_has_seen_tour", "true");
-    }
-  }, [isInitialized]);
 
   const handleJoyrideCallback = (data: any) => {
     const { status, type, index, action } = data;
