@@ -26,8 +26,8 @@ export default function CreateFamilyModal() {
   const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
   const isEdit = editHousehold?.id;
   
-  const showFeedPortion = newFamilyInfo.identity === "infant" || newFamilyInfo.identity === "pet";
-  const appliesToStockType = newFamilyInfo.identity === "infant" ? "infantStapleFood" : "petStapleFood";
+  const showFeedPortion = newFamilyInfo.identity === "infant" || newFamilyInfo.identity === "pet" || newFamilyInfo.identity === "child";
+  const appliesToStockType = newFamilyInfo.identity === "pet" ? "petStapleFood" : "infantStapleFood";
   const availableTags = feedTags.filter((t) => t.appliesToStockType === appliesToStockType);
 
   const updateField = (keyPath: string, value: string | number) => {
@@ -169,10 +169,12 @@ export default function CreateFamilyModal() {
               <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">{newFamilyInfo.identity === 'infant' ? '每日額外飲水量 (ml)' : '每日飲水量 (ml)'}</label>
               <Input value={newFamilyInfo.dailyMlWater} onChange={handleInputChange} type="number" id="dailyMlWater" className="h-10 border-border/60" placeholder="e.g. 2000" />
             </li>
-            {!showFeedPortion && <li className="flex flex-col gap-1.5">
-              <label htmlFor="dailyKcalNeed" className="text-sm font-semibold text-muted-foreground">每日熱量需求 (kcal)</label>
-              <Input value={newFamilyInfo.dailyKcalNeed || ""} onChange={handleInputChange} type="number" id="dailyKcalNeed" className="h-10 border-border/60" placeholder="e.g. 2000" />
-            </li>}
+            {(newFamilyInfo.identity === "adult" || newFamilyInfo.identity === "child") && (
+              <li className="flex flex-col gap-1.5">
+                <label htmlFor="dailyKcalNeed" className="text-sm font-semibold text-muted-foreground">每日熱量需求 (kcal)</label>
+                <Input value={newFamilyInfo.dailyKcalNeed || ""} onChange={handleInputChange} type="number" id="dailyKcalNeed" className="h-10 border-border/60" placeholder="e.g. 2000" />
+              </li>
+            )}
             
             {showFeedPortion && (
               <li className="col-span-full">
@@ -240,6 +242,9 @@ export default function CreateFamilyModal() {
                                 <div className="h-px bg-border my-1" />
                                 <SelectItem value="__CREATE__" className="font-semibold text-primary focus:bg-primary/10">
                                   + 新增{stockFieldLabel.feedTagId}
+                                  <span className="text-muted-foreground/70 font-normal ml-1.5 text-xs">
+                                    (將分類在：{appliesToStockType === "infantStapleFood" ? "嬰幼兒主食" : "寵物主食"})
+                                  </span>
                                 </SelectItem>
                               </SelectContent>
                             </Select>

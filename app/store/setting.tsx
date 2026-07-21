@@ -23,6 +23,9 @@ type SettingContextType = {
   setDeleteHousehold: (newHousehold: HouseholdMember | null) => void;
   feedTags: FeedTag[];
   addFeedTag: (newTag: Pick<FeedTag, "label" | "appliesToStockType">) => string;
+  replaceSetting: (newSetting: SettingConfig) => void;
+  replaceHousehold: (newHousehold: HouseholdMember[]) => void;
+  replaceFeedTags: (newTags: FeedTag[]) => void;
 };
 
 const defaultSetting: SettingConfig = {
@@ -43,6 +46,9 @@ export const SettingContext = createContext<SettingContextType>({
   setDeleteHousehold: () => {},
   feedTags: [],
   addFeedTag: () => "",
+  replaceSetting: () => {},
+  replaceHousehold: () => {},
+  replaceFeedTags: () => {},
 });
 
 export function SettingProvider({ children }: { children: ReactNode }) {
@@ -125,7 +131,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
   const addHousehold = (newMember: HouseholdMember) => {
     const addHouseholdInfo = {
       ...newMember,
-      id: new Date().getTime().toString(),
+      id: newMember.id || new Date().getTime().toString(),
     }
     setHousehold((prevHousehold) => [...prevHousehold, addHouseholdInfo]);
   };
@@ -140,8 +146,12 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     return id;
   };
 
+  const replaceSetting = (newSetting: SettingConfig) => setSetting(newSetting);
+  const replaceHousehold = (newHousehold: HouseholdMember[]) => setHousehold(newHousehold);
+  const replaceFeedTags = (newTags: FeedTag[]) => setFeedTags(newTags);
+
   return (
-    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, feedTags, addFeedTag }}>
+    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, feedTags, addFeedTag, replaceSetting, replaceHousehold, replaceFeedTags }}>
       {children}
     </SettingContext.Provider>
   );

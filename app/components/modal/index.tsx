@@ -7,6 +7,7 @@ import WelcomeModal from "@/components/modal/welcome";
 import DemoCheckModal from "@/components/modal/demoCheck";
 import DeleteCheckModal from "@/components/modal/deleteCheck";
 import StatusInfoModal from "@/components/modal/statusInfo";
+import PwaNoticeModal from "@/components/modal/pwaNotice";
 
 export default function Modal() {
   const { isModalOpen, modalType } = useContext(ModalContext);
@@ -23,6 +24,7 @@ export default function Modal() {
       {modalType === modalTypeConstant.DEMO_CHECK && <DemoCheckModal />}
       {modalType === modalTypeConstant.DELETE_CHECK && <DeleteCheckModal />}
       {modalType === modalTypeConstant.STATUS_INFO && <StatusInfoModal />}
+      {modalType === modalTypeConstant.PWA_NOTICE && <PwaNoticeModal />}
       {modalType === modalTypeConstant.FAMILY && <CreateFamilyModal />}
     </div>)
   )

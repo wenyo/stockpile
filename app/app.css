@@ -176,3 +176,7 @@ body {
 .overflow-hidden-ellipsis {
   @apply overflow-hidden text-ellipsis whitespace-nowrap
 }
+
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}

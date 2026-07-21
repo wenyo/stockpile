@@ -69,7 +69,6 @@ export default function SurvivalAnalysis() {
 
   const breakdownText = [
     breakdown.adult ? `${breakdown.adult}${identityConstants.adult}` : '',
-    breakdown.elderly ? `${breakdown.elderly}${identityConstants.elderly}` : '',
     breakdown.child ? `${breakdown.child}${identityConstants.child}` : '',
     breakdown.infant ? `${breakdown.infant}${identityConstants.infant}` : '',
     breakdown.pet ? `${breakdown.pet}${identityConstants.pet}` : '',
