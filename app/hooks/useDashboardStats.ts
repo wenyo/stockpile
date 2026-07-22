@@ -155,13 +155,6 @@ export function useDashboardStats() {
     return result;
   }, [stockList]);
 
-  // 缺乏的物資種類
-  const missingTypeStock = useMemo(() => {
-    const allTypes = Object.keys(stockType);
-    const existingTypes = stockList.map((stock) => stock.type as string);
-    return allTypes.filter((type) => !notRequiredType.includes(type) && !existingTypes.includes(type));
-  }, [stockList]);
-
   // Feed Tag 統計計算
   const feedTagStats = useMemo(() => {
     const stats: Record<string, { dailyNeed: number, stockTotal: number, days: number, label: string, appliesToStockType?: string }> = {};
@@ -251,6 +244,21 @@ export function useDashboardStats() {
       pet: hasPet ? { days: petDays, bottleneck: petBottleneck || '未設定主食' } : null,
     };
   }, [household, feedTagStats]);
+
+  // 缺乏的物資種類
+  const missingTypeStock = useMemo(() => {
+    let allTypes = Object.keys(stockType);
+    
+    if (!specialMemberStatus.infant) {
+      allTypes = allTypes.filter(type => type !== 'infantStapleFood');
+    }
+    if (!specialMemberStatus.pet) {
+      allTypes = allTypes.filter(type => type !== 'petStapleFood');
+    }
+    
+    const existingTypes = stockList.map((stock) => stock.type as string);
+    return allTypes.filter((type) => !notRequiredType.includes(type) && !existingTypes.includes(type));
+  }, [stockList, specialMemberStatus]);
 
     // 生存天數
   const survivalDays = useMemo(() => {
