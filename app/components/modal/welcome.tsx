@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { X, Package } from "lucide-react";
+import { X, Package, BookOpen } from "lucide-react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
@@ -68,8 +68,8 @@ export default function WelcomeModal() {
               onChange={(e) => setShowTour(e.target.checked)} 
               className="w-4 h-4 rounded border-border/50 text-primary cursor-pointer accent-primary"
             />
-            <label htmlFor="show-tour" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
-              開始後，同時進行系統教學導覽 (推薦新手)
+            <label htmlFor="show-tour" className="flex items-center gap-1 text-sm font-medium text-muted-foreground cursor-pointer select-none">
+              我需要<span className="text-primary">新手教學</span>
             </label>
           </div>
         </div>

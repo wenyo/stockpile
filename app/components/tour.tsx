@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { Joyride, STATUS, type Step } from "react-joyride";
-import { BookOpen, Settings, List } from "lucide-react";
+import { BookOpen, Settings, List, LayoutDashboard } from "lucide-react";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 import { useNavigate, useLocation } from "react-router";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 export default function AppTour() {
   const [run, setRun] = useState(false);
-  const { isInitialized, addStock } = useContext(StockListContext);
+  const { addStock } = useContext(StockListContext);
   const { addHousehold } = useContext(SettingContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +33,7 @@ export default function AppTour() {
     {
       target: "#tour-demo-member",
       title: "成功建立成員",
-      content: "看！這就是剛剛幫您建立的測試成員。未來您可以在這裡修改成員的需求量。接著讓我們前往物資清單！",
+      content: "看！這就是剛剛幫您建立的測試成員。未來您可以在這裡修改成員的需求量。",
       skipBeacon: true,
       placement: "top",
     },
@@ -47,21 +47,21 @@ export default function AppTour() {
     {
       target: typeof window !== 'undefined' && window.innerWidth >= 768 ? "#tour-demo-stock-desktop" : "#tour-demo-stock-mobile",
       title: "成功建立物資",
-      content: "這是剛剛新增的礦泉水。您可以隨時點選卡片展開詳細資訊。馬上到首頁看看計算結果吧！",
+      content: "這是剛剛新增的礦泉水。您可以隨時點選卡片展開詳細資訊。",
       skipBeacon: true,
       placement: "top",
     },
     {
       target: "#nav-dashboard",
       title: "第三步：查看準備狀態",
-      content: "最後，回到「儀表板」查看總結！您可以一眼看出家庭的防災準備是否已經達標，以及哪些物資快要過期了。",
+      content: <div>最後，回到<span className="inline-flex items-center gap-1 text-primary"><LayoutDashboard size={14} />Dashboard</span>查看總結！您可以一眼看出家庭的防災準備是否已經達標，以及哪些物資快要過期了。</div>,
       skipBeacon: true,
       placement: "bottom",
     },
     {
       target: "#tour-data-management",
       title: "第四步：匯入與匯出",
-      content: "在設定頁的下方，您可以隨時將資料匯出成檔案備份，或是將備份檔匯入還原。",
+      content: <div>在<span className="inline-flex items-center gap-1 text-primary"><Settings size={14} />Setting</span>的下方，您可以隨時將資料匯出成檔案備份，或是將備份檔匯入還原。</div>,
       skipBeacon: true,
       placement: "top",
     },
@@ -86,9 +86,10 @@ export default function AppTour() {
   const handleJoyrideCallback = (data: any) => {
     const { status, type, index, action } = data;
     
-    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED || action === "close") {
       setRun(false);
-      navigate("/");
+      // Optional: you can remove navigate("/") here if you want them to stay on the current page when closing
+      return;
     }
     
     // Handle navigation BEFORE the next step is rendered
