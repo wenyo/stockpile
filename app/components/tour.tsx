@@ -185,6 +185,9 @@ export default function AppTour() {
         },
         arrow: {
           color: "#373839",
+        },
+        buttonClose: {
+          color: "#018f62",
         }
       }}
       locale={{

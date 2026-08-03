@@ -28,14 +28,14 @@ export default function Header() {
       </div>
 
       {isDemo && (
-        <div className="fixed bottom-20 md:bottom-8 right-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className="fixed bottom-20 md:bottom-8 right-6 z-40 animate-in slide-in-from-bottom-4 fade-in duration-300">
           <Button 
             variant="default" 
             className="rounded-full"
             size="lg"
             onClick={() => openModal(modalTypeConstant.DEMO_CHECK)}
           >
-            <X className="mr-1" /> Demo 模式
+            <X className="mr-1" />Demo 模式
           </Button>
         </div>
       )}

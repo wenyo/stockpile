@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { X, UsersRound, UserRoundPen, Plus, Trash2 } from "lucide-react";
 import { type HouseholdMember, initialHouseholdMember } from "@/interfaces/family";
 import { identityConstants } from "@/constant/family";
-import { stockFieldLabel } from "@/constant/stock";
+import { stockFieldLabel, stockType } from "@/constant/stock";
 import { type FeedPortion } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
@@ -185,6 +185,7 @@ export default function CreateFamilyModal() {
                     <Plus size={14} /> 新增主食
                   </Button>
                 </div>
+                <div>計算說明：</div>
                 
                 <div className="flex flex-col gap-4">
                   {(newFamilyInfo.feedPortions || []).length === 0 ? (
@@ -224,7 +225,12 @@ export default function CreateFamilyModal() {
                           </div>
                         ) : (
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
+                            <div className="flex justify-between items-center">
+                              <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
+                              <span className="text-muted-foreground/70 font-normal text-xs">
+                                適用類別：{appliesToStockType === "infantStapleFood" ? stockType.infantStapleFood : stockType.petStapleFood}
+                              </span>
+                            </div>
                             <Select 
                               value={portion.feedTagId} 
                               onValueChange={(val) => {
@@ -242,9 +248,6 @@ export default function CreateFamilyModal() {
                                 <div className="h-px bg-border my-1" />
                                 <SelectItem value="__CREATE__" className="font-semibold text-primary focus:bg-primary/10">
                                   + 新增{stockFieldLabel.feedTagId}
-                                  <span className="text-muted-foreground/70 font-normal ml-1.5 text-xs">
-                                    (將分類在：{appliesToStockType === "infantStapleFood" ? "嬰幼兒主食" : "寵物主食"})
-                                  </span>
                                 </SelectItem>
                               </SelectContent>
                             </Select>

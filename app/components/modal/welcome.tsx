@@ -49,14 +49,14 @@ export default function WelcomeModal() {
           <p className="mb-2 text-muted-foreground">建立自己的備戰清單，隨時掌握目前的準備狀況。</p>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2 w-3/4">第一次使用？</p>
-            <p className="mb-2 text-muted-foreground w-3/4">建立自己的物資清單</p>
+            <p className="mb-2 mr-2 w-2/3">第一次使用？</p>
+            <p className="mb-2 mr-2 text-muted-foreground w-2/3">建立自己的物資清單</p>
             <Button className="absolute h-3/5 top-2/10 right-4 w-1/4" onClick={handleStart}>直接開始</Button>
           </div>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2 w-3/4">想先看看功能？</p>
-            <p className="mb-2 text-muted-foreground w-3/4">載入一份完整的範例資料。</p>
+            <p className="mb-2 mr-2 w-2/3">想先看看功能？</p>
+            <p className="mb-2 mr-2 text-muted-foreground w-2/3">載入一份完整的範例資料。</p>
             <Button className="absolute h-3/5 top-2/10 right-4 w-1/4" variant="outline" onClick={handleDemo}>探索範例</Button>
           </div>
           
