@@ -1,4 +1,4 @@
-import { X, CirclePlay } from 'lucide-react';
+import { X, PlayOff } from 'lucide-react';
 import { useContext } from "react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
@@ -26,27 +26,26 @@ export default function DemoCheckModal() {
         {/* Header */}
         <div className="flex justify-between items-center p-5 md:p-6 border-b border-border/40 bg-muted/20">
           <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
-            <CirclePlay size={22} className="text-primary" />
-            範例 Demo
+            <PlayOff size={22} className="text-warning" />
+            退出 Demo 模式
           </h2>
           <Button variant="ghost" size="icon" onClick={() => closeModal()} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>
         <div className="p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-          <p className="mb-2">來看看能撐幾天。</p>
-          <p className="mb-2 text-muted-foreground">建立自己的備戰清單，隨時掌握目前的準備狀況。</p>
+          <p className="mb-2">開始建立自己的備戰清單。</p>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2">開始建立自己的物資清單</p>
-            <p className="mb-2 text-muted-foreground">從零開始建立自己的物資清單。</p>
-            <Button className="absolute h-3/5 top-2/10 right-4 w-25" onClick={handleStart}>直接開始</Button>
+            <p className="mb-2 w-2/3">空白清單</p>
+            <p className="mb-2 w-2/3 text-muted-foreground">從零開始建立物資清單。</p>
+            <Button className="absolute h-3/5 w-1/4 top-2/10 right-4 w-25" onClick={handleStart}>開始建立</Button>
           </div>
 
           <div className="mt-4 bg-muted/50 p-4 rounded-lg relative">
-            <p className="mb-2">使用範例作為初始清單</p>
-            <p className="mb-2 text-muted-foreground">使用範例資料，並可自行修改。</p>
-            <Button className="absolute h-3/5 top-2/10 right-4 w-25" variant="outline" onClick={handleDemo}>使用目前資料</Button>
+            <p className="mb-2 w-2/3">範例清單</p>
+            <p className="mb-2 w-2/3 text-muted-foreground">匯入範例，可自由修改。</p>
+            <Button className="absolute h-3/5 w-1/4 top-2/10 right-4 w-25" variant="outline" onClick={handleDemo}>使用範例</Button>
           </div>
         </div>
       </div>

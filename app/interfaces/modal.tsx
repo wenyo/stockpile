@@ -6,6 +6,7 @@ export const modalTypeConstant = {
   STATUS_INFO: "statusInfo",
   FAMILY: "Family",
   PWA_NOTICE: "pwaNotice",
+  UPDATE_STOCK: "updateStock",
 } as const;
 
 export type ModalType = typeof modalTypeConstant[keyof typeof modalTypeConstant] | null;
