@@ -20,6 +20,8 @@ export type StockListContextType = {
   searchStock: (searchStock: Stock) => void;
   startFromClearingData: () => void;
   startFromDemoData: () => void;
+  hasSeenTour: boolean;
+  markTourAsSeen: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   replaceStockList: (newList: Stock[]) => void;
@@ -41,6 +43,8 @@ export const StockListContext = createContext<StockListContextType>({
   searchStock: () => {},
   startFromClearingData: () => {},
   startFromDemoData: () => {},
+  hasSeenTour: false,
+  markTourAsSeen: () => {},
   activeTab: "priority",
   setActiveTab: () => {},
   replaceStockList: () => {},
@@ -55,6 +59,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const [showStockList, setShowStockList] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
   const [activeTab, setActiveTab] = useState("priority");
+  const [hasSeenTour, setHasSeenTour] = useState(false);
 
   const addStock = (stock: Stock) => {
     setStockList((prev) => [...prev, stock]);
@@ -95,6 +100,11 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   // init
   useEffect(() => {
+    const stored = localStorage.getItem("has-seen-tour");
+    if (stored === "true") {
+      setHasSeenTour(true);
+    }
+
     if(isDemo) {
       return;
     }
@@ -134,8 +144,13 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   const replaceStockList = (newList: Stock[]) => setStockList(newList);
 
+  const markTourAsSeen = () => {
+    setHasSeenTour(true);
+    localStorage.setItem("has-seen-tour", "true");
+  };
+
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, activeTab, setActiveTab, replaceStockList }}>
+    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
       {children}
     </StockListContext.Provider>
   );

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { X, Package, BookOpen } from "lucide-react";
+import { X, Package } from "lucide-react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 export default function WelcomeModal() {
   const { setIsDemo } = useContext(StockListContext);
   const { closeModal } = useContext(ModalContext);
-  const [showTour, setShowTour] = useState(true);
+  const { hasSeenTour, markTourAsSeen } = useContext(StockListContext);
+  const [showTour, setShowTour] = useState(!hasSeenTour);
 
   function finishWelcome() {
     closeModal();
     if (showTour) {
+      markTourAsSeen();
       setTimeout(() => window.dispatchEvent(new Event("start-tour")), 300);
     }
   }
