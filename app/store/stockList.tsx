@@ -62,7 +62,8 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const [hasSeenTour, setHasSeenTour] = useState(false);
 
   const addStock = (stock: Stock) => {
-    setStockList((prev) => [...prev, stock]);
+    const newStock = {...stock, updatedAt: new Date().toISOString()};
+    setStockList((prev) => [...prev, newStock]);
   };
 
   const removeStock = (id: string) => {
@@ -70,8 +71,9 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   };
 
   const updateStock = (id: string, updatedStock: Stock) => {
+    const newStock = {...updatedStock, updatedAt: new Date().toISOString()};
     setStockList((prev) =>
-      prev.map((item) => (item.id === id ? updatedStock : item))
+      prev.map((item) => (item.id === id ? newStock : item))
     );
   };
 

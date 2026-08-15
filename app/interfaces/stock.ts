@@ -13,6 +13,7 @@ export interface Stock {
   volume: number | undefined;
   volumeUnit?: keyof typeof stockUnit;
   feedTagId?: string; // 只有 type 為 petFood/babyFood/babyMilk 時才會用到
+  updatedAt?: string | null;
 }
 
 export const initialStock: Stock = {
@@ -28,6 +29,7 @@ export const initialStock: Stock = {
   volume: undefined,
   volumeUnit: undefined,
   feedTagId: undefined,
+  updatedAt: null,
 };
 
 type StockField = keyof Stock;
