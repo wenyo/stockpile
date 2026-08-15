@@ -25,8 +25,8 @@ export default function StockRisk() {
   const targetDays = setting?.targetDays || 30;
 
   const survivalPillars = [
-    { label: `${identityConstants.adult}飲用水`, icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
-    { label: `${identityConstants.adult}食物`, icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
+    { label: "家庭飲用水", icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
+    { label: "家庭食物", icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
   ];
 
   if (specialMemberStatus?.infant) {
