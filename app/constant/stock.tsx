@@ -43,7 +43,7 @@ export const stockFieldLabel = {
   expirationDate: "到期日",
   purchaseDate: "購買日期",
   remark: "備註",
-  feedTagId: "餵食標籤",
+  feedTagId: "庫存標籤",
 } as const;
 
 export const preparednessLevels = [

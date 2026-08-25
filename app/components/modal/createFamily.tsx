@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import { X, UsersRound, UserRoundPen, Plus, Trash2 } from "lucide-react";
-import { type HouseholdMember, initialHouseholdMember } from "@/interfaces/family";
+import { type FeedPortion } from "@/interfaces/stock";
+import { type HouseholdMember, initialHouseholdMember, REQUIRED_FIELDS } from "@/interfaces/family";
+import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
 import { stockFieldLabel, stockType } from "@/constant/stock";
-import { type FeedPortion } from "@/interfaces/stock";
-import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
@@ -24,11 +24,18 @@ export default function CreateFamilyModal() {
   const { stockList } = useContext(StockListContext);
   const [newFamilyInfo, setNewFamilyInfo] = useState<HouseholdMember>(initialHouseholdMember);
   const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
   const isEdit = editHousehold?.id;
   
   const showFeedPortion = newFamilyInfo.identity === "infant" || newFamilyInfo.identity === "pet" || newFamilyInfo.identity === "child";
   const appliesToStockType = newFamilyInfo.identity === "pet" ? "petStapleFood" : "infantStapleFood";
   const availableTags = feedTags.filter((t) => t.appliesToStockType === appliesToStockType);
+  const requiredFields = REQUIRED_FIELDS[newFamilyInfo.identity];
+  const requiredDom = <span className="text-danger ml-1">*</span>;
+  const checkIsRequired = (key: keyof HouseholdMember) => {
+    const isRequire = requiredFields.includes(key);
+    return isRequire ? requiredDom : "";
+  }
 
   const updateField = (keyPath: string, value: string | number) => {
     setNewFamilyInfo((prev) => {
@@ -104,7 +111,30 @@ export default function CreateFamilyModal() {
     setEditHousehold(null);
   }
 
+  const checkFormRequirements = () => {
+    for (let requireKey of requiredFields) {
+      if (requireKey === "feedPortions") {
+        const feedPortions = newFamilyInfo.feedPortions || [];
+        if (feedPortions.length === 0) {
+          return false;
+        }
+        for (let portion of feedPortions) {
+          if (!portion.feedTagId || !portion.amount || !portion.unit || !portion.frequencyType || !portion.frequencyValue) {
+            return false;
+          }
+        }
+      } else {
+        const val = newFamilyInfo[requireKey];
+        if (val === undefined || val === null || val === "") {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   const submit = () => {
+    if (!isComplete) return;
     if (isEdit) {
       updateHousehold(newFamilyInfo);
     } else {
@@ -116,8 +146,13 @@ export default function CreateFamilyModal() {
   const handleDelete = () => {
     if (!editHousehold) return;
     setDeleteHousehold(editHousehold);
+    setEditHousehold(null);
     openModal(modalTypeConstant.DELETE_CHECK);
   };
+
+  useEffect(() => {
+    setIsComplete(checkFormRequirements());
+  },[newFamilyInfo])
 
   useEffect(() => {
     if (editHousehold) {
@@ -149,12 +184,26 @@ export default function CreateFamilyModal() {
         <div className="bg-background flex-1 overflow-y-auto p-4 md:p-6">
           <ul className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}</label>
-              <Input value={newFamilyInfo.name} onChange={handleInputChange} type="text" id="name" className="h-10 border-border/60" placeholder="e.g. 爸爸, 媽媽, 小明" />
+              <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}{checkIsRequired("name")}</label>
+              <Input
+                value={newFamilyInfo.name} 
+                onChange={handleInputChange} 
+                type="text" 
+                name="name" 
+                id="name" 
+                className="h-10 border-border/60" 
+                placeholder="e.g. 爸爸, 媽媽, 小明" 
+                required={requiredFields.includes("name")}
+              />
             </li>
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="identity" className="text-sm font-semibold text-muted-foreground">身份</label>
-              <Select value={newFamilyInfo.identity} onValueChange={(value) => { handleSelectChange(value, "identity"); setNewTagInput(null); }}>
+              <label htmlFor="identity" className="text-sm font-semibold text-muted-foreground">身份{checkIsRequired("identity")}</label>
+              <Select 
+                name="identity" 
+                value={newFamilyInfo.identity} 
+                onValueChange={(value) => { handleSelectChange(value, "identity"); setNewTagInput(null); }}
+                required={requiredFields.includes("identity")}
+              >
                 <SelectTrigger className="h-10 border-border/60">
                   <SelectValue placeholder="選擇分類..." />
                 </SelectTrigger>
@@ -166,31 +215,51 @@ export default function CreateFamilyModal() {
               </Select>
             </li>
             <li className="flex flex-col gap-1.5">
-              <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">{newFamilyInfo.identity === 'infant' ? '每日額外飲水量 (ml)' : '每日飲水量 (ml)'}</label>
-              <Input value={newFamilyInfo.dailyMlWater} onChange={handleInputChange} type="number" id="dailyMlWater" className="h-10 border-border/60" placeholder="e.g. 2000" />
+              <label htmlFor="dailyMlWater" className="text-sm font-semibold text-muted-foreground">{newFamilyInfo.identity === 'infant' ? '每日額外飲水量 (ml)' : '每日飲水量 (ml)'}{checkIsRequired("dailyMlWater")}</label>
+              <Input 
+                value={newFamilyInfo.dailyMlWater} 
+                onChange={handleInputChange} 
+                type="number" 
+                id="dailyMlWater" 
+                className="h-10 border-border/60" 
+                placeholder="e.g. 2000" 
+                required={requiredFields.includes("dailyMlWater")}
+              />
             </li>
             {(newFamilyInfo.identity === "adult" || newFamilyInfo.identity === "child") && (
               <li className="flex flex-col gap-1.5">
-                <label htmlFor="dailyKcalNeed" className="text-sm font-semibold text-muted-foreground">每日熱量需求 (kcal)</label>
-                <Input value={newFamilyInfo.dailyKcalNeed || ""} onChange={handleInputChange} type="number" id="dailyKcalNeed" className="h-10 border-border/60" placeholder="e.g. 2000" />
+                <label htmlFor="dailyKcalNeed" className="text-sm font-semibold text-muted-foreground">每日熱量需求 (kcal){checkIsRequired("dailyKcalNeed")}</label>
+                <Input 
+                  value={newFamilyInfo.dailyKcalNeed || ""} 
+                  onChange={handleInputChange} 
+                  type="number" 
+                  id="dailyKcalNeed" 
+                  className="h-10 border-border/60" 
+                  placeholder="e.g. 2000" 
+                  required={requiredFields.includes("dailyKcalNeed")}
+                />
               </li>
             )}
             
             {showFeedPortion && (
               <li className="col-span-full">
                 <div className="my-4 border-b border-border/40"></div>
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-sm font-semibold text-muted-foreground">搭配主食與需求量</h3>
-                  <Button onClick={addFeedPortion} variant="outline" size="sm" className="h-8 gap-1 border-border/60">
-                    <Plus size={14} /> 新增主食
-                  </Button>
+                <div className="flex justify-between items-center mb-3 text-muted-foreground">
+                  <h3 className="text-sm font-semibold">指定飲食需求{checkIsRequired("feedPortions")}</h3>
+                  <div className="flex justify-center items-center gap-2">
+                    <span className="font-normal text-sm">
+                      適用類別：<span className="text-foreground font-bold">{appliesToStockType === "infantStapleFood" ? stockType.infantStapleFood : stockType.petStapleFood}</span>
+                    </span>
+                    <Button onClick={addFeedPortion} variant="outline" size="sm" className="h-8 gap-1 border-border/60 w-fit">
+                      <Plus size={14} /> 新增
+                    </Button>
+                  </div>
                 </div>
-                <div>計算說明：</div>
                 
                 <div className="flex flex-col gap-4">
                   {(newFamilyInfo.feedPortions || []).length === 0 ? (
                     <div className="text-center py-6 bg-muted/20 border border-dashed border-border/60 rounded-xl text-muted-foreground text-sm">
-                      尚未新增任何主食設定
+                      尚未設定飲食需求
                     </div>
                   ) : (
                     (newFamilyInfo.feedPortions || []).map((portion, idx) => {
@@ -214,29 +283,27 @@ export default function CreateFamilyModal() {
                               <Input 
                                 autoFocus
                                 className="h-9 border-border/60" 
-                                placeholder="如：皇家幼貓乾糧..." 
+                                placeholder="如：奶粉、貓貓飼料..." 
                                 value={newTagInput.label} 
                                 onChange={(e) => setNewTagInput({ ...newTagInput, label: e.target.value })} 
                                 onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag()}
+                                required={requiredFields.includes("feedPortions")}
                               />
                               <Button type="button" size="sm" className="h-9" onClick={confirmCreateTag}>確定</Button>
                               <Button type="button" size="sm" className="h-9" variant="outline" onClick={() => setNewTagInput(null)}>取消</Button>
                             </div>
+                            <span className="text-xs text-info">※ 庫存標籤用於對應成員的主食</span>
                           </div>
                         ) : (
                           <div className="flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
-                              <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
-                              <span className="text-muted-foreground/70 font-normal text-xs">
-                                適用類別：{appliesToStockType === "infantStapleFood" ? stockType.infantStapleFood : stockType.petStapleFood}
-                              </span>
-                            </div>
+                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{checkIsRequired("feedPortions")}</label>
                             <Select 
                               value={portion.feedTagId} 
                               onValueChange={(val) => {
                                 if (val === "__CREATE__") setNewTagInput({ idx, label: "" });
                                 else updateFeedPortion(idx, "feedTagId", val);
                               }}
+                              required={requiredFields.includes("feedPortions")}
                             >
                               <SelectTrigger className="h-9 border-border/60">
                                 <SelectValue placeholder="選擇或建立標籤..." />
@@ -251,14 +318,15 @@ export default function CreateFamilyModal() {
                                 </SelectItem>
                               </SelectContent>
                             </Select>
+                            <span className="text-xs text-info">※ 庫存標籤用於對應成員的主食</span>
                           </div>
                         )}
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                           <div className="flex flex-col gap-1.5 md:col-span-2">
-                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率</label>
+                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率{checkIsRequired("feedPortions")}</label>
                             <div className="flex gap-2">
-                              <Select value={portion.frequencyType || "timesPerDay"} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)}>
+                              <Select value={portion.frequencyType || "timesPerDay"} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
                                 <SelectTrigger className="h-9 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -272,20 +340,22 @@ export default function CreateFamilyModal() {
                                 className="h-9 w-24 border-border/60" 
                                 value={portion.frequencyValue || ""} 
                                 onChange={(e) => updateFeedPortion(idx, "frequencyValue", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                required={requiredFields.includes("feedPortions")}
                               />
                             </div>
                           </div>
                           
                           <div className="flex flex-col gap-1.5 md:col-span-2">
-                            <label className="text-xs font-semibold text-muted-foreground">單次餵食量</label>
+                            <label className="text-xs font-semibold text-muted-foreground">單次餵食量{checkIsRequired("feedPortions")}</label>
                             <div className="flex gap-2">
                               <Input 
                                 type="number" 
                                 className="h-9 border-border/60" 
                                 value={portion.amount || ""} 
                                 onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                required={requiredFields.includes("feedPortions")}
                               />
-                              <Select disabled={isTagUsedInStock} value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)}>
+                              <Select disabled={isTagUsedInStock} value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)} required={requiredFields.includes("feedPortions")}>
                                 <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -301,9 +371,9 @@ export default function CreateFamilyModal() {
                             )}
                           </div>
 
-                          {newFamilyInfo.identity === "infant" && (
+                          {["child", "infant"].includes(newFamilyInfo.identity) && (
                             <div className="flex flex-col gap-1.5 col-span-2 md:col-span-4 border-t border-border/40 pt-3 mt-1">
-                              <label className="text-xs font-semibold text-muted-foreground">搭配水量 (ml) - 泡奶用</label>
+                              <label className="text-xs font-semibold text-muted-foreground">搭配水量 (ml) - 泡奶/稀釋專用</label>
                               <Input 
                                 type="number" 
                                 className="h-9 border-border/60" 
@@ -333,7 +403,7 @@ export default function CreateFamilyModal() {
           <Button variant="outline" onClick={closeCreateFamilyModal} className="px-6 border-border/60 hover:bg-muted/50">
             取消
           </Button>
-          <Button className="px-8 shadow-sm" onClick={submit}>
+          <Button className="px-8 shadow-sm" disabled={!isComplete} onClick={submit}>
             {isEdit ? "儲存更新" : "確認新增"}
           </Button>
         </div>

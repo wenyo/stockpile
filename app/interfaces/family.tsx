@@ -1,4 +1,3 @@
-import { stockItemUnit } from '@/constant/stock';
 import type { FeedPortion } from '@/interfaces/stock';
 import { identityConstants } from '@/constant/family';
 
@@ -19,4 +18,11 @@ export const initialHouseholdMember: HouseholdMember = {
   name: "",
   dailyKcalNeed: 0,
   dailyMlWater: 0,
+};
+
+export const REQUIRED_FIELDS: Record<Identity, (keyof HouseholdMember)[]> = {
+  adult: ["name", "identity", "dailyKcalNeed", "dailyMlWater"],
+  child: ["name", "identity", "dailyKcalNeed", "dailyMlWater"],
+  infant: ["name", "identity", "feedPortions"],
+  pet: ["name", "identity", "dailyMlWater", "feedPortions"],
 };
