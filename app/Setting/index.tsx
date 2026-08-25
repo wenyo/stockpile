@@ -74,12 +74,6 @@ export default function SettingComponent() {
     openModal(modalTypeConstant.FAMILY);
   };
 
-  const deleteMember = (e: React.MouseEvent, member: HouseholdMember) => {
-    e.stopPropagation();
-    setDeleteHousehold(member);
-    openModal(modalTypeConstant.DELETE_CHECK);
-  };
-
   const getIdentityIcon = (identity: string) => {
     switch (identity) {
       case "adult": return <User size={26} className="text-primary/70" />;
@@ -151,8 +145,8 @@ export default function SettingComponent() {
           <CardDescription>新增與管理您的家庭成員，系統會依此計算總熱量與主食需求</CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-2">
-            
+          <MessageCircleQuestionMark size={20} onClick={() => openModal(modalTypeConstant.CALCULATOR_INFO)} className="absolute top-5 right-5 cursor-pointer text-muted-foreground hover:bg-muted/60" />
+          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-2">            
             <li 
               id="tour-add-member-btn"
               className="cursor-pointer flex flex-col justify-center items-center bg-transparent p-4 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-colors gap-2 min-h-[120px]" 
@@ -209,11 +203,11 @@ export default function SettingComponent() {
               <Smartphone size={20} />
               強烈建議安裝 PWA
             </CardTitle>
-            <MessageCircleQuestionMark size={20} onClick={() => openModal(modalTypeConstant.PWA_NOTICE)} className="absolute top-5 right-5 cursor-pointer text-muted-foreground hover:bg-muted/60" />
           </CardHeader>
           <CardContent>
+            <MessageCircleQuestionMark size={20} onClick={() => openModal(modalTypeConstant.PWA_NOTICE)} className="absolute top-5 right-5 cursor-pointer text-muted-foreground hover:bg-muted/60" />
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              在遇到斷網的緊急情況下，您仍然需要能夠查看庫存。請將本網頁<strong>「加入主畫面」</strong> (Install PWA) 以支援離線操作。
+              在遇到斷網的緊急情況下，您仍然需要能夠查看庫存。請將本網頁<strong>「加入主畫面」</strong>以支援離線操作。
             </p>
             <div className="bg-info/10 text-info p-3 rounded-lg text-xs font-medium flex items-start gap-2">
               <Info size={16} className="shrink-0 mt-0.5" />
@@ -231,9 +225,9 @@ export default function SettingComponent() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="outline" className="flex-1 border-border/60 gap-2 h-12" onClick={handleExport}>
+            <Button variant="outline" className="w-full border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={handleExport}>
               <Download size={18} />
-              資料匯出 (Backup)
+              備份資料
             </Button>
             <div className="flex-1 relative">
               <input 
@@ -245,7 +239,7 @@ export default function SettingComponent() {
               />
               <Button variant="outline" className="w-full border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={() => fileInputRef.current?.click()}>
                 <Upload size={18} />
-                資料匯入 (Restore)
+                資料匯入
               </Button>
             </div>
           </div>

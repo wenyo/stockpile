@@ -9,6 +9,8 @@ import DeleteCheckModal from "@/components/modal/deleteCheck";
 import StatusInfoModal from "@/components/modal/statusInfo";
 import PwaNoticeModal from "@/components/modal/pwaNotice";
 import UpdateStockModal from "@/components/modal/updateStock";
+import CalculatorInfoModal from "@/components/modal/calculatorInfo";
+
 export default function Modal() {
   const { isModalOpen, modalType } = useContext(ModalContext);
 
@@ -27,6 +29,7 @@ export default function Modal() {
       {modalType === modalTypeConstant.PWA_NOTICE && <PwaNoticeModal />}
       {modalType === modalTypeConstant.FAMILY && <CreateFamilyModal />}
       {modalType === modalTypeConstant.UPDATE_STOCK && <UpdateStockModal />}
+      {modalType === modalTypeConstant.CALCULATOR_INFO && <CalculatorInfoModal />}
     </div>)
   )
 }
