@@ -5,6 +5,8 @@ import { sampleStockData } from "@/constant/sampleData";
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
 
 export type StockListContextType = {
+  lastInventoryConfirmedAt: Date | null;
+  updateLastInventoryConfirmedAt: (date: Date) => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
   isInitialized: boolean;
@@ -28,6 +30,8 @@ export type StockListContextType = {
 };
 
 export const StockListContext = createContext<StockListContextType>({
+  lastInventoryConfirmedAt: null,
+  updateLastInventoryConfirmedAt: () => {},
   isDemo: false,
   setIsDemo: () => {},
   isInitialized: false,
@@ -51,8 +55,9 @@ export const StockListContext = createContext<StockListContextType>({
 })
 
 export function StockListProvider({ children }: { children: ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [lastInventoryConfirmedAt, setLastInventoryConfirmedAt] = useState<Date | null>(null);
   const [isDemo, setIsDemo] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [deleteStock, setDeleteStock] = useState<Stock | null>(null);
   const [editStock, setEditStock] = useState<Stock | null>(null);
   const [stockList, setStockList] = useState<Stock[]>([]);
@@ -60,6 +65,10 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const [searchParams, setSearchParams] = useState<Stock | null>(null);
   const [activeTab, setActiveTab] = useState("priority");
   const [hasSeenTour, setHasSeenTour] = useState(false);
+
+  const updateLastInventoryConfirmedAt = () => {
+    setLastInventoryConfirmedAt(new Date());
+  }
 
   const addStock = (stock: Stock) => {
     const newStock = {...stock, updatedAt: new Date().toISOString()};
@@ -110,6 +119,12 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     if(isDemo) {
       return;
     }
+
+    const localStorageLastInventoryConfirmedAt = localStorage.getItem("lastInventoryConfirmedAt");
+    if (localStorageLastInventoryConfirmedAt) {
+      setLastInventoryConfirmedAt(new Date(localStorageLastInventoryConfirmedAt));
+    }
+
     const localStorageStockList = localStorage.getItem("stockList");
     if (localStorageStockList) {
       setStockList(JSON.parse(localStorageStockList));
@@ -117,12 +132,19 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     setIsInitialized(true); // 標記為已載入
   }, []);
 
-  // save data
+  // save stock list
   useEffect(() => {
     if (isInitialized && !isDemo) {
       localStorage.setItem("stockList", JSON.stringify(stockList));
     }
   }, [stockList, isDemo]);
+
+  // save last inventory confirmed at
+  useEffect(() => {
+    if (isInitialized && !isDemo && lastInventoryConfirmedAt) {
+      localStorage.setItem("lastInventoryConfirmedAt", lastInventoryConfirmedAt.toISOString());
+    }
+  }, [lastInventoryConfirmedAt, isDemo]);
 
   // search
   useEffect(() => {
@@ -152,7 +174,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StockListContext.Provider value={{ isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
+    <StockListContext.Provider value={{ lastInventoryConfirmedAt, updateLastInventoryConfirmedAt, isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
       {children}
     </StockListContext.Provider>
   );

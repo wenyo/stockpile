@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag } from "lucide-react";
+import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
@@ -14,7 +14,7 @@ import SearchStock from "@/components/search";
 import { getStockStatus } from "@/utils/stock";
 
 export default function Index() {
-  const { stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
+  const { lastInventoryConfirmedAt, stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const { feedTags } = useContext(SettingContext);
 
@@ -33,10 +33,21 @@ export default function Index() {
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight">物資列表</h1>
-        <Button id="tour-add-stock-btn" onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1">
-          <Plus size={18} /> 新增物資
-        </Button>
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">物資列表</h1>
+          <Button id="tour-add-stock-btn" onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1">
+            <Plus size={18} /> 新增物資
+          </Button>
+        </div>
+          <div className="flex items-end gap-2">
+            {
+              lastInventoryConfirmedAt && 
+              <span>上次盤點時間: {lastInventoryConfirmedAt.toLocaleDateString()}</span>
+            }
+            <Button variant="outline" className="flex items-center gap-1">
+              <Eye size={18} /> 確認庫存
+            </Button>
+        </div>
       </div>
 
       <SearchStock />
