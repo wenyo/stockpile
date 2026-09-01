@@ -1,5 +1,6 @@
 import { useContext, useRef } from "react";
 import { Plus, Target, RotateCw, UsersRound, Baby, PawPrint, User, Smile, Download, Upload, ShieldCheck, Smartphone, Info, MessageCircleQuestionMark } from "lucide-react";
+import { getIdentityIcon } from "@/utils/family";
 import { type HouseholdMember } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
@@ -72,17 +73,6 @@ export default function SettingComponent() {
   const editMember = (member: HouseholdMember) => {
     setEditHousehold(member);
     openModal(modalTypeConstant.FAMILY);
-  };
-
-  const getIdentityIcon = (identity: string) => {
-    switch (identity) {
-      case "adult": return <User size={26} className="text-primary/70" />;
-      case "elderly": return <User size={26} className="text-muted-foreground" />;
-      case "child": return <Smile size={26} className="text-info/80" />;
-      case "infant": return <Baby size={26} className="text-warning/80" />;
-      case "pet": return <PawPrint size={26} className="text-danger/70" />;
-      default: return <User size={26} />;
-    }
   };
 
   return (
@@ -167,7 +157,7 @@ export default function SettingComponent() {
               >
                 <div className="flex justify-between items-start">
                   <div className="p-2 bg-muted/40 rounded-full">
-                    {getIdentityIcon(member.identity)}
+                    {getIdentityIcon(member.identity, 26)}
                   </div>
                   <Badge variant="secondary" className="text-xs px-2 py-0.5 opacity-90 font-medium">
                     {identityConstants[member.identity as keyof typeof identityConstants] || member.identity}

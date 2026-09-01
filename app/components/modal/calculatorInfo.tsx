@@ -1,8 +1,9 @@
 import { useContext } from "react";
-import { X, PackageSearch, Users, User, Smile, Baby, Milk, Utensils, PawPrint, Droplet } from "lucide-react";
+import { X, PackageSearch, Users, Milk, Utensils, Droplet, PawPrint } from "lucide-react";
 import { stockType } from "@/constant/stock";
 import { identityConstants, identityEng } from "@/constant/family";
 import type { Identity } from "@/interfaces/family";
+import { getIdentityIcon } from "@/utils/family";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -54,19 +55,9 @@ export default function PwaNoticeModal() {
     ]
   }
 
-  const getIdentityIcon = (identity: string) => {
-    switch (identity) {
-      case "adult": return <User size={14} className="text-primary/70" />;
-      case "elderly": return <User size={14} className="text-muted-foreground" />;
-      case "child": return <Smile size={14} className="text-info/80" />;
-      case "infant": return <Baby size={14} className="text-warning/80" />;
-      case "pet": return <PawPrint size={14} className="text-danger/70" />;
-      default: return <User size={14} />;
-    }
-  };
-
-  const getInfoList = ({identityEng, memberName, dailyNeed, unit, details}: Info ) =>{
-    return <li className="flex flex-col gap-2 pt-1">
+  const getInfoList = (info: Info, index: number) => {
+    const {identityEng, memberName, dailyNeed, unit, details} = info;
+    return <li key={index} className="flex flex-col gap-2 pt-1">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2 text-muted-foreground font-medium">
                 <div className="bg-background p-1.5 rounded-md border border-border/40 shadow-sm">{getIdentityIcon(identityEng)}</div>
@@ -80,13 +71,13 @@ export default function PwaNoticeModal() {
               <ul className="ml-4 pl-5 space-y-2.5 relative before:absolute before:inset-y-0 before:left-[-1px] before:w-[2px] before:bg-border/60">
                 {
                   details.map((detail, index) => (
-                    <li key={index} className="flex justify-between items-center relative pl-1 group">
+                    <li key={index} className="flex justify-between items-center relative pl-1 group text-sm text-muted-foreground">
                       <span className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-4 h-[2px] bg-border/60 group-hover:bg-primary/50 transition-colors"></span>
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+                      <div className="flex items-center gap-1.5">
                         {detail.icon}
                         {detail.label}
                       </div>
-                      <span className="font-medium text-foreground/80 text-sm">{detail.value} <span className="text-[10px] text-muted-foreground">{unit}</span></span>
+                      <span className="font-medium">{detail.value} <span className="text-[10px] text-muted-foreground">{unit}</span></span>
                     </li>
                   ))
                 }
@@ -144,8 +135,8 @@ export default function PwaNoticeModal() {
 
                   <ul className="flex flex-col gap-3">
                     {
-                      infoDetails.question1.map((infoDetail) => {
-                        return getInfoList(infoDetail)
+                      infoDetails.question1.map((infoDetail, index) => {
+                        return getInfoList(infoDetail, index)
                       })
                     }
                   </ul>
@@ -155,7 +146,7 @@ export default function PwaNoticeModal() {
             <AccordionItem value="item-2">
               <AccordionTrigger>家庭一日飲水怎麼計算？</AccordionTrigger>
               <AccordionContent>
-                <p className="text-muted-foreground mb-4 leading-relaxed">家庭每日飲水依所有成員的設定計算，包含特殊飲食需求用水</p>
+                <p className="text-muted-foreground mb-4 leading-relaxed">依所有家庭成員的每日需求加總。</p>
                 
                 <div className="bg-muted/20 border border-border/40 rounded-xl p-4 sm:p-5 shadow-sm">
                   <div className="flex flex-col gap-4 pb-4 border-b border-border/50 mb-4">
@@ -183,8 +174,8 @@ export default function PwaNoticeModal() {
                   
                   <ul className="flex flex-col gap-3">
                     {
-                      infoDetails.question2.map((infoDetail) => {
-                        return getInfoList(infoDetail)
+                      infoDetails.question2.map((infoDetail, index) => {
+                        return getInfoList(infoDetail, index)
                       })
                     }
                   </ul>
