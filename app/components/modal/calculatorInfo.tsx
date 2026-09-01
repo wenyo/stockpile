@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { X, PackageSearch, Users, Milk, Utensils, Droplet, PawPrint } from "lucide-react";
+import { X, PackageSearch, Users, Milk, Utensils, Droplet, PawPrint, Tag, Calculator, ArrowRight, Smile } from "lucide-react";
 import { stockType } from "@/constant/stock";
 import { identityConstants, identityEng } from "@/constant/family";
 import type { Identity } from "@/interfaces/family";
@@ -182,10 +182,61 @@ export default function PwaNoticeModal() {
                 </div>
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>嬰幼兒／寵物飲食怎麼計算？</AccordionTrigger>
+            <AccordionItem value="item-3" className="border-b-0">
+              <AccordionTrigger>{stockType.infantStapleFood} / {stockType.petStapleFood} 怎麼計算？</AccordionTrigger>
               <AccordionContent>
-                Yes. It uses Tailwind CSS for styling and is highly customizable.
+                <div className="space-y-4 pt-1">
+                  {/* Card 1: 標籤 */}
+                  <div className="bg-muted/20 border border-border/40 rounded-xl p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border/50">
+                      <div className="bg-primary/10 p-1.5 rounded-md"><Tag size={16} className="text-primary" /></div>
+                      <span className="font-bold text-foreground">標籤區分庫存</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed">即使同樣是{stockType.infantStapleFood}，也會依「庫存標籤」分開計算。</p>
+                    <div className="bg-background/60 rounded-lg p-3 border border-border/40 text-sm space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-muted-foreground"><Smile size={13} className="text-info/80" /> 小孩 A</span>
+                        <span className="font-medium text-foreground text-xs bg-muted px-2 py-1 rounded-md">{stockType.infantStapleFood} <span className="text-primary font-semibold">#1號奶粉</span></span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-muted-foreground"><Smile size={13} className="text-info/80" /> 小孩 B</span>
+                        <span className="font-medium text-foreground text-xs bg-muted px-2 py-1 rounded-md">{stockType.infantStapleFood} <span className="text-primary font-semibold">#3號奶粉</span></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: 餵食頻率 */}
+                  <div className="bg-muted/20 border border-border/40 rounded-xl p-4 sm:p-5 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border/50">
+                      <div className="bg-info/10 p-1.5 rounded-md"><Calculator size={16} className="text-info" /></div>
+                      <span className="font-bold text-foreground">餵食頻率換算</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed">系統會依餵食頻率，換算每日平均需求量。</p>
+                    <div className="bg-background/60 rounded-lg p-3 border border-border/40 text-sm space-y-3">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="flex items-center gap-1.5 text-muted-foreground"><PawPrint size={13} className="text-danger/70" /> 寵物 {stockType.petStapleFood} <span className="text-primary text-xs font-semibold">#飼料</span></span>
+                        <div className="flex items-center justify-between text-xs pl-5 text-muted-foreground/80">
+                          <span>一天 5 次 × 25g</span>
+                          <div className="flex items-center gap-1.5">
+                            <ArrowRight size={12} className="text-muted-foreground/50" />
+                            <span className="font-semibold text-foreground">125 <span className="font-normal text-muted-foreground">g/日</span></span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-px bg-border/40 w-full" />
+                      <div className="flex flex-col gap-1.5">
+                        <span className="flex items-center gap-1.5 text-muted-foreground"><PawPrint size={13} className="text-danger/70" /> 寵物 {stockType.petStapleFood} <span className="text-primary text-xs font-semibold">#主食罐</span></span>
+                        <div className="flex items-center justify-between text-xs pl-5 text-muted-foreground/80">
+                          <span>七天 1 次 × 1罐</span>
+                          <div className="flex items-center gap-1.5">
+                            <ArrowRight size={12} className="text-muted-foreground/50" />
+                            <span className="font-semibold text-foreground">1/7 <span className="font-normal text-muted-foreground">罐/日</span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
