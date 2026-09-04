@@ -157,15 +157,17 @@ export default function UpdateStockModal() {
                 </div>
 
                 <div className="w-full">
-                  <Select value={row.stockId} onValueChange={(val) => updateRow(row.id, "stockId", val)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="選擇物資" />
+                  <Select 
+                    value={row.stockId || undefined} 
+                    onValueChange={(val) => updateRow(row.id, "stockId", val)}
+                    disabled={getFilteredStocks(row.type).length === 0}
+                  >
+                    <SelectTrigger className={getFilteredStocks(row.type).length === 0 ? "opacity-50" : ""}>
+                      <SelectValue placeholder={getFilteredStocks(row.type).length === 0 ? "⚠️ 此分類目前沒有物資庫存" : "請選擇物資"} />
                     </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredStocks(row.type).length === 0 ? (
-                        <SelectItem value="__none__" disabled>目前沒有庫存</SelectItem>
-                      ) : (
-                        getFilteredStocks(row.type).map(stock => {
+                    {getFilteredStocks(row.type).length > 0 && (
+                      <SelectContent>
+                        {getFilteredStocks(row.type).map(stock => {
                           const unit = stock.unit ? (stockItemUnit[stock.unit] || stock.unit) : "";
                           const dateInfo = stock.expirationDate ? ` - ${stock.expirationDate} 到期` : "";
                           return (
@@ -173,9 +175,9 @@ export default function UpdateStockModal() {
                               {stock.name} (剩餘 {stock.count} {unit}){dateInfo}
                             </SelectItem>
                           )
-                        })
-                      )}
-                    </SelectContent>
+                        })}
+                      </SelectContent>
+                    )}
                   </Select>
                 </div>
 
