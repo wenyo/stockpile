@@ -1,12 +1,13 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useState, useEffect, useCallback, type ReactNode, useMemo } from "react";
 import type { Stock } from "@/interfaces/stock";
 import { sampleStockData } from "@/constant/sampleData";
 
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
+const rtf1 = new Intl.RelativeTimeFormat("cn", { style: "short" });
 
 export type StockListContextType = {
-  lastInventoryConfirmedAt: Date | null;
-  updateLastInventoryConfirmedAt: (date: Date) => void;
+  relativeTime: {timeFormat: string, status: string} | null;
+  updateLastInventoryConfirmedAt: () => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
   isInitialized: boolean;
@@ -30,7 +31,7 @@ export type StockListContextType = {
 };
 
 export const StockListContext = createContext<StockListContextType>({
-  lastInventoryConfirmedAt: null,
+  relativeTime: {timeFormat: "", status: ""},
   updateLastInventoryConfirmedAt: () => {},
   isDemo: false,
   setIsDemo: () => {},
@@ -166,6 +167,28 @@ export function StockListProvider({ children }: { children: ReactNode }) {
     }).map(item => item.id));
   }, [stockList, searchParams]);
 
+
+  const relativeTime = useMemo(() => {
+    let result = {timeFormat: "", status: ""};
+    if(!lastInventoryConfirmedAt) return result;
+    const dayDiff = Math.floor((Date.now() - lastInventoryConfirmedAt.getTime()) / 86400000);
+
+    if(dayDiff === 0) {
+      result = {timeFormat: "今天", status: "success"};
+    } else if(dayDiff > 0 && dayDiff < 30) {
+      result = {timeFormat: rtf1.format(-dayDiff, "day"), status: "success"};
+    } else if(dayDiff > 0 && dayDiff < 365) {
+      const monthDiff = Math.floor(dayDiff / 30);
+      const status = monthDiff < 3 ? "success" : "warning";
+      result = {timeFormat: rtf1.format(-monthDiff, "month"), status};
+    } else {
+      const yearDiff = Math.floor(dayDiff / 365);
+      result = {timeFormat: rtf1.format(-yearDiff, "year"), status: "danger"};
+    }
+
+    return result;
+  }, [lastInventoryConfirmedAt]);
+
   const replaceStockList = (newList: Stock[]) => setStockList(newList);
 
   const markTourAsSeen = () => {
@@ -174,7 +197,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StockListContext.Provider value={{ lastInventoryConfirmedAt, updateLastInventoryConfirmedAt, isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
+    <StockListContext.Provider value={{ relativeTime, updateLastInventoryConfirmedAt, isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
       {children}
     </StockListContext.Provider>
   );

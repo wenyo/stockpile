@@ -10,6 +10,7 @@ import StatusInfoModal from "@/components/modal/statusInfo";
 import PwaNoticeModal from "@/components/modal/pwaNotice";
 import UpdateStockModal from "@/components/modal/updateStock";
 import CalculatorInfoModal from "@/components/modal/calculatorInfo";
+import InventoryConfirmModal from "@/components/modal/inventoryConfirm";
 
 export default function Modal() {
   const { isModalOpen, modalType } = useContext(ModalContext);
@@ -30,6 +31,7 @@ export default function Modal() {
       {modalType === modalTypeConstant.FAMILY && <CreateFamilyModal />}
       {modalType === modalTypeConstant.UPDATE_STOCK && <UpdateStockModal />}
       {modalType === modalTypeConstant.CALCULATOR_INFO && <CalculatorInfoModal />}
+      {modalType === modalTypeConstant.INVENTORY_CONFIRM && <InventoryConfirmModal />}
     </div>)
   )
 }

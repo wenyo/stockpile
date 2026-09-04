@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye } from "lucide-react";
+import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye, Clock, ClipboardCheck } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
@@ -14,7 +14,7 @@ import SearchStock from "@/components/search";
 import { getStockStatus } from "@/utils/stock";
 
 export default function Index() {
-  const { lastInventoryConfirmedAt, stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
+  const { relativeTime, stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const { feedTags } = useContext(SettingContext);
 
@@ -33,20 +33,28 @@ export default function Index() {
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-4 md:mb-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight">物資列表</h1>
-          <Button id="tour-add-stock-btn" onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1">
-            <Plus size={18} /> 新增物資
+          <Button id="tour-add-stock-btn" size="sm" onClick={() => openModal(modalTypeConstant.STOCK)} className="flex items-center gap-1 rounded-full px-3 shadow-sm h-8 sm:h-9">
+            <Plus size={16} /> <span className="hidden sm:inline">新增物資</span>
           </Button>
         </div>
-          <div className="flex items-end gap-2">
-            {
-              lastInventoryConfirmedAt && 
-              <span>上次盤點時間: {lastInventoryConfirmedAt.toLocaleDateString()}</span>
-            }
-            <Button variant="outline" className="flex items-center gap-1">
-              <Eye size={18} /> 確認庫存
-            </Button>
+        <div className="flex items-center gap-2 sm:gap-3">
+          {relativeTime?.status ? (
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-muted-foreground px-1 sm:px-2">
+              <Clock size={13} className="text-primary/70" />
+              <span className="hidden sm:inline">上次盤點:</span>
+              <span className={{success: 'text-success', warning: 'text-warning', danger: 'text-danger'}[relativeTime.status as 'success' | 'warning' | 'danger']}>{relativeTime.timeFormat}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-warning px-1 sm:px-2">
+              <AlertTriangle size={13} />
+              <span className="hidden sm:inline">尚未盤點</span>
+            </div>
+          )}
+          <Button variant="outline" size="sm" className="flex items-center gap-1.5 bg-background hover:bg-muted/50 border-border/60 shadow-sm h-8 sm:h-9 px-2.5 sm:px-3" onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)}>
+            <ClipboardCheck size={16} className="text-primary/80" /> <span className="hidden sm:inline">確認庫存</span>
+          </Button>
         </div>
       </div>
 

@@ -98,7 +98,7 @@ export default function SurvivalAnalysis() {
             <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">達成率</span>
             <span className="font-semibold text-base md:text-lg">{progressPercent}%</span>
           </li>
-          <li className="flex justify-between flex-col bg-muted/50 p-3 md:p-4 rounded-xl text-sm md:text-base border border-border/50 xl:col-span-1 md:col-span-3 lg:col-span-1">
+          <li className="flex justify-between flex-col bg-muted/50 p-3 md:p-4 rounded-xl text-sm md:text-base border border-border/50 xl:col-span-1 lg:col-span-1">
             <span className="text-muted-foreground text-xs md:text-sm font-medium mb-1">{stockFieldLabel.totalCalories}</span>
             <span className="font-semibold text-base md:text-lg">{currentCalories.toLocaleString()} kcal</span>
           </li>
