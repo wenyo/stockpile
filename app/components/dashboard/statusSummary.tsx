@@ -16,7 +16,7 @@ export default function SurvivalAnalysis() {
   const { survivalDays, currentCalories, progressPercent, specialMemberStatus, feedTagStats } = useDashboardStats();
   const { openModal } = useContext(ModalContext);
   const { setting, household } = useContext(SettingContext);
-  const { relativeTime } = useContext(StockListContext);
+  const { relativeTime, stockList } = useContext(StockListContext);
 
   const level = preparednessLevels.find((level) => progressPercent >= level.minPercentage);    
   
@@ -80,44 +80,51 @@ export default function SurvivalAnalysis() {
 
   return (
     <div className="flex flex-col gap-4">
-      {relativeTime?.status && (relativeTime.status === 'warning' || relativeTime.status === 'danger') && (
-        <div className={`flex items-center justify-between p-3 md:p-4 rounded-xl border ${relativeTime.status === 'danger' ? 'bg-danger/10 border-danger/20' : 'bg-warning/10 border-warning/20'}`}>
-          <div className="flex items-center gap-3">
-            <AlertTriangle className={relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'} size={24} />
-            <div className="flex flex-col gap-0.5">
-              <span className={`font-bold ${relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'}`}>
-                庫存可能已變動
-              </span>
-              <span className="text-sm font-medium text-foreground/80">
-                上次確認是 {relativeTime.timeFormat}，建議再次確認。
-              </span>
-            </div>
-          </div>
-          <NavLink to="/stock-list">
-            <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
-              前往確認
-            </Button>
-          </NavLink>
-        </div>
-      )}
-      {!relativeTime?.status && (
-        <div className="flex items-center justify-between p-3 md:p-4 rounded-xl border bg-warning/10 border-warning/20">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="text-warning" size={24} />
-            <div className="flex flex-col gap-0.5">
-              <span className="font-bold text-warning">尚未確認庫存</span>
-              <span className="text-sm font-medium text-foreground/80">
-                為確保備戰狀態準確，建議確認目前庫存。
-              </span>
-            </div>
-          </div>
-          <NavLink to="/stock-list">
-            <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
-              前往確認
-            </Button>
-          </NavLink>
-        </div>
-      )}
+      {
+        stockList.length > 0 && (
+          <>
+            {relativeTime?.status && (relativeTime.status === 'warning' || relativeTime.status === 'danger') && (
+              <div className={`flex items-center justify-between p-3 md:p-4 rounded-xl border ${relativeTime.status === 'danger' ? 'bg-danger/10 border-danger/20' : 'bg-warning/10 border-warning/20'}`}>
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className={relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'} size={24} />
+                  <div className="flex flex-col gap-0.5">
+                    <span className={`font-bold ${relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'}`}>
+                      庫存可能已變動
+                    </span>
+                    <span className="text-sm font-medium text-foreground/80">
+                      上次確認是 {relativeTime.timeFormat}，建議再次確認。
+                    </span>
+                  </div>
+                </div>
+                <NavLink to="/stock-list">
+                  <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
+                    前往確認
+                  </Button>
+                </NavLink>
+              </div>
+            )}
+            {!relativeTime?.status && (
+              <div className="flex items-center justify-between p-3 md:p-4 rounded-xl border bg-warning/10 border-warning/20">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="text-warning" size={24} />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-warning">尚未確認庫存</span>
+                    <span className="text-sm font-medium text-foreground/80">
+                      為確保備戰狀態準確，建議確認目前庫存。
+                    </span>
+                  </div>
+                </div>
+                <NavLink to="/stock-list">
+                  <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
+                    前往確認
+                  </Button>
+                </NavLink>
+              </div>
+            )}
+          </>
+        )
+      }
+
 
       <div className={`grid grid-cols-1 ${hasSpecial ? 'xl:grid-cols-3' : ''} gap-3 md:gap-4`}>
         <Card className={`flex flex-col h-full border-border/50 bg-card/40 backdrop-blur-sm ${hasSpecial ? 'xl:col-span-2' : ''}`}>
@@ -128,31 +135,35 @@ export default function SurvivalAnalysis() {
             <Box strokeWidth={1.5} size={20}/>
           </div>
           
-          <div 
-            className="flex items-center gap-1.5 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity" 
-            onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)}
-          >
-            {relativeTime?.status ? (
-              relativeTime.status === 'success' ? (
-                <span className="flex items-center gap-1.5 bg-muted/40 text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/40">
-                  <Clock size={13} className="text-primary/70" />
-                  <span className="hidden sm:inline">上次確認:</span>
-                  <span className="text-foreground/80">{relativeTime.timeFormat}</span>
-                </span>
+          {
+            stockList.length > 0 && (
+              <div 
+                className="flex items-center gap-1.5 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity" 
+                onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)}
+              >
+                {relativeTime?.status ? (
+                relativeTime.status === 'success' ? (
+                  <span className="flex items-center gap-1.5 bg-muted/40 text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/40">
+                    <Clock size={13} className="text-primary/70" />
+                    <span className="hidden sm:inline">上次確認:</span>
+                    <span className="text-foreground/80">{relativeTime.timeFormat}</span>
+                  </span>
+                ) : (
+                  <span className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border ${relativeTime.status === 'danger' ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                    <AlertTriangle size={13} />
+                    <span className="hidden sm:inline">已 {relativeTime.timeFormat} 未確認</span>
+                    <span className="sm:hidden">{relativeTime.timeFormat}未確認</span>
+                  </span>
+                )
               ) : (
-                <span className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border ${relativeTime.status === 'danger' ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                <span className="flex items-center gap-1.5 bg-warning/10 text-warning px-2.5 py-1.5 rounded-md border border-warning/20">
                   <AlertTriangle size={13} />
-                  <span className="hidden sm:inline">已 {relativeTime.timeFormat} 未確認</span>
-                  <span className="sm:hidden">{relativeTime.timeFormat}未確認</span>
+                  <span>尚未確認</span>
                 </span>
-              )
-            ) : (
-              <span className="flex items-center gap-1.5 bg-warning/10 text-warning px-2.5 py-1.5 rounded-md border border-warning/20">
-                <AlertTriangle size={13} />
-                <span>尚未確認</span>
-              </span>
-            )}
-          </div>
+              )}
+            </div>
+            )
+          }
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
