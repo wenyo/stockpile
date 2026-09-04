@@ -34,13 +34,13 @@ export default function InventoryConfirmModal() {
             <ClipboardCheck size={32} className="text-primary" />
           </div>
           
-          <h3 className="text-lg font-bold text-foreground mb-2">更新盤點紀錄</h3>
-          <p className="text-sm text-muted-foreground mb-5 max-w-sm">確認目前庫存與實際狀況一致？</p>
+          <h3 className="text-lg font-bold text-foreground mb-2">目前庫存與實際狀況一致嗎？</h3>
+          <p className="text-sm text-muted-foreground mb-5 max-w-sm">建議定期盤點家中物資，確保系統資料準確。</p>
           
           {relativeTime?.status && (
             <div className="w-full flex items-center justify-between bg-muted/30 border border-border/40 rounded-lg p-3 mb-6 shadow-sm">
               <span className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
-                <Clock size={16} className="text-primary/70" /> 上次盤點
+                <Clock size={16} className="text-primary/70" /> 上次確認
               </span>
               <span className={`text-sm font-semibold ${{success: 'text-success', warning: 'text-warning', danger: 'text-danger'}[relativeTime.status as 'success' | 'warning' | 'danger']}`}>{relativeTime.timeFormat}</span>
             </div>
@@ -51,7 +51,7 @@ export default function InventoryConfirmModal() {
               取消
             </Button>
             <Button variant="default" onClick={() => handleConfirm()} className="flex-1 py-5 flex items-center gap-1.5 shadow-sm">
-              <CheckCircle2 size={18} /> 是的，數量一致
+              <CheckCircle2 size={18} /> 確認一致
             </Button>
           </div>
         </div>

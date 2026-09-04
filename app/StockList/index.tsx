@@ -43,13 +43,13 @@ export default function Index() {
           {relativeTime?.status ? (
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-muted-foreground px-1 sm:px-2">
               <Clock size={13} className="text-primary/70" />
-              <span className="hidden sm:inline">上次盤點:</span>
+              <span className="hidden sm:inline">上次確認:</span>
               <span className={{success: 'text-success', warning: 'text-warning', danger: 'text-danger'}[relativeTime.status as 'success' | 'warning' | 'danger']}>{relativeTime.timeFormat}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-warning px-1 sm:px-2">
               <AlertTriangle size={13} />
-              <span className="hidden sm:inline">尚未盤點</span>
+              <span className="hidden sm:inline">尚未確認</span>
             </div>
           )}
           <Button variant="outline" size="sm" className="flex items-center gap-1.5 bg-background hover:bg-muted/50 border-border/60 shadow-sm h-8 sm:h-9 px-2.5 sm:px-3" onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)}>

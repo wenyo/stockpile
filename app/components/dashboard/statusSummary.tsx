@@ -86,16 +86,16 @@ export default function SurvivalAnalysis() {
             <AlertTriangle className={relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'} size={24} />
             <div className="flex flex-col gap-0.5">
               <span className={`font-bold ${relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'}`}>
-                上次盤點： {relativeTime.timeFormat}
+                庫存可能已變動
               </span>
               <span className="text-sm font-medium text-foreground/80">
-                庫存可能已變動，建議盡快確認。
+                上次確認是 {relativeTime.timeFormat}，建議再次確認。
               </span>
             </div>
           </div>
           <NavLink to="/stock-list">
             <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
-              前往盤點
+              前往確認
             </Button>
           </NavLink>
         </div>
@@ -105,15 +105,15 @@ export default function SurvivalAnalysis() {
           <div className="flex items-center gap-3">
             <AlertTriangle className="text-warning" size={24} />
             <div className="flex flex-col gap-0.5">
-              <span className="font-bold text-warning">尚未進行首次庫存盤點</span>
+              <span className="font-bold text-warning">尚未確認庫存</span>
               <span className="text-sm font-medium text-foreground/80">
-                為確保備戰狀態的準確性，建議您盡快完成庫存確認！
+                為確保備戰狀態準確，建議確認目前庫存。
               </span>
             </div>
           </div>
           <NavLink to="/stock-list">
             <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
-              前往盤點
+              前往確認
             </Button>
           </NavLink>
         </div>
@@ -136,20 +136,20 @@ export default function SurvivalAnalysis() {
               relativeTime.status === 'success' ? (
                 <span className="flex items-center gap-1.5 bg-muted/40 text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/40">
                   <Clock size={13} className="text-primary/70" />
-                  <span className="hidden sm:inline">上次盤點:</span>
+                  <span className="hidden sm:inline">上次確認:</span>
                   <span className="text-foreground/80">{relativeTime.timeFormat}</span>
                 </span>
               ) : (
                 <span className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border ${relativeTime.status === 'danger' ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
                   <AlertTriangle size={13} />
-                  <span className="hidden sm:inline">已 {relativeTime.timeFormat} 未盤點</span>
-                  <span className="sm:hidden">{relativeTime.timeFormat}未盤點</span>
+                  <span className="hidden sm:inline">已 {relativeTime.timeFormat} 未確認</span>
+                  <span className="sm:hidden">{relativeTime.timeFormat}未確認</span>
                 </span>
               )
             ) : (
               <span className="flex items-center gap-1.5 bg-warning/10 text-warning px-2.5 py-1.5 rounded-md border border-warning/20">
                 <AlertTriangle size={13} />
-                <span>尚未盤點</span>
+                <span>尚未確認</span>
               </span>
             )}
           </div>
