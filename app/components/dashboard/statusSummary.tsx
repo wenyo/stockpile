@@ -1,18 +1,22 @@
 import { useContext } from "react";
-import { Box, Info, PawPrint, Baby } from "lucide-react";
+import { Box, Info, PawPrint, Baby, AlertTriangle, Clock } from "lucide-react";
 import { identityConstants } from "@/constant/family";
 import { preparednessLevels, stockFieldLabel } from "@/constant/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
+import { StockListContext } from "@/store/stockList";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { NavLink } from "react-router";
 
 export default function SurvivalAnalysis() {
   const { survivalDays, currentCalories, progressPercent, specialMemberStatus, feedTagStats } = useDashboardStats();
   const { openModal } = useContext(ModalContext);
   const { setting, household } = useContext(SettingContext);
+  const { relativeTime } = useContext(StockListContext);
 
   const level = preparednessLevels.find((level) => progressPercent >= level.minPercentage);    
   
@@ -75,12 +79,78 @@ export default function SurvivalAnalysis() {
   ].filter(Boolean).join('、');
 
   return (
-    <div className={`grid grid-cols-1 ${hasSpecial ? 'xl:grid-cols-3' : ''} gap-3 md:gap-4`}>
-      <Card className={`flex flex-col h-full border-border/50 bg-card/40 backdrop-blur-sm ${hasSpecial ? 'xl:col-span-2' : ''}`}>
+    <div className="flex flex-col gap-4">
+      {relativeTime?.status && (relativeTime.status === 'warning' || relativeTime.status === 'danger') && (
+        <div className={`flex items-center justify-between p-3 md:p-4 rounded-xl border ${relativeTime.status === 'danger' ? 'bg-danger/10 border-danger/20' : 'bg-warning/10 border-warning/20'}`}>
+          <div className="flex items-center gap-3">
+            <AlertTriangle className={relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'} size={24} />
+            <div className="flex flex-col gap-0.5">
+              <span className={`font-bold ${relativeTime.status === 'danger' ? 'text-danger' : 'text-warning'}`}>
+                上次盤點： {relativeTime.timeFormat}
+              </span>
+              <span className="text-sm font-medium text-foreground/80">
+                庫存可能已變動，建議盡快確認。
+              </span>
+            </div>
+          </div>
+          <NavLink to="/stock-list">
+            <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
+              前往盤點
+            </Button>
+          </NavLink>
+        </div>
+      )}
+      {!relativeTime?.status && (
+        <div className="flex items-center justify-between p-3 md:p-4 rounded-xl border bg-warning/10 border-warning/20">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="text-warning" size={24} />
+            <div className="flex flex-col gap-0.5">
+              <span className="font-bold text-warning">尚未進行首次庫存盤點</span>
+              <span className="text-sm font-medium text-foreground/80">
+                為確保備戰狀態的準確性，建議您盡快完成庫存確認！
+              </span>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)} className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
+            前往盤點
+          </Button>
+        </div>
+      )}
+
+      <div className={`grid grid-cols-1 ${hasSpecial ? 'xl:grid-cols-3' : ''} gap-3 md:gap-4`}>
+        <Card className={`flex flex-col h-full border-border/50 bg-card/40 backdrop-blur-sm ${hasSpecial ? 'xl:col-span-2' : ''}`}>
       <CardHeader className="pb-2 md:pb-4">
-        <CardTitle className="text-muted-foreground text-lg font-semibold flex items-center gap-2">
-          <span>備戰狀態</span>
-          <Box strokeWidth={1.5} size={20}/>
+        <CardTitle className="text-muted-foreground text-lg font-semibold flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
+            <span>備戰狀態</span>
+            <Box strokeWidth={1.5} size={20}/>
+          </div>
+          
+          <div 
+            className="flex items-center gap-1.5 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)}
+          >
+            {relativeTime?.status ? (
+              relativeTime.status === 'success' ? (
+                <span className="flex items-center gap-1.5 bg-muted/40 text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/40">
+                  <Clock size={13} className="text-primary/70" />
+                  <span className="hidden sm:inline">上次盤點:</span>
+                  <span className="text-foreground/80">{relativeTime.timeFormat}</span>
+                </span>
+              ) : (
+                <span className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border ${relativeTime.status === 'danger' ? 'bg-danger/10 text-danger border-danger/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                  <AlertTriangle size={13} />
+                  <span className="hidden sm:inline">已 {relativeTime.timeFormat} 未盤點</span>
+                  <span className="sm:hidden">{relativeTime.timeFormat}未盤點</span>
+                </span>
+              )
+            ) : (
+              <span className="flex items-center gap-1.5 bg-warning/10 text-warning px-2.5 py-1.5 rounded-md border border-warning/20">
+                <AlertTriangle size={13} />
+                <span>尚未盤點</span>
+              </span>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
@@ -131,6 +201,7 @@ export default function SurvivalAnalysis() {
         </div>
       </div>
     )}
-  </div>
+      </div>
+    </div>
   )
 }
