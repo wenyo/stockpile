@@ -111,9 +111,11 @@ export default function SurvivalAnalysis() {
               </span>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => openModal(modalTypeConstant.INVENTORY_CONFIRM)} className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
-            前往盤點
-          </Button>
+          <NavLink to="/stock-list">
+            <Button variant="outline" size="sm" className="bg-background shadow-sm hover:bg-muted/50 hidden sm:flex border-border/60">
+              前往盤點
+            </Button>
+          </NavLink>
         </div>
       )}
 
