@@ -12,7 +12,7 @@ export interface Stock {
   totalCalories: number | undefined;
   volume: number | undefined;
   volumeUnit?: keyof typeof stockUnit;
-  feedTagId?: string; // 只有 type 為 petFood/babyFood/babyMilk 時才會用到
+  feedTagId?: string; // only for tagAllowedType
   updatedAt?: string | null;
 }
 

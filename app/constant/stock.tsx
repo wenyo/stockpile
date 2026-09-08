@@ -7,14 +7,16 @@ export const stockType = {
   petStapleFood: "寵物主食", // 列入生存必要計算
   petNonStapleFood: "寵物副食品", // 不列入生存必要計算
   medical: "醫療",
-  water: "飲用水",
+  medicine: "藥品", // 列入生存必要計算
+  water: "飲用水", // 列入生存必要計算
   light: "照明",
   communication: "通訊",
   tool: "工具",
   other: "其他",
 } as const;
 
-export const notRequiredType = ["infantNonStapleFood", "petNonStapleFood", "other"];
+export const notRequiredType: Array<keyof typeof stockType> = ["infantNonStapleFood", "petNonStapleFood", "other"];
+export const tagAllowedType: Array<keyof typeof stockType> = ["infantStapleFood", "petStapleFood", "medicine"];
 
 export const stockUnit: Record<string, string> = {
   g: 'g',

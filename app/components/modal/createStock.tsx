@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect, useMemo } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
+import { toast } from "sonner";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
-import { stockType, stockItemUnit, stockUnit, stockFieldLabel } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit, stockFieldLabel, tagAllowedType } from "@/constant/stock";
 import { getStockStatus } from "@/utils/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 import { ModalContext } from "@/store/modal";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
 import {
@@ -22,18 +22,9 @@ export default function CreateModal() {
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
   const { feedTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
-
-   useEffect(() => {
-    return () => {
-      setEditStock(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (editStock) {
-      setNewStock(editStock);
-    }
-  }, [editStock]);
+  const isEditing = !!newStock.id;
+  const isTagRequired = tagAllowedType.includes(newStock.type);
+  const availableTags = feedTags.filter(t => t.appliesToStockType === newStock.type);
 
   const selectedTagUnit = useMemo(() => {
     if (!newStock.feedTagId) return null;
@@ -47,12 +38,6 @@ export default function CreateModal() {
     }
     return null;
   }, [newStock.feedTagId, household]);
-
-  useEffect(() => {
-    if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
-      setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
-    }
-  }, [selectedTagUnit, newStock.volumeUnit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -98,9 +83,29 @@ export default function CreateModal() {
     return isRequire ? requiredDom : "";
   }
 
-  const isEditing = !!newStock.id;
-  const isTagRequired = newStock.type === "infantStapleFood" || newStock.type === "petStapleFood";
-  const availableTags = feedTags.filter(t => t.appliesToStockType === newStock.type);
+  useEffect(() => {
+    return () => {
+      setEditStock(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editStock) {
+      setNewStock(editStock);
+    }
+  }, [editStock]);
+
+  useEffect(() => {
+    let tmpStock = {...newStock};
+    delete tmpStock.feedTagId;
+    setNewStock(tmpStock);
+  }, [newStock.type]);
+
+  useEffect(() => {
+    if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
+      setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
+    }
+  }, [selectedTagUnit, newStock.volumeUnit]);
 
   return (
     <div
@@ -149,12 +154,12 @@ export default function CreateModal() {
                 <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
                 {availableTags.length === 0 ? (
                   <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
-                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增主食。</span>
+                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增{stockType[newStock.type]}設定。</span>
                   </div>
                 ) : (
                   <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                     <SelectTrigger className="h-10 border-border/60">
-                      <SelectValue placeholder="請選擇餵食標籤..." />
+                      <SelectValue placeholder={`請選擇${stockFieldLabel.feedTagId}...`} />
                     </SelectTrigger>
                     <SelectContent>
                       {availableTags.map((tag) => (
