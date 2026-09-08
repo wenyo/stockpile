@@ -34,6 +34,17 @@ export const stockItemUnit: Record<string, string> = {
   other: "其他",
 } as const;
 
+export const medicineUnit: Record<string, string> = {
+  g: 'g',
+  ml: 'ml',
+  tablet: '錠',
+  pack: '包',
+  ampoule: '瓶',
+  stick: '支',
+  unit: '份',
+  other: "其他",
+} as const;
+
 export const stockFieldLabel = {
   name: "名稱",
   count: "數量",

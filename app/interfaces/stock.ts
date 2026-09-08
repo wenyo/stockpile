@@ -80,6 +80,13 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
     "expirationDate",
   ],
+  medicine: [
+    "name",
+    "count",
+    "unit",
+    "expirationDate",
+    "feedTagId",
+  ],
   tool: [
     "name",
     "count",
