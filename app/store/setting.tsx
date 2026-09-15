@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 import { type HouseholdMember } from "@/interfaces/family";
-import { type FeedTag } from "@/interfaces/stock";
+import { type Tag } from "@/interfaces/stock";
 
 import { sampleHouseholdData, sampleFeedTags } from "@/constant/sampleData";
 import { StockListContext } from "@/store/stockList";
@@ -21,11 +21,11 @@ type SettingContextType = {
   setEditHousehold: (newHousehold: HouseholdMember | null) => void;
   deleteHousehold: HouseholdMember | null;
   setDeleteHousehold: (newHousehold: HouseholdMember | null) => void;
-  feedTags: FeedTag[];
-  addFeedTag: (newTag: Pick<FeedTag, "label" | "appliesToStockType">) => string;
+  feedTags:Tag[];
+  addFeedTag: (newTag: Pick<Tag, "label" | "appliesToStockType">) => string;
   replaceSetting: (newSetting: SettingConfig) => void;
   replaceHousehold: (newHousehold: HouseholdMember[]) => void;
-  replaceFeedTags: (newTags: FeedTag[]) => void;
+  replaceFeedTags: (newTags:Tag[]) => void;
 };
 
 const defaultSetting: SettingConfig = {
@@ -54,7 +54,7 @@ export const SettingContext = createContext<SettingContextType>({
 export function SettingProvider({ children }: { children: ReactNode }) {
   const [setting, setSetting] = useState<SettingConfig>(defaultSetting);
   const [household, setHousehold] = useState<HouseholdMember[]>([]);
-  const [feedTags, setFeedTags] = useState<FeedTag[]>([]);
+  const [feedTags, setFeedTags] = useState<Tag[]>([]);
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -140,7 +140,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     setHousehold((prevHousehold) => prevHousehold.filter((member) => member.id !== id));
   };
 
-  const addFeedTag = (newTag: Pick<FeedTag, "label" | "appliesToStockType">) => {
+  const addFeedTag = (newTag: Pick<Tag, "label" | "appliesToStockType">) => {
     const id = `tag_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     setFeedTags((prev) => [...prev, { ...newTag, id }]);
     return id;
@@ -148,7 +148,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
 
   const replaceSetting = (newSetting: SettingConfig) => setSetting(newSetting);
   const replaceHousehold = (newHousehold: HouseholdMember[]) => setHousehold(newHousehold);
-  const replaceFeedTags = (newTags: FeedTag[]) => setFeedTags(newTags);
+  const replaceFeedTags = (newTags:Tag[]) => setFeedTags(newTags);
 
   return (
     <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, feedTags, addFeedTag, replaceSetting, replaceHousehold, replaceFeedTags }}>

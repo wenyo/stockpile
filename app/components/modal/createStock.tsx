@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useMemo } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
-import { stockType, stockItemUnit, stockUnit, stockFieldLabel, tagAllowedType } from "@/constant/stock";
+import { stockType, stockItemUnit, medicineUnit, stockUnit, stockFieldLabel, tagAllowedType } from "@/constant/stock";
 import { getStockStatus } from "@/utils/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
@@ -22,6 +22,7 @@ export default function CreateModal() {
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
   const { feedTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
+  const units = newStock.type === 'medicine' ? medicineUnit : stockItemUnit;
   const isEditing = !!newStock.id;
   const isTagRequired = tagAllowedType.includes(newStock.type);
   const availableTags = feedTags.filter(t => t.appliesToStockType === newStock.type);
@@ -183,7 +184,7 @@ export default function CreateModal() {
                   <SelectValue placeholder="選擇單位..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(stockItemUnit).map(([key, value]) => (
+                  {Object.entries(units).map(([key, value]) => (
                     <SelectItem key={key} value={key}>{value}</SelectItem>
                   ))}
                 </SelectContent>

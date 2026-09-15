@@ -1,8 +1,8 @@
 import type { Stock } from "@/interfaces/stock";
 import type { HouseholdMember } from "@/interfaces/family";
-import type { FeedTag } from "@/interfaces/stock";
+import type {Tag } from "@/interfaces/stock";
 
-export const sampleFeedTags: FeedTag[] = [
+export const sampleFeedTags:Tag[] = [
   {
     id: "tag_sample_milk",
     label: "配方奶",

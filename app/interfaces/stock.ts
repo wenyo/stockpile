@@ -1,4 +1,4 @@
-import { stockType, stockItemUnit, stockUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, stockUnit, medicineUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
@@ -13,6 +13,7 @@ export interface Stock {
   volume: number | undefined;
   volumeUnit?: keyof typeof stockUnit;
   feedTagId?: string; // only for tagAllowedType
+  medicineId?: string; // only for tagAllowedType
   updatedAt?: string | null;
 }
 
@@ -116,10 +117,18 @@ export type StockStatus = {
   isLowStock: boolean;
 };
 
-export type FeedTag = {
+// 一天幾次 / 幾天一次
+export const frequencyType = {
+  TIMES_PER_DAY: "timesPerDay",
+  DAYS_PER_TIME: "daysPerTime",
+} as const;
+
+export type FrequencyType = (typeof frequencyType)[keyof typeof frequencyType];
+
+export type Tag = {
   id: string;
   label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
-  appliesToStockType: "infantStapleFood" | "petStapleFood"; // 這個 tag 屬於哪個 stockType 底下
+  appliesToStockType: Extract<keyof typeof stockType, "infantStapleFood" | "petStapleFood">;
 };
 
 export type FeedPortion = {
@@ -127,6 +136,14 @@ export type FeedPortion = {
   amount: number;
   unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
   waterAmount?: number; // 單次搭配水量 ml (主要給嬰兒泡奶用)
-  frequencyType: "timesPerDay" | "daysPerTime"; // 一天幾次 / 幾天一次
+  frequencyType: FrequencyType;
+  frequencyValue: number;
+};
+
+export type MedicineNeed = {
+  medicineId: string;
+  dose: number;
+  unit: keyof typeof medicineUnit;
+  frequencyType: FrequencyType;
   frequencyValue: number; // 頻率數值
 };

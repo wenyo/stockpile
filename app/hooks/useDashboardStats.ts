@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { REQUIRED_FIELDS, type MissingInfoItem } from "@/interfaces/stock";
+import { REQUIRED_FIELDS, type MissingInfoItem, frequencyType } from "@/interfaces/stock";
 import { stockType, notRequiredType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
@@ -54,7 +54,7 @@ export function useDashboardStats() {
         member.feedPortions.forEach((portion) => {
           if (portion.waterAmount) {
             const freqValue = portion.frequencyValue || 1;
-            const dailyWater = portion.frequencyType === "timesPerDay"
+            const dailyWater = portion.frequencyType === frequencyType.TIMES_PER_DAY
               ? portion.waterAmount * freqValue
               : portion.waterAmount / freqValue;
             dailyRequirement += dailyWater;
@@ -93,7 +93,7 @@ export function useDashboardStats() {
         member.feedPortions.forEach((portion) => {
           if (portion.waterAmount) {
             const freqValue = portion.frequencyValue || 1;
-            const dailyWater = portion.frequencyType === "timesPerDay"
+            const dailyWater = portion.frequencyType === frequencyType.TIMES_PER_DAY
               ? portion.waterAmount * freqValue
               : portion.waterAmount / freqValue;
             dailyRequirement += dailyWater;
@@ -169,7 +169,7 @@ export function useDashboardStats() {
             stats[portion.feedTagId] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
           }
           const freqValue = portion.frequencyValue || 1;
-          const dailyAmount = portion.frequencyType === "timesPerDay" 
+          const dailyAmount = portion.frequencyType === frequencyType.TIMES_PER_DAY 
             ? portion.amount * freqValue 
             : portion.amount / freqValue;
           stats[portion.feedTagId].dailyNeed += dailyAmount;
@@ -247,7 +247,7 @@ export function useDashboardStats() {
 
   // 缺乏的物資種類
   const missingTypeStock = useMemo(() => {
-    let allTypes = Object.keys(stockType);
+    let allTypes = Object.keys(stockType) as Array<keyof typeof stockType>;
     
     if (!specialMemberStatus.infant) {
       allTypes = allTypes.filter(type => type !== 'infantStapleFood');

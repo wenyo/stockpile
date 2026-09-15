@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { X, UsersRound, UserRoundPen, Plus, Trash2 } from "lucide-react";
-import { type FeedPortion } from "@/interfaces/stock";
+import { type FeedPortion, type MedicineNeed, frequencyType } from "@/interfaces/stock";
 import { type HouseholdMember, initialHouseholdMember, REQUIRED_FIELDS } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
@@ -83,7 +83,21 @@ export default function CreateFamilyModal() {
   const addFeedPortion = () => {
     setFeedPortions([
       ...(newFamilyInfo.feedPortions || []),
-      { feedTagId: "", amount: 0, unit: "g", frequencyType: "timesPerDay", frequencyValue: 1 }
+      { feedTagId: "", amount: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
+    ]);
+  };
+
+  const setMedicineNeeds = (needs: MedicineNeed[]) => {
+    console.log('setMedicineNeeds', needs);
+    setNewFamilyInfo((prev) => ({ ...prev, medicineNeeds: needs }));
+  };
+
+  const addMedicineNeed = () => {
+    console.log('addMedicineNeed');
+    
+    setMedicineNeeds([
+      ...(newFamilyInfo.medicineNeeds || []),
+      { medicineId: "", dose: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
     ]);
   };
 
@@ -240,7 +254,144 @@ export default function CreateFamilyModal() {
                 />
               </li>
             )}
+
+            {/* medicine */}
+            <li className="col-span-full">
+                <div className="my-4 border-b border-border/40"></div>
+                <div className="flex justify-between items-center mb-3 text-muted-foreground">
+                  <h3 className="text-sm font-semibold">指定用藥需求</h3>
+                  <div className="flex justify-center items-center gap-2">
+                    <span className="font-normal text-sm">
+                      適用類別：<span className="text-foreground font-bold">{stockType.medicine}</span>
+                    </span>
+                    <Button onClick={addMedicineNeed} variant="outline" size="sm" className="h-8 gap-1 border-border/60 w-fit">
+                      <Plus size={14} /> 新增
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  {(newFamilyInfo.medicineNeeds || []).length === 0 ? (
+                    <div className="text-center py-6 bg-muted/20 border border-dashed border-border/60 rounded-xl text-muted-foreground text-sm">
+                      尚未設定用藥需求
+                    </div>
+                  ) : (
+                    (newFamilyInfo.medicineNeeds || []).map((portion, idx) => {
+                      const isTagUsedInStock = portion.medicineId ? stockList.some(s => s.medicineId === portion.medicineId) : false;
+                      
+                      return (
+                      <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col gap-3 relative">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute -top-3 -right-3 h-8 w-8 bg-background border border-border/50 text-danger hover:text-danger hover:bg-danger/10 rounded-full shadow-sm"
+                          onClick={() => removeFeedPortion(idx)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                        
+                        {newTagInput?.idx === idx ? (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">建立新標籤</label>
+                            <div className="flex gap-2">
+                              <Input 
+                                autoFocus
+                                className="h-9 border-border/60" 
+                                placeholder="血壓藥、抗組織胺..." 
+                                value={newTagInput.label} 
+                                onChange={(e) => setNewTagInput({ ...newTagInput, label: e.target.value })} 
+                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag()}
+                                required={requiredFields.includes("feedPortions")}
+                              />
+                              <Button type="button" size="sm" className="h-9" onClick={confirmCreateTag}>確定</Button>
+                              <Button type="button" size="sm" className="h-9" variant="outline" onClick={() => setNewTagInput(null)}>取消</Button>
+                            </div>
+                            <span className="text-xs text-info">※ 庫存標籤用於對應成員的藥品</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{checkIsRequired("feedPortions")}</label>
+                            <Select 
+                              value={portion.medicineId} 
+                              onValueChange={(val) => {
+                                if (val === "__CREATE__") setNewTagInput({ idx, label: "" });
+                                else updateFeedPortion(idx, "feedTagId", val);
+                              }}
+                              required={requiredFields.includes("feedPortions")}
+                            >
+                              <SelectTrigger className="h-9 border-border/60">
+                                <SelectValue placeholder="選擇或建立標籤..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableTags.map((tag) => (
+                                  <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
+                                ))}
+                                <div className="h-px bg-border my-1" />
+                                <SelectItem value="__CREATE__" className="font-semibold text-primary focus:bg-primary/10">
+                                  + 新增{stockFieldLabel.feedTagId}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <span className="text-xs text-info">※ 庫存標籤用於對應成員的藥品</span>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                          <div className="flex flex-col gap-1.5 md:col-span-2">
+                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率{checkIsRequired("feedPortions")}</label>
+                            <div className="flex gap-2">
+                              <Select value={portion.frequencyType} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
+                                <SelectTrigger className="h-9 border-border/60">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value={frequencyType.TIMES_PER_DAY}>一天幾次</SelectItem>
+                                  <SelectItem value={frequencyType.DAYS_PER_TIME}>幾天一次</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input 
+                                type="number" 
+                                className="h-9 w-24 border-border/60" 
+                                value={portion.frequencyValue || ""} 
+                                onChange={(e) => updateFeedPortion(idx, "frequencyValue", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                required={requiredFields.includes("feedPortions")}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-1.5 md:col-span-2">
+                            <label className="text-xs font-semibold text-muted-foreground">單次餵食量{checkIsRequired("feedPortions")}</label>
+                            <div className="flex gap-2">
+                              <Input 
+                                type="number" 
+                                className="h-9 border-border/60" 
+                                value={portion.dose || ""} 
+                                onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                required={requiredFields.includes("feedPortions")}
+                              />
+                              <Select disabled={isTagUsedInStock} value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)} required={requiredFields.includes("feedPortions")}>
+                                <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="g">g</SelectItem>
+                                  <SelectItem value="ml">ml</SelectItem>
+                                  <SelectItem value="unit">份</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {isTagUsedInStock && (
+                              <span className="text-[11px] text-info font-medium tracking-wide">※ 已有庫存物資，鎖定單位</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )})
+                  )}
+                </div>
+              </li>
             
+            {/* pet || infant || child */}
             {showFeedPortion && (
               <li className="col-span-full">
                 <div className="my-4 border-b border-border/40"></div>
@@ -326,13 +477,13 @@ export default function CreateFamilyModal() {
                           <div className="flex flex-col gap-1.5 md:col-span-2">
                             <label className="text-xs font-semibold text-muted-foreground">餵食頻率{checkIsRequired("feedPortions")}</label>
                             <div className="flex gap-2">
-                              <Select value={portion.frequencyType || "timesPerDay"} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
+                              <Select value={portion.frequencyType} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
                                 <SelectTrigger className="h-9 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="timesPerDay">一天幾次</SelectItem>
-                                  <SelectItem value="daysPerTime">幾天一次</SelectItem>
+                                  <SelectItem value={frequencyType.TIMES_PER_DAY}>一天幾次</SelectItem>
+                                  <SelectItem value={frequencyType.DAYS_PER_TIME}>幾天一次</SelectItem>
                                 </SelectContent>
                               </Select>
                               <Input 
