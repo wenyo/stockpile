@@ -21,11 +21,11 @@ type SettingContextType = {
   setEditHousehold: (newHousehold: HouseholdMember | null) => void;
   deleteHousehold: HouseholdMember | null;
   setDeleteHousehold: (newHousehold: HouseholdMember | null) => void;
-  feedTags:Tag[];
-  addFeedTag: (newTag: Pick<Tag, "label" | "appliesToStockType">) => string;
+  stockTags:Tag[];
+  addStockTag: (newTag: Pick<Tag, "label" | "appliesToStockType">) => string;
   replaceSetting: (newSetting: SettingConfig) => void;
   replaceHousehold: (newHousehold: HouseholdMember[]) => void;
-  replaceFeedTags: (newTags:Tag[]) => void;
+  replaceStockTags: (newTags:Tag[]) => void;
 };
 
 const defaultSetting: SettingConfig = {
@@ -44,17 +44,17 @@ export const SettingContext = createContext<SettingContextType>({
   setEditHousehold: () => {},
   deleteHousehold: null,
   setDeleteHousehold: () => {},
-  feedTags: [],
-  addFeedTag: () => "",
+  stockTags: [],
+  addStockTag: () => "",
   replaceSetting: () => {},
   replaceHousehold: () => {},
-  replaceFeedTags: () => {},
+  replaceStockTags: () => {},
 });
 
 export function SettingProvider({ children }: { children: ReactNode }) {
   const [setting, setSetting] = useState<SettingConfig>(defaultSetting);
   const [household, setHousehold] = useState<HouseholdMember[]>([]);
-  const [feedTags, setFeedTags] = useState<Tag[]>([]);
+  const [stockTags, setFeedTags] = useState<Tag[]>([]);
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -77,9 +77,16 @@ export function SettingProvider({ children }: { children: ReactNode }) {
       setHousehold(JSON.parse(localStorageHousehold));
     }
 
-    const localStorageFeedTags = localStorage.getItem("stockpile_feedTags");
-    if (localStorageFeedTags) {
-      setFeedTags(JSON.parse(localStorageFeedTags));
+    let savedTags = localStorage.getItem("stockpile_stockTags");
+    if (!savedTags) {
+      const oldTags = localStorage.getItem("stockpile_feedTags");
+      if (oldTags) {
+        savedTags = oldTags;
+        localStorage.setItem("stockpile_stockTags", oldTags);
+      }
+    }
+    if (savedTags) {
+      setFeedTags(JSON.parse(savedTags));
     }
 
     setIsInitialized(true);
@@ -115,9 +122,9 @@ export function SettingProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isInitialized && !isDemo) {
-      localStorage.setItem("stockpile_feedTags", JSON.stringify(feedTags));
+      localStorage.setItem("stockpile_stockTags", JSON.stringify(stockTags));
     }
-  }, [feedTags, isDemo]);
+  }, [stockTags, isDemo]);
 
   const updateSetting = (newSetting: Partial<SettingConfig>) => {
     setSetting((prevSetting) => ({ ...prevSetting, ...newSetting }));
@@ -140,7 +147,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     setHousehold((prevHousehold) => prevHousehold.filter((member) => member.id !== id));
   };
 
-  const addFeedTag = (newTag: Pick<Tag, "label" | "appliesToStockType">) => {
+  const addStockTag = (newTag: Pick<Tag, "label" | "appliesToStockType">) => {
     const id = `tag_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     setFeedTags((prev) => [...prev, { ...newTag, id }]);
     return id;
@@ -148,10 +155,10 @@ export function SettingProvider({ children }: { children: ReactNode }) {
 
   const replaceSetting = (newSetting: SettingConfig) => setSetting(newSetting);
   const replaceHousehold = (newHousehold: HouseholdMember[]) => setHousehold(newHousehold);
-  const replaceFeedTags = (newTags:Tag[]) => setFeedTags(newTags);
+  const replaceStockTags = (newTags:Tag[]) => setFeedTags(newTags);
 
   return (
-    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, feedTags, addFeedTag, replaceSetting, replaceHousehold, replaceFeedTags }}>
+    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, stockTags, addStockTag, replaceSetting, replaceHousehold, replaceStockTags }}>
       {children}
     </SettingContext.Provider>
   );

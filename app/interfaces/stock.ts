@@ -86,7 +86,7 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
     "unit",
     "expirationDate",
-    "feedTagId",
+    "medicineId",
   ],
   tool: [
     "name",
@@ -128,7 +128,7 @@ export type FrequencyType = (typeof frequencyType)[keyof typeof frequencyType];
 export type Tag = {
   id: string;
   label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
-  appliesToStockType: Extract<keyof typeof stockType, "infantStapleFood" | "petStapleFood">;
+  appliesToStockType: keyof typeof stockType;
 };
 
 export type FeedPortion = {

@@ -16,7 +16,7 @@ import { getStockStatus } from "@/utils/stock";
 export default function Index() {
   const { relativeTime, stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
-  const { feedTags } = useContext(SettingContext);
+  const { stockTags } = useContext(SettingContext);
 
   const visibleStockList = stockList
     .filter((item) => showStockList.includes(item.id))
@@ -84,7 +84,7 @@ export default function Index() {
 
       <ul className="flex flex-col divide-y divide-border/50 border-y border-border/50 md:hidden">
         {displayList.map((stock) => {
-          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : undefined;
+          const feedTag = stock.feedTagId ? stockTags.find(t => t.id === stock.feedTagId) : undefined;
           return (
             <MobileStockRow
               key={stock.id}
@@ -100,7 +100,7 @@ export default function Index() {
       <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {displayList.map((stock) => {
           const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
-          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : null;
+          const feedTag = stock.feedTagId ? stockTags.find(t => t.id === stock.feedTagId) : null;
 
           return (
             <li key={stock.id} id={stock.id.includes("tour-demo-stock") ? "tour-demo-stock-desktop" : undefined}>

@@ -17,7 +17,7 @@ export default function SearchStock() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchStockProps, setSearchStockProps] = useState<Stock>(initialStock)
   const { searchStock } = useContext(StockListContext);
-  const { feedTags } = useContext(SettingContext);
+  const { stockTags } = useContext(SettingContext);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -100,7 +100,7 @@ export default function SearchStock() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">所有標籤</SelectItem>
-                {feedTags.map((tag) => (
+                {stockTags.map((tag) => (
                   <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
                 ))}
               </SelectContent>

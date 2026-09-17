@@ -6,7 +6,7 @@ import { SettingContext } from "@/store/setting";
 
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
-  const { household, setting, feedTags } = useContext(SettingContext);
+  const { household, setting, stockTags } = useContext(SettingContext);
   
   const currentSetting = setting || { targetDays: 30, rotationDays: 90 };
 
@@ -165,7 +165,7 @@ export function useDashboardStats() {
         member.feedPortions.forEach(portion => {
           if (!portion.feedTagId) return;
           if (!stats[portion.feedTagId]) {
-            const tag = feedTags.find(t => t.id === portion.feedTagId);
+            const tag = stockTags.find(t => t.id === portion.feedTagId);
             stats[portion.feedTagId] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
           }
           const freqValue = portion.frequencyValue || 1;
@@ -194,7 +194,7 @@ export function useDashboardStats() {
     });
 
     return stats;
-  }, [household, stockList, feedTags]);
+  }, [household, stockList, stockTags]);
 
   // 嬰兒與寵物成員個別的瓶頸天數
   const specialMemberStatus = useMemo(() => {

@@ -20,12 +20,12 @@ import {
 export default function CreateModal() {
   const [newStock, setNewStock] = useState<Stock>(initialStock);
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
-  const { feedTags, household } = useContext(SettingContext);
+  const { stockTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
   const units = newStock.type === 'medicine' ? medicineUnit : stockItemUnit;
   const isEditing = !!newStock.id;
   const isTagRequired = tagAllowedType.includes(newStock.type);
-  const availableTags = feedTags.filter(t => t.appliesToStockType === newStock.type);
+  const availableTags = stockTags.filter(t => t.appliesToStockType === newStock.type);
 
   const selectedTagUnit = useMemo(() => {
     if (!newStock.feedTagId) return null;

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function SettingComponent() {
-  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, feedTags, replaceFeedTags } = useContext(SettingContext);
+  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, stockTags, replaceStockTags } = useContext(SettingContext);
   const { isDemo, setIsDemo, stockList, replaceStockList } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,7 +25,7 @@ export default function SettingComponent() {
       setting,
       household,
       stockList,
-      feedTags,
+      stockTags,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -60,7 +60,7 @@ export default function SettingComponent() {
         if (data.setting) replaceSetting(data.setting);
         if (data.household) replaceHousehold(data.household);
         if (data.stockList) replaceStockList(data.stockList);
-        if (data.feedTags) replaceFeedTags(data.feedTags);
+        if (data.stockTags) replaceStockTags(data.stockTags);
         toast.success("資料匯入成功");
       } catch (err) {
         toast.error("資料匯入失敗，檔案格式不正確");

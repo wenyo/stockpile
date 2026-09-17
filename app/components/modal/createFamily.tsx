@@ -20,7 +20,7 @@ import {
 
 export default function CreateFamilyModal() {
   const { closeModal, openModal } = useContext(ModalContext);
-  const { addHousehold, updateHousehold, editHousehold, setEditHousehold, feedTags, addFeedTag, setDeleteHousehold } = useContext(SettingContext);
+  const { addHousehold, updateHousehold, editHousehold, setEditHousehold, stockTags, addStockTag, setDeleteHousehold } = useContext(SettingContext);
   const { stockList } = useContext(StockListContext);
   const [newFamilyInfo, setNewFamilyInfo] = useState<HouseholdMember>(initialHouseholdMember);
   const [newTagInput, setNewTagInput] = useState<{ idx: number, label: string } | null>(null);
@@ -28,8 +28,10 @@ export default function CreateFamilyModal() {
   const isEdit = editHousehold?.id;
   
   const showFeedPortion = newFamilyInfo.identity === "infant" || newFamilyInfo.identity === "pet" || newFamilyInfo.identity === "child";
-  const appliesToStockType = newFamilyInfo.identity === "pet" ? "petStapleFood" : "infantStapleFood";
-  const availableTags = feedTags.filter((t) => t.appliesToStockType === appliesToStockType);
+  const appliesFeedType = newFamilyInfo.identity === "pet" ? "petStapleFood" : "infantStapleFood";
+  const availableFeedTags = stockTags.filter((t) => t.appliesToStockType === appliesFeedType);
+  const availableMedicineTags = stockTags.filter((t) => t.appliesToStockType === "medicine");
+
   const requiredFields = REQUIRED_FIELDS[newFamilyInfo.identity];
   const requiredDom = <span className="text-danger ml-1">*</span>;
   const checkIsRequired = (key: keyof HouseholdMember) => {
@@ -87,20 +89,6 @@ export default function CreateFamilyModal() {
     ]);
   };
 
-  const setMedicineNeeds = (needs: MedicineNeed[]) => {
-    console.log('setMedicineNeeds', needs);
-    setNewFamilyInfo((prev) => ({ ...prev, medicineNeeds: needs }));
-  };
-
-  const addMedicineNeed = () => {
-    console.log('addMedicineNeed');
-    
-    setMedicineNeeds([
-      ...(newFamilyInfo.medicineNeeds || []),
-      { medicineId: "", dose: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
-    ]);
-  };
-
   const removeFeedPortion = (idx: number) => {
     const list = [...(newFamilyInfo.feedPortions || [])];
     list.splice(idx, 1);
@@ -113,10 +101,37 @@ export default function CreateFamilyModal() {
     setFeedPortions(list);
   };
 
-  const confirmCreateTag = () => {
+  const setMedicineNeeds = (needs: MedicineNeed[]) => {
+    setNewFamilyInfo((prev) => ({ ...prev, medicineNeeds: needs }));
+  };
+
+  const addMedicineNeed = () => {
+    setMedicineNeeds([
+      ...(newFamilyInfo.medicineNeeds || []),
+      { medicineId: "", dose: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
+    ]);
+  };
+
+  const removeMedicineNeed = (idx: number) => {
+    const list = [...(newFamilyInfo.medicineNeeds || [])];
+    list.splice(idx, 1);
+    setMedicineNeeds(list);
+  };
+
+  const updateMedicineNeed = (idx: number, key: keyof MedicineNeed, val: any) => {
+    const list = [...(newFamilyInfo.medicineNeeds || [])];
+    list[idx] = { ...list[idx], [key]: val };
+    setMedicineNeeds(list);
+  };
+
+  const confirmCreateTag = (tagType: Extract<keyof typeof stockType, "infantStapleFood" | "petStapleFood" | "medicine">) => {
     if (!newTagInput || !newTagInput.label.trim()) return;
-    const tagId = addFeedTag({ label: newTagInput.label.trim(), appliesToStockType });
-    updateFeedPortion(newTagInput.idx, "feedTagId", tagId);
+    const tagId = addStockTag({ label: newTagInput.label.trim(), appliesToStockType: tagType });
+    if (tagType === 'medicine') {
+      updateMedicineNeed(newTagInput.idx, "medicineId", tagId);
+    } else {
+      updateFeedPortion(newTagInput.idx, "feedTagId", tagId);
+    }
     setNewTagInput(null);
   };
 
@@ -126,6 +141,7 @@ export default function CreateFamilyModal() {
   }
 
   const checkFormRequirements = () => {
+    // check required field of household
     for (let requireKey of requiredFields) {
       if (requireKey === "feedPortions") {
         const feedPortions = newFamilyInfo.feedPortions || [];
@@ -144,6 +160,14 @@ export default function CreateFamilyModal() {
         }
       }
     }
+
+    // check required field of medicineNeeds
+    for (let need of newFamilyInfo.medicineNeeds || []) {
+      if (!need.medicineId || !need.dose || !need.unit || !need.frequencyType || !need.frequencyValue) {
+        return false;
+      }
+    }
+    
     return true;
   }
 
@@ -276,8 +300,8 @@ export default function CreateFamilyModal() {
                       尚未設定用藥需求
                     </div>
                   ) : (
-                    (newFamilyInfo.medicineNeeds || []).map((portion, idx) => {
-                      const isTagUsedInStock = portion.medicineId ? stockList.some(s => s.medicineId === portion.medicineId) : false;
+                    (newFamilyInfo.medicineNeeds || []).map((medicine, idx) => {
+                      const isTagUsedInStock = medicine.medicineId ? stockList.some(s => s.medicineId === medicine.medicineId) : false;
                       
                       return (
                       <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col gap-3 relative">
@@ -285,7 +309,7 @@ export default function CreateFamilyModal() {
                           variant="ghost" 
                           size="icon" 
                           className="absolute -top-3 -right-3 h-8 w-8 bg-background border border-border/50 text-danger hover:text-danger hover:bg-danger/10 rounded-full shadow-sm"
-                          onClick={() => removeFeedPortion(idx)}
+                          onClick={() => removeMedicineNeed(idx)}
                         >
                           <Trash2 size={14} />
                         </Button>
@@ -300,22 +324,22 @@ export default function CreateFamilyModal() {
                                 placeholder="血壓藥、抗組織胺..." 
                                 value={newTagInput.label} 
                                 onChange={(e) => setNewTagInput({ ...newTagInput, label: e.target.value })} 
-                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag()}
+                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag('medicine')}
                                 required={requiredFields.includes("feedPortions")}
                               />
-                              <Button type="button" size="sm" className="h-9" onClick={confirmCreateTag}>確定</Button>
+                              <Button type="button" size="sm" className="h-9" onClick={() => confirmCreateTag('medicine')}>確定</Button>
                               <Button type="button" size="sm" className="h-9" variant="outline" onClick={() => setNewTagInput(null)}>取消</Button>
                             </div>
                             <span className="text-xs text-info">※ 庫存標籤用於對應成員的藥品</span>
                           </div>
                         ) : (
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{checkIsRequired("feedPortions")}</label>
+                            <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
                             <Select 
-                              value={portion.medicineId} 
+                              value={medicine.medicineId} 
                               onValueChange={(val) => {
                                 if (val === "__CREATE__") setNewTagInput({ idx, label: "" });
-                                else updateFeedPortion(idx, "feedTagId", val);
+                                else updateMedicineNeed(idx, "medicineId", val);
                               }}
                               required={requiredFields.includes("feedPortions")}
                             >
@@ -323,7 +347,7 @@ export default function CreateFamilyModal() {
                                 <SelectValue placeholder="選擇或建立標籤..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {availableTags.map((tag) => (
+                                {availableMedicineTags.map((tag) => (
                                   <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
                                 ))}
                                 <div className="h-px bg-border my-1" />
@@ -338,9 +362,9 @@ export default function CreateFamilyModal() {
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                           <div className="flex flex-col gap-1.5 md:col-span-2">
-                            <label className="text-xs font-semibold text-muted-foreground">餵食頻率{checkIsRequired("feedPortions")}</label>
+                            <label className="text-xs font-semibold text-muted-foreground">用藥頻率</label>
                             <div className="flex gap-2">
-                              <Select value={portion.frequencyType} onValueChange={(val) => updateFeedPortion(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
+                              <Select value={medicine.frequencyType} onValueChange={(val) => updateMedicineNeed(idx, "frequencyType", val)} required={requiredFields.includes("feedPortions")}>
                                 <SelectTrigger className="h-9 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -352,24 +376,23 @@ export default function CreateFamilyModal() {
                               <Input 
                                 type="number" 
                                 className="h-9 w-24 border-border/60" 
-                                value={portion.frequencyValue || ""} 
-                                onChange={(e) => updateFeedPortion(idx, "frequencyValue", e.target.value === "" ? 0 : Number(e.target.value))} 
-                                required={requiredFields.includes("feedPortions")}
+                                value={medicine.frequencyValue || ""} 
+                                onChange={(e) => updateMedicineNeed(idx, "frequencyValue", e.target.value === "" ? 0 : Number(e.target.value))} 
                               />
                             </div>
                           </div>
                           
                           <div className="flex flex-col gap-1.5 md:col-span-2">
-                            <label className="text-xs font-semibold text-muted-foreground">單次餵食量{checkIsRequired("feedPortions")}</label>
+                            <label className="text-xs font-semibold text-muted-foreground">單次用藥量</label>
                             <div className="flex gap-2">
                               <Input 
                                 type="number" 
                                 className="h-9 border-border/60" 
-                                value={portion.dose || ""} 
-                                onChange={(e) => updateFeedPortion(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                value={medicine.dose || ""} 
+                                onChange={(e) => updateMedicineNeed(idx, "dose", e.target.value === "" ? 0 : Number(e.target.value))} 
                                 required={requiredFields.includes("feedPortions")}
                               />
-                              <Select disabled={isTagUsedInStock} value={portion.unit} onValueChange={(val) => updateFeedPortion(idx, "unit", val)} required={requiredFields.includes("feedPortions")}>
+                              <Select disabled={isTagUsedInStock} value={medicine.unit} onValueChange={(val) => updateMedicineNeed(idx, "unit", val)} required={requiredFields.includes("feedPortions")}>
                                 <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -399,7 +422,7 @@ export default function CreateFamilyModal() {
                   <h3 className="text-sm font-semibold">指定飲食需求{checkIsRequired("feedPortions")}</h3>
                   <div className="flex justify-center items-center gap-2">
                     <span className="font-normal text-sm">
-                      適用類別：<span className="text-foreground font-bold">{appliesToStockType === "infantStapleFood" ? stockType.infantStapleFood : stockType.petStapleFood}</span>
+                      適用類別：<span className="text-foreground font-bold">{appliesFeedType === "infantStapleFood" ? stockType.infantStapleFood : stockType.petStapleFood}</span>
                     </span>
                     <Button onClick={addFeedPortion} variant="outline" size="sm" className="h-8 gap-1 border-border/60 w-fit">
                       <Plus size={14} /> 新增
@@ -437,10 +460,10 @@ export default function CreateFamilyModal() {
                                 placeholder="如：奶粉、貓貓飼料..." 
                                 value={newTagInput.label} 
                                 onChange={(e) => setNewTagInput({ ...newTagInput, label: e.target.value })} 
-                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag()}
+                                onKeyDown={(e) => e.key === 'Enter' && confirmCreateTag(appliesFeedType)}
                                 required={requiredFields.includes("feedPortions")}
                               />
-                              <Button type="button" size="sm" className="h-9" onClick={confirmCreateTag}>確定</Button>
+                              <Button type="button" size="sm" className="h-9" onClick={() => confirmCreateTag(appliesFeedType)}>確定</Button>
                               <Button type="button" size="sm" className="h-9" variant="outline" onClick={() => setNewTagInput(null)}>取消</Button>
                             </div>
                             <span className="text-xs text-info">※ 庫存標籤用於對應成員的主食</span>
@@ -460,7 +483,7 @@ export default function CreateFamilyModal() {
                                 <SelectValue placeholder="選擇或建立標籤..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {availableTags.map((tag) => (
+                                {availableFeedTags.map((tag) => (
                                   <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
                                 ))}
                                 <div className="h-px bg-border my-1" />
