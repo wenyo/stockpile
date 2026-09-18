@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
-import { REQUIRED_FIELDS, type MissingInfoItem, frequencyType } from "@/interfaces/stock";
-import { stockType, notRequiredType } from "@/constant/stock";
+import { REQUIRED_FIELDS, type MissingInfoItem, frequencyType, type FeedPortion, type MedicineNeed } from "@/interfaces/stock";
+import { stockType, notRequiredType, tagAllowedType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 
@@ -13,9 +13,9 @@ export function useDashboardStats() {
   // 總熱量 (根據每一項庫存數與熱量)
   const currentCalories = useMemo(() => {
     return stockList.reduce((acc, stock) => {
-       const count = Number(stock.count) || 0;
-       const cals = Number(stock.totalCalories) || 0;
-       return acc + (count * cals);
+      const count = Number(stock.count) || 0;
+      const cals = Number(stock.totalCalories) || 0;
+      return acc + (count * cals);
     }, 0);
   }, [stockList]);
 
@@ -155,37 +155,55 @@ export function useDashboardStats() {
     return result;
   }, [stockList]);
 
-  // Feed Tag 統計計算
-  const feedTagStats = useMemo(() => {
-    const stats: Record<string, { dailyNeed: number, stockTotal: number, days: number, label: string, appliesToStockType?: string }> = {};
-    
+  // tag 庫存標籤 統計計算
+  const tagStats = (checkKey: "feedPortions" | "medicineNeeds") => {
+    type TagStats = {
+      dailyNeed: number;
+      stockTotal: number;
+      days: number;
+      label: string;
+      appliesToStockType?: string;
+    };
+
+    const stats: Record<string, TagStats> = {};
+
+    const idName: "feedTagId" | "medicineTagId" = checkKey === "feedPortions" ? "feedTagId" : "medicineTagId";
+
     // 1. 計算每個 Tag 的每日需求總量
     household.forEach(member => {
-      if (member.feedPortions) {
-        member.feedPortions.forEach(portion => {
-          if (!portion.feedTagId) return;
-          if (!stats[portion.feedTagId]) {
-            const tag = stockTags.find(t => t.id === portion.feedTagId);
-            stats[portion.feedTagId] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
+      if (member[checkKey]) {
+        (member[checkKey] as any[]).forEach((portion) => {
+          const idValue = portion[idName] as string;
+          if (!idValue) return;
+          if (!stats[idValue]) {
+            const tag = stockTags.find(t => t.id === idValue);
+            stats[idValue] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
           }
           const freqValue = portion.frequencyValue || 1;
           const dailyAmount = portion.frequencyType === frequencyType.TIMES_PER_DAY 
             ? portion.amount * freqValue 
             : portion.amount / freqValue;
-          stats[portion.feedTagId].dailyNeed += dailyAmount;
+          stats[idValue].dailyNeed += dailyAmount;
         });
       }
     });
 
     // 2. 累加對應的庫存總量
     stockList.forEach(stock => {
-      if (stock.feedTagId && stats[stock.feedTagId] && (stock.type === "infantStapleFood" || stock.type === "petStapleFood")) {
+      if(stock.type === "medicine"){
+        console.log(stock, idName);
+        console.log(stock[idName] && stats[stock[idName]] && tagAllowedType.includes(stock.type));
+      }
+      
+      if (stock[idName] && stats[stock[idName]] && tagAllowedType.includes(stock.type)) {
+        
         const count = Number(stock.count) || 0;
         // 若沒有 volume 則預設為 1 (避免乘 0)，實際上新增表單已有必填要求
         const vol = Number(stock.volume) || 1;
-        stats[stock.feedTagId].stockTotal += (count * vol);
+        stats[stock[idName]].stockTotal += (count * vol);
       }
     });
+    
 
     // 3. 計算可支撐天數
     Object.keys(stats).forEach(tagId => {
@@ -194,6 +212,16 @@ export function useDashboardStats() {
     });
 
     return stats;
+  }
+
+  // Medicine Tag 統計計算
+  const medicineTagStats = useMemo(() => {
+    return tagStats("medicineNeeds");
+  }, [household, stockList, stockTags]);
+  
+  // Feed Tag 統計計算
+  const feedTagStats = useMemo(() => {
+    return tagStats("feedPortions");
   }, [household, stockList, stockTags]);
 
   // 嬰兒與寵物成員個別的瓶頸天數
@@ -265,8 +293,9 @@ export function useDashboardStats() {
     const days = [survivalFoodDays, survivalWaterDays];
     if (specialMemberStatus.infant) days.push(specialMemberStatus.infant.days);
     if (specialMemberStatus.pet) days.push(specialMemberStatus.pet.days);
+    if (Object.keys(medicineTagStats).length > 0) days.push(Math.min(...Object.values(medicineTagStats).map(t => t.days)));    
     return Math.min(...days);
-  }, [survivalFoodDays, survivalWaterDays, specialMemberStatus]);
+  }, [survivalFoodDays, survivalWaterDays, specialMemberStatus, medicineTagStats]);
 
   const progressPercent = useMemo(() => {
     return Math.round(Math.min(100, (survivalDays / currentSetting.targetDays) * 100));
@@ -299,5 +328,6 @@ export function useDashboardStats() {
     missingTypeStock,
     feedTagStats,
     specialMemberStatus,
+    medicineTagStats,
   };
 }

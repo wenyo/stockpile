@@ -13,7 +13,7 @@ export interface Stock {
   volume: number | undefined;
   volumeUnit?: keyof typeof stockUnit;
   feedTagId?: string; // only for tagAllowedType
-  medicineId?: string; // only for tagAllowedType
+  medicineTagId?: string; // only for tagAllowedType
   updatedAt?: string | null;
 }
 
@@ -86,7 +86,7 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
     "unit",
     "expirationDate",
-    "medicineId",
+    "medicineTagId",
   ],
   tool: [
     "name",
@@ -141,8 +141,8 @@ export type FeedPortion = {
 };
 
 export type MedicineNeed = {
-  medicineId: string;
-  dose: number;
+  medicineTagId: string;
+  amount: number;
   unit: keyof typeof medicineUnit;
   frequencyType: FrequencyType;
   frequencyValue: number; // 頻率數值

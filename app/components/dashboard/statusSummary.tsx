@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NavLink } from "react-router";
 
 export default function SurvivalAnalysis() {
-  const { survivalDays, currentCalories, progressPercent, specialMemberStatus, feedTagStats } = useDashboardStats();
+  const { survivalDays, currentCalories, progressPercent, specialMemberStatus, feedTagStats, medicineTagStats } = useDashboardStats();
   const { openModal } = useContext(ModalContext);
   const { setting, household } = useContext(SettingContext);
   const { relativeTime, stockList } = useContext(StockListContext);

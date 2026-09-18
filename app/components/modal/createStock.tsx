@@ -23,22 +23,23 @@ export default function CreateModal() {
   const { stockTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
   const units = newStock.type === 'medicine' ? medicineUnit : stockItemUnit;
+  const idName = newStock.type === 'medicine' ? 'medicineTagId' : 'feedTagId';
   const isEditing = !!newStock.id;
   const isTagRequired = tagAllowedType.includes(newStock.type);
   const availableTags = stockTags.filter(t => t.appliesToStockType === newStock.type);
 
   const selectedTagUnit = useMemo(() => {
-    if (!newStock.feedTagId) return null;
+    if (!newStock[idName]) return null;
     for (const member of household) {
       if (member.feedPortions) {
-        const portion = member.feedPortions.find(p => p.feedTagId === newStock.feedTagId);
+        const portion = member.feedPortions.find(p => p.feedTagId === newStock[idName]);
         if (portion && portion.unit) {
           return portion.unit;
         }
       }
     }
     return null;
-  }, [newStock.feedTagId, household]);
+  }, [newStock[idName], household]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -99,6 +100,7 @@ export default function CreateModal() {
   useEffect(() => {
     let tmpStock = {...newStock};
     delete tmpStock.feedTagId;
+    delete tmpStock.medicineTagId;
     setNewStock(tmpStock);
   }, [newStock.type]);
 

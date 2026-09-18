@@ -108,7 +108,7 @@ export default function CreateFamilyModal() {
   const addMedicineNeed = () => {
     setMedicineNeeds([
       ...(newFamilyInfo.medicineNeeds || []),
-      { medicineId: "", dose: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
+      { medicineTagId: "", amount: 0, unit: "g", frequencyType: frequencyType.TIMES_PER_DAY, frequencyValue: 1 }
     ]);
   };
 
@@ -128,7 +128,7 @@ export default function CreateFamilyModal() {
     if (!newTagInput || !newTagInput.label.trim()) return;
     const tagId = addStockTag({ label: newTagInput.label.trim(), appliesToStockType: tagType });
     if (tagType === 'medicine') {
-      updateMedicineNeed(newTagInput.idx, "medicineId", tagId);
+      updateMedicineNeed(newTagInput.idx, "medicineTagId", tagId);
     } else {
       updateFeedPortion(newTagInput.idx, "feedTagId", tagId);
     }
@@ -163,7 +163,7 @@ export default function CreateFamilyModal() {
 
     // check required field of medicineNeeds
     for (let need of newFamilyInfo.medicineNeeds || []) {
-      if (!need.medicineId || !need.dose || !need.unit || !need.frequencyType || !need.frequencyValue) {
+      if (!need.medicineTagId || !need.amount || !need.unit || !need.frequencyType || !need.frequencyValue) {
         return false;
       }
     }
@@ -301,7 +301,7 @@ export default function CreateFamilyModal() {
                     </div>
                   ) : (
                     (newFamilyInfo.medicineNeeds || []).map((medicine, idx) => {
-                      const isTagUsedInStock = medicine.medicineId ? stockList.some(s => s.medicineId === medicine.medicineId) : false;
+                      const isTagUsedInStock = medicine.medicineTagId ? stockList.some(s => s.medicineTagId === medicine.medicineTagId) : false;
                       
                       return (
                       <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col gap-3 relative">
@@ -336,10 +336,10 @@ export default function CreateFamilyModal() {
                           <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}</label>
                             <Select 
-                              value={medicine.medicineId} 
+                              value={medicine.medicineTagId} 
                               onValueChange={(val) => {
                                 if (val === "__CREATE__") setNewTagInput({ idx, label: "" });
-                                else updateMedicineNeed(idx, "medicineId", val);
+                                else updateMedicineNeed(idx, "medicineTagId", val);
                               }}
                               required={requiredFields.includes("feedPortions")}
                             >
@@ -388,8 +388,8 @@ export default function CreateFamilyModal() {
                               <Input 
                                 type="number" 
                                 className="h-9 border-border/60" 
-                                value={medicine.dose || ""} 
-                                onChange={(e) => updateMedicineNeed(idx, "dose", e.target.value === "" ? 0 : Number(e.target.value))} 
+                                value={medicine.amount || ""} 
+                                onChange={(e) => updateMedicineNeed(idx, "amount", e.target.value === "" ? 0 : Number(e.target.value))} 
                                 required={requiredFields.includes("feedPortions")}
                               />
                               <Select disabled={isTagUsedInStock} value={medicine.unit} onValueChange={(val) => updateMedicineNeed(idx, "unit", val)} required={requiredFields.includes("feedPortions")}>
