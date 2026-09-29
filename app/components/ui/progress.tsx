@@ -13,7 +13,7 @@ function Progress({
     <ProgressPrimitive.Root
       data-slot="progress"
       className={cn(
-        "relative flex h-4 w-full items-center overflow-x-hidden rounded-full bg-muted border",
+        "relative flex h-4 w-full items-center overflow-x-hidden rounded-r-full border",
         className
       )}
       {...props}

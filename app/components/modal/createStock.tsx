@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/select";
 
 export default function CreateModal() {
-  const [newStock, setNewStock] = useState<Stock>(initialStock);
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
+  const [newStock, setNewStock] = useState<Stock>(() => editStock || initialStock);
   const { stockTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
   const units = newStock.type === 'medicine' ? medicineUnit : stockItemUnit;
@@ -27,6 +27,12 @@ export default function CreateModal() {
   const isEditing = !!newStock.id;
   const isTagRequired = tagAllowedType.includes(newStock.type);
   const availableTags = stockTags.filter(t => t.appliesToStockType === newStock.type);
+
+  const handleClose = () => {
+    setNewStock(initialStock);
+    setEditStock(null);
+    closeModal();
+  };
 
   const selectedTagUnit = useMemo(() => {
     if (!newStock[idName]) return null;
@@ -49,7 +55,17 @@ export default function CreateModal() {
       parsedValue = value === '' ? undefined : Number(value);
     }
 
-    setNewStock({ ...newStock, [id]: parsedValue });
+    if (id === 'type') {
+      setNewStock(prev => ({
+        ...prev,
+        type: value as any,
+        feedTagId: undefined,
+        medicineTagId: undefined,
+      }));
+      return;
+    }
+
+    setNewStock(prev => ({ ...prev, [id]: parsedValue }));
   };
 
   const handleEditStock = () => {
@@ -74,8 +90,7 @@ export default function CreateModal() {
        addStock(stockToAdd);
     }
 
-    setNewStock(initialStock);
-    closeModal();
+    handleClose();
   };
 
   const requiredDom = <span className="text-danger ml-1">*</span>;
@@ -86,25 +101,6 @@ export default function CreateModal() {
   }
 
   useEffect(() => {
-    return () => {
-      setEditStock(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (editStock) {
-      setNewStock(editStock);
-    }
-  }, [editStock]);
-
-  useEffect(() => {
-    let tmpStock = {...newStock};
-    delete tmpStock.feedTagId;
-    delete tmpStock.medicineTagId;
-    setNewStock(tmpStock);
-  }, [newStock.type]);
-
-  useEffect(() => {
     if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
       setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
     }
@@ -113,7 +109,7 @@ export default function CreateModal() {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-      onClick={closeModal}
+      onClick={handleClose}
     >
       <div
         className="bg-card w-full h-dvh sm:h-auto sm:max-h-[85vh] sm:max-w-2xl sm:rounded-xl border-0 sm:border border-border/50 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
@@ -125,7 +121,7 @@ export default function CreateModal() {
             {isEditing ? <Edit size={20} className="text-info" /> : <PackagePlus size={20} className="text-primary" />}
             {isEditing ? "編輯物資" : "新增物資"}
           </h2>
-          <Button variant="ghost" size="icon" onClick={closeModal} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={handleClose} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>
@@ -135,7 +131,7 @@ export default function CreateModal() {
           <ul className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
             <li className="flex flex-col gap-1.5 col-span-2">
               <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}{checkIsRequired("name")}</label>
-              <Input type="text" id="name" value={newStock.name} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 礦泉水, 止痛藥..." />
+              <Input type="text" id="name" value={newStock.name ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 礦泉水, 止痛藥..." />
             </li>
 
             <li className="flex flex-col gap-1.5">
@@ -154,15 +150,15 @@ export default function CreateModal() {
 
             {isTagRequired && (
               <li className="flex flex-col gap-1.5">
-                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
+                <label htmlFor={idName} className="text-sm font-semibold text-muted-foreground">{stockFieldLabel[idName]}{requiredDom}</label>
                 {availableTags.length === 0 ? (
                   <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
-                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增{stockType[newStock.type]}設定。</span>
+                    <span>尚未建立相關{stockFieldLabel[idName]}，請先至「家庭成員」設定中新增{stockType[newStock.type]}設定。</span>
                   </div>
                 ) : (
-                  <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+                  <Select value={newStock[idName] || ""} onValueChange={(value) => handleInputChange({ target: { id: idName, value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                     <SelectTrigger className="h-10 border-border/60">
-                      <SelectValue placeholder={`請選擇${stockFieldLabel.feedTagId}...`} />
+                      <SelectValue placeholder={`請選擇${stockFieldLabel[idName]}...`} />
                     </SelectTrigger>
                     <SelectContent>
                       {availableTags.map((tag) => (
@@ -222,30 +218,30 @@ export default function CreateModal() {
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="expirationDate" className="text-sm font-semibold text-muted-foreground">保存期限{checkIsRequired("expirationDate")}</label>
-              <Input type="date" id="expirationDate" value={newStock.expirationDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
+              <Input type="date" id="expirationDate" value={newStock.expirationDate ?? ""} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
             </li>
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.purchaseDate}{checkIsRequired("purchaseDate")}</label>
-              <Input type="date" id="purchaseDate" value={newStock.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
+              <Input type="date" id="purchaseDate" value={newStock.purchaseDate ?? ""} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
             </li>
 
             <li className="flex flex-col gap-1.5 col-span-2">
               <label htmlFor="remark" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.remark}{checkIsRequired("remark")}</label>
-              <Input type="text" id="remark" value={newStock.remark} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
+              <Input type="text" id="remark" value={newStock.remark ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
             </li>
           </ul>
         </div>
 
         {/* Footer */}
         <div className="shrink-0 p-4 md:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border/40 bg-muted/10 flex justify-end gap-3">
-          <Button variant="outline" onClick={closeModal} className="px-6 border-border/60 hover:bg-muted/50">
+          <Button variant="outline" onClick={handleClose} className="px-6 border-border/60 hover:bg-muted/50">
             取消
           </Button>
           <Button 
             onClick={handleEditStock} 
             className="px-8 shadow-sm"
-            disabled={isTagRequired && (!newStock.feedTagId || availableTags.length === 0)}
+            disabled={isTagRequired && (!newStock[idName] || availableTags.length === 0)}
           >
             {isEditing ? "儲存更新" : "確認新增"}
           </Button>
