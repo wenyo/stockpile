@@ -36,6 +36,10 @@ export default function CreateModal() {
 
   const selectedTagUnit = useMemo(() => {
     if (!newStock[idName]) return null;
+    const tag = stockTags.find((t) => t.id === newStock[idName]);
+    if (tag?.unit) {
+      return tag.unit;
+    }
     for (const member of household) {
       if (member.feedPortions) {
         const portion = member.feedPortions.find(p => p.feedTagId === newStock[idName]);
@@ -43,9 +47,15 @@ export default function CreateModal() {
           return portion.unit;
         }
       }
+      if (member.medicineNeeds) {
+        const need = member.medicineNeeds.find(n => n.medicineTagId === newStock[idName]);
+        if (need && need.unit) {
+          return need.unit;
+        }
+      }
     }
     return null;
-  }, [newStock[idName], household]);
+  }, [newStock[idName], stockTags, household]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;

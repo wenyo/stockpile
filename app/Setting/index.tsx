@@ -4,7 +4,7 @@ import { getIdentityIcon } from "@/utils/family";
 import { type HouseholdMember } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
-import { SettingContext } from "@/store/setting";
+import { SettingContext, migrateTagsWithUnits } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -60,7 +60,14 @@ export default function SettingComponent() {
         if (data.setting) replaceSetting(data.setting);
         if (data.household) replaceHousehold(data.household);
         if (data.stockList) replaceStockList(data.stockList);
-        if (data.stockTags) replaceStockTags(data.stockTags);
+        if (data.stockTags) {
+          const { migratedTags } = migrateTagsWithUnits(
+            data.stockTags,
+            data.household || [],
+            data.stockList || []
+          );
+          replaceStockTags(migratedTags);
+        }
         toast.success("資料匯入成功");
       } catch (err) {
         toast.error("資料匯入失敗，檔案格式不正確");

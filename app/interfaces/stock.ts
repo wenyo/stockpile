@@ -129,12 +129,13 @@ export type Tag = {
   id: string;
   label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
   appliesToStockType: keyof typeof stockType;
+  unit?: string; // 標籤唯一的標準單位
 };
 
 export type FeedPortion = {
   feedTagId: string;
   amount: number;
-  unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
+  unit?: "g" | "ml" | "unit" | string; // 漸進式相容：優先以 tag.unit 為準
   waterAmount?: number; // 單次搭配水量 ml (主要給嬰兒泡奶用)
   frequencyType: FrequencyType;
   frequencyValue: number;
@@ -143,7 +144,7 @@ export type FeedPortion = {
 export type MedicineNeed = {
   medicineTagId: string;
   amount: number;
-  unit: keyof typeof medicineUnit;
+  unit?: keyof typeof medicineUnit | string; // 漸進式相容：優先以 tag.unit 為準
   frequencyType: FrequencyType;
   frequencyValue: number; // 頻率數值
 };

@@ -2,26 +2,30 @@ import type { Stock } from "@/interfaces/stock";
 import type { HouseholdMember } from "@/interfaces/family";
 import type {Tag } from "@/interfaces/stock";
 
-export const sampleFeedTags:Tag[] = [
+export const sampleFeedTags: Tag[] = [
   {
     id: "tag_sample_milk",
     label: "配方奶",
     appliesToStockType: "infantStapleFood",
+    unit: "g",
   },
   {
     id: "tag_sample_dogfood",
     label: "一般乾糧",
     appliesToStockType: "petStapleFood",
+    unit: "g",
   },
   {
     id: "tag_sample_dogcan",
     label: "主食罐",
     appliesToStockType: "petStapleFood",
+    unit: "unit",
   },
   {
     id: "tag_sample_medicine",
     label: "心血管用藥",
     appliesToStockType: "medicine",
+    unit: "tablet",
   }
 ];
 

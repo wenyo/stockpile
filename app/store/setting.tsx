@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 import { type HouseholdMember } from "@/interfaces/family";
-import { type Tag } from "@/interfaces/stock";
+import { type Tag, type Stock } from "@/interfaces/stock";
 
 import { sampleHouseholdData, sampleFeedTags } from "@/constant/sampleData";
 import { StockListContext } from "@/store/stockList";
@@ -22,11 +22,59 @@ type SettingContextType = {
   deleteHousehold: HouseholdMember | null;
   setDeleteHousehold: (newHousehold: HouseholdMember | null) => void;
   stockTags:Tag[];
-  addStockTag: (newTag: Pick<Tag, "label" | "appliesToStockType">) => string;
+  addStockTag: (newTag: Pick<Tag, "label" | "appliesToStockType"> & { unit?: string }) => string;
   replaceSetting: (newSetting: SettingConfig) => void;
   replaceHousehold: (newHousehold: HouseholdMember[]) => void;
   replaceStockTags: (newTags:Tag[]) => void;
 };
+
+export function migrateTagsWithUnits(
+  tags: Tag[],
+  household: HouseholdMember[],
+  stockList: Stock[]
+): { migratedTags: Tag[]; hasChanged: boolean } {
+  let hasChanged = false;
+
+  const migratedTags = tags.map((tag) => {
+    if (tag.unit) return tag;
+
+    let foundUnit: string | undefined;
+
+    // 1. 查找 household
+    for (const member of household) {
+      const portion = member.feedPortions?.find((p) => p.feedTagId === tag.id);
+      if (portion?.unit) {
+        foundUnit = portion.unit;
+        break;
+      }
+      const need = member.medicineNeeds?.find((n) => n.medicineTagId === tag.id);
+      if (need?.unit) {
+        foundUnit = need.unit;
+        break;
+      }
+    }
+
+    // 2. 查找 stockList
+    if (!foundUnit) {
+      const stock = stockList.find(
+        (s) => s.feedTagId === tag.id || s.medicineTagId === tag.id
+      );
+      if (stock) {
+        foundUnit = stock.type === "medicine" ? stock.unit : stock.volumeUnit;
+      }
+    }
+
+    // 3. 預設 Fallback
+    if (!foundUnit) {
+      foundUnit = tag.appliesToStockType === "medicine" ? "tablet" : "g";
+    }
+
+    hasChanged = true;
+    return { ...tag, unit: foundUnit };
+  });
+
+  return { migratedTags, hasChanged };
+}
 
 const defaultSetting: SettingConfig = {
   targetDays: 30,
@@ -73,8 +121,10 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     }
 
     const localStorageHousehold = localStorage.getItem("stockpile_household");
+    let initialHousehold: HouseholdMember[] = [];
     if (localStorageHousehold) {
-      setHousehold(JSON.parse(localStorageHousehold));
+      initialHousehold = JSON.parse(localStorageHousehold);
+      setHousehold(initialHousehold);
     }
 
     let savedTags = localStorage.getItem("stockpile_stockTags");
@@ -85,9 +135,31 @@ export function SettingProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("stockpile_stockTags", oldTags);
       }
     }
+    let initialTags: Tag[] = [];
     if (savedTags) {
-      setFeedTags(JSON.parse(savedTags));
+      initialTags = JSON.parse(savedTags);
     }
+
+    let initialStocks: Stock[] = [];
+    const localStorageStockList = localStorage.getItem("stockList");
+    if (localStorageStockList) {
+      try {
+        initialStocks = JSON.parse(localStorageStockList);
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+
+    const { migratedTags, hasChanged } = migrateTagsWithUnits(
+      initialTags,
+      initialHousehold,
+      initialStocks
+    );
+
+    if (hasChanged) {
+      localStorage.setItem("stockpile_stockTags", JSON.stringify(migratedTags));
+    }
+    setFeedTags(migratedTags);
 
     setIsInitialized(true);
   }, []);
@@ -147,9 +219,10 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     setHousehold((prevHousehold) => prevHousehold.filter((member) => member.id !== id));
   };
 
-  const addStockTag = (newTag: Pick<Tag, "label" | "appliesToStockType">) => {
+  const addStockTag = (newTag: Pick<Tag, "label" | "appliesToStockType"> & { unit?: string }) => {
     const id = `tag_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    setFeedTags((prev) => [...prev, { ...newTag, id }]);
+    const unit = newTag.unit || (newTag.appliesToStockType === "medicine" ? "tablet" : "g");
+    setFeedTags((prev) => [...prev, { ...newTag, id, unit }]);
     return id;
   };
 
