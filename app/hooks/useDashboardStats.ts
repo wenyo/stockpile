@@ -4,6 +4,27 @@ import { stockType, notRequiredType, tagAllowedType } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 
+export type TagStats = {
+  dailyNeed: number;
+  stockTotal: number;
+  days: number;
+  label: string;
+  appliesToStockType?: string;
+};
+
+export type CategoryTagSummary = {
+  hasRequirement: boolean;
+  days: number;
+  bottleneck: string;
+  tags: Record<string, TagStats>;
+};
+
+export type SpecialNeedsStatus = {
+  infant: CategoryTagSummary | null;
+  pet: CategoryTagSummary | null;
+  medicine: CategoryTagSummary | null;
+};
+
 export function useDashboardStats() {
   const { stockList } = useContext(StockListContext);
   const { household, setting, stockTags } = useContext(SettingContext);
@@ -155,147 +176,158 @@ export function useDashboardStats() {
     return result;
   }, [stockList]);
 
-  // tag 庫存標籤 統計計算
-  const tagStats = (checkKey: "feedPortions" | "medicineNeeds") => {
-    type TagStats = {
-      dailyNeed: number;
-      stockTotal: number;
-      days: number;
-      label: string;
-      appliesToStockType?: string;
-    };
+  // 計算個別分類標籤統計與瓶頸
+  const computeCategorySummary = (params: {
+    category: "infant" | "pet" | "medicine";
+    stockTypeTarget: "infantStapleFood" | "petStapleFood" | "medicine";
+    idName: "feedTagId" | "medicineTagId";
+    fallbackBottleneck: string;
+  }): CategoryTagSummary | null => {
+    const { category, stockTypeTarget, idName, fallbackBottleneck } = params;
 
-    const stats: Record<string, TagStats> = {};
+    let hasRequirement = false;
+    if (category === "infant") {
+      hasRequirement = household.some((m) => m.identity === "infant");
+    } else if (category === "pet") {
+      hasRequirement = household.some((m) => m.identity === "pet");
+    } else if (category === "medicine") {
+      hasRequirement = household.some((m) => m.medicineNeeds && m.medicineNeeds.some((n) => !!n.medicineTagId));
+    }
 
-    const idName: "feedTagId" | "medicineTagId" = checkKey === "feedPortions" ? "feedTagId" : "medicineTagId";
+    if (!hasRequirement) {
+      return null;
+    }
 
-    // 1. 計算每個 Tag 的每日需求總量
-    household.forEach(member => {
-      if (member[checkKey]) {
-        (member[checkKey] as any[]).forEach((portion) => {
-          const idValue = portion[idName] as string;
-          if (!idValue) return;
-          if (!stats[idValue]) {
-            const tag = stockTags.find(t => t.id === idValue);
-            stats[idValue] = { dailyNeed: 0, stockTotal: 0, days: 0, label: tag?.label || '未知標籤', appliesToStockType: tag?.appliesToStockType };
-          }
-          const freqValue = portion.frequencyValue || 1;
-          const dailyAmount = portion.frequencyType === frequencyType.TIMES_PER_DAY 
-            ? portion.amount * freqValue 
+    const tags: Record<string, TagStats> = {};
+
+    // 1. 累加需求量
+    household.forEach((member) => {
+      if (category === "infant" && member.identity !== "infant") return;
+      if (category === "pet" && member.identity !== "pet") return;
+
+      const portions = (category === "medicine" ? member.medicineNeeds : member.feedPortions) || [];
+      (portions as any[]).forEach((portion) => {
+        const idValue = portion[idName] as string;
+        if (!idValue) return;
+
+        if (!tags[idValue]) {
+          const tag = stockTags.find((t) => t.id === idValue);
+          tags[idValue] = {
+            dailyNeed: 0,
+            stockTotal: 0,
+            days: 0,
+            label: tag?.label || "未知標籤",
+            appliesToStockType: tag?.appliesToStockType,
+          };
+        }
+
+        const freqValue = portion.frequencyValue || 1;
+        const dailyAmount =
+          portion.frequencyType === frequencyType.TIMES_PER_DAY
+            ? portion.amount * freqValue
             : portion.amount / freqValue;
-          stats[idValue].dailyNeed += dailyAmount;
-        });
-      }
+        tags[idValue].dailyNeed += dailyAmount;
+      });
     });
 
-    // 2. 累加對應的庫存總量
-    stockList.forEach(stock => {
-      if(stock.type === "medicine"){
-        console.log(stock, idName);
-        console.log(stock[idName] && stats[stock[idName]] && tagAllowedType.includes(stock.type));
-      }
-      
-      if (stock[idName] && stats[stock[idName]] && tagAllowedType.includes(stock.type)) {
-        
+    // 2. 累加庫存量
+    stockList.forEach((stock) => {
+      const tagId = stock[idName];
+      if (stock.type === stockTypeTarget && tagId && tags[tagId]) {
         const count = Number(stock.count) || 0;
-        // 若沒有 volume 則預設為 1 (避免乘 0)，實際上新增表單已有必填要求
         const vol = Number(stock.volume) || 1;
-        stats[stock[idName]].stockTotal += (count * vol);
-      }
-    });
-    
-
-    // 3. 計算可支撐天數
-    Object.keys(stats).forEach(tagId => {
-      const s = stats[tagId];
-      s.days = s.dailyNeed > 0 ? Math.floor(s.stockTotal / s.dailyNeed) : 0;
-    });
-
-    return stats;
-  }
-
-  // Medicine Tag 統計計算
-  const medicineTagStats = useMemo(() => {
-    return tagStats("medicineNeeds");
-  }, [household, stockList, stockTags]);
-  
-  // Feed Tag 統計計算
-  const feedTagStats = useMemo(() => {
-    return tagStats("feedPortions");
-  }, [household, stockList, stockTags]);
-
-  // 嬰兒與寵物成員個別的瓶頸天數
-  const specialMemberStatus = useMemo(() => {
-    let infantDays = Infinity;
-    let petDays = Infinity;
-    let infantBottleneck = '';
-    let petBottleneck = '';
-    let hasInfant = false;
-    let hasPet = false;
-
-    household.forEach(member => {
-      if (member.identity === 'infant') {
-        hasInfant = true;
-        if (member.feedPortions && member.feedPortions.length > 0) {
-          member.feedPortions.forEach(portion => {
-            if (portion.feedTagId && feedTagStats[portion.feedTagId]) {
-              const { days, label } = feedTagStats[portion.feedTagId];
-              if (days < infantDays) {
-                infantDays = days;
-                infantBottleneck = label;
-              }
-            }
-          });
-        }
-      } else if (member.identity === 'pet') {
-        hasPet = true;
-        if (member.feedPortions && member.feedPortions.length > 0) {
-          member.feedPortions.forEach(portion => {
-            if (portion.feedTagId && feedTagStats[portion.feedTagId]) {
-              const { days, label } = feedTagStats[portion.feedTagId];
-              if (days < petDays) {
-                petDays = days;
-                petBottleneck = label;
-              }
-            }
-          });
-        }
+        tags[tagId].stockTotal += count * vol;
       }
     });
 
-    // 如果都有設定，但找不到天數的情境防呆
-    if (infantDays === Infinity) infantDays = 0;
-    if (petDays === Infinity) petDays = 0;
+    // 3. 計算各標籤天數與瓶頸
+    const tagEntries = Object.values(tags);
+    let categoryDays = Infinity;
+    let bottleneckLabel = "";
+
+    if (tagEntries.length === 0) {
+      categoryDays = 0;
+      bottleneckLabel = fallbackBottleneck;
+    } else {
+      tagEntries.forEach((s) => {
+        s.days = s.dailyNeed > 0 ? Math.floor(s.stockTotal / s.dailyNeed) : 0;
+        if (s.days < categoryDays) {
+          categoryDays = s.days;
+          bottleneckLabel = s.label;
+        }
+      });
+    }
+
+    if (categoryDays === Infinity) categoryDays = 0;
 
     return {
-      infant: hasInfant ? { days: infantDays, bottleneck: infantBottleneck || '未設定主食' } : null,
-      pet: hasPet ? { days: petDays, bottleneck: petBottleneck || '未設定主食' } : null,
+      hasRequirement: true,
+      days: categoryDays,
+      bottleneck: bottleneckLabel || fallbackBottleneck,
+      tags,
     };
-  }, [household, feedTagStats]);
+  };
+
+  // 三大特殊需求狀態：嬰兒主食、寵物主食、指定用藥
+  const specialNeedsStatus = useMemo<SpecialNeedsStatus>(() => {
+    return {
+      infant: computeCategorySummary({
+        category: "infant",
+        stockTypeTarget: "infantStapleFood",
+        idName: "feedTagId",
+        fallbackBottleneck: "未設定主食",
+      }),
+      pet: computeCategorySummary({
+        category: "pet",
+        stockTypeTarget: "petStapleFood",
+        idName: "feedTagId",
+        fallbackBottleneck: "未設定主食",
+      }),
+      medicine: computeCategorySummary({
+        category: "medicine",
+        stockTypeTarget: "medicine",
+        idName: "medicineTagId",
+        fallbackBottleneck: "未設定藥品",
+      }),
+    };
+  }, [household, stockList, stockTags]);
+
+  // 各自獨立的 Tag 統計
+  const infantTagStats = useMemo(() => specialNeedsStatus.infant?.tags || {}, [specialNeedsStatus]);
+  const petTagStats = useMemo(() => specialNeedsStatus.pet?.tags || {}, [specialNeedsStatus]);
+  const medicineTagStats = useMemo(() => specialNeedsStatus.medicine?.tags || {}, [specialNeedsStatus]);
+
+  // 向後相容：合併嬰兒與寵物 tag 的 feedTagStats
+  const feedTagStats = useMemo(() => {
+    return { ...infantTagStats, ...petTagStats };
+  }, [infantTagStats, petTagStats]);
 
   // 缺乏的物資種類
   const missingTypeStock = useMemo(() => {
     let allTypes = Object.keys(stockType) as Array<keyof typeof stockType>;
     
-    if (!specialMemberStatus.infant) {
+    if (!specialNeedsStatus.infant) {
       allTypes = allTypes.filter(type => type !== 'infantStapleFood');
     }
-    if (!specialMemberStatus.pet) {
+    if (!specialNeedsStatus.pet) {
       allTypes = allTypes.filter(type => type !== 'petStapleFood');
+    }
+    if (!specialNeedsStatus.medicine) {
+      allTypes = allTypes.filter(type => type !== 'medicine');
     }
     
     const existingTypes = stockList.map((stock) => stock.type as string);
     return allTypes.filter((type) => !notRequiredType.includes(type) && !existingTypes.includes(type));
-  }, [stockList, specialMemberStatus]);
+  }, [stockList, specialNeedsStatus]);
 
-    // 生存天數
+  // 生存天數 (五大維度共同取最小值)
   const survivalDays = useMemo(() => {
     const days = [survivalFoodDays, survivalWaterDays];
-    if (specialMemberStatus.infant) days.push(specialMemberStatus.infant.days);
-    if (specialMemberStatus.pet) days.push(specialMemberStatus.pet.days);
-    if (Object.keys(medicineTagStats).length > 0) days.push(Math.min(...Object.values(medicineTagStats).map(t => t.days)));    
+    if (specialNeedsStatus.infant) days.push(specialNeedsStatus.infant.days);
+    if (specialNeedsStatus.pet) days.push(specialNeedsStatus.pet.days);
+    if (specialNeedsStatus.medicine) days.push(specialNeedsStatus.medicine.days);
     return Math.min(...days);
-  }, [survivalFoodDays, survivalWaterDays, specialMemberStatus, medicineTagStats]);
+  }, [survivalFoodDays, survivalWaterDays, specialNeedsStatus]);
 
   const progressPercent = useMemo(() => {
     return Math.round(Math.min(100, (survivalDays / currentSetting.targetDays) * 100));
@@ -326,8 +358,12 @@ export function useDashboardStats() {
     missingInfoStock,
     stockCount: stockList.length,
     missingTypeStock,
-    feedTagStats,
-    specialMemberStatus,
+    // special needs status
+    specialNeedsStatus,
+    infantTagStats,
+    petTagStats,
     medicineTagStats,
+    // backward compatibility
+    feedTagStats,
   };
 }

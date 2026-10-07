@@ -6,14 +6,14 @@ import { modalTypeConstant } from "@/interfaces/modal";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
-import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useDashboardStats, type CategoryTagSummary } from "@/hooks/useDashboardStats";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NavLink } from "react-router";
 
 export default function SurvivalAnalysis() {
-  const { survivalDays, currentCalories, progressPercent, specialMemberStatus, feedTagStats, medicineTagStats } = useDashboardStats();
+  const { survivalDays, currentCalories, progressPercent, specialNeedsStatus } = useDashboardStats();
   const { openModal } = useContext(ModalContext);
   const { setting, household } = useContext(SettingContext);
   const { relativeTime, stockList } = useContext(StockListContext);
@@ -22,15 +22,12 @@ export default function SurvivalAnalysis() {
   
   const renderSpecialStatus = (
     title: string,
-    status: { days: number, bottleneck: string } | null,
-    targetType: string,
-    icon: React.ReactNode,
-    statsData: Record<string, any>
+    status: CategoryTagSummary | null,
+    icon: React.ReactNode
   ) => {
     if (!status) return null;
     const isCrisis = status.days === 0;
-
-    const relevantTags = Object.values(statsData).filter(t => t.appliesToStockType === targetType);
+    const tagList = Object.values(status.tags);
 
     return (
       <Card className="flex flex-col border-border/50 bg-card/40 backdrop-blur-sm h-full">
@@ -46,11 +43,11 @@ export default function SurvivalAnalysis() {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-3 md:pt-4 flex flex-col gap-2 md:gap-3">
-          {relevantTags.length > 0 && (
+          {tagList.length > 0 && (
             <div>
               <span className="text-xs font-semibold text-muted-foreground mb-1.5 block">各標籤庫存狀態</span>
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {relevantTags.map((tag, idx) => (
+                {tagList.map((tag, idx) => (
                   <li key={idx} className="flex justify-between items-center p-2 rounded-md bg-muted/10 border border-border/40 text-sm">
                     <span className="text-muted-foreground truncate mr-2" title={tag.label}>{tag.label}</span>
                     <span className={`font-semibold shrink-0 ${tag.days === 0 ? "text-danger" : ""}`}>{tag.days} 天</span>
@@ -62,18 +59,11 @@ export default function SurvivalAnalysis() {
         </CardContent>
       </Card>
     );
-  }
+  };
 
-  const hasInfant = !!specialMemberStatus?.infant;
-  const hasPet = !!specialMemberStatus?.pet;
-  
-  const medicineStatus = useMemo(() => {
-    if (Object.keys(medicineTagStats).length === 0) return null;
-    const bottleneckDays = Math.min(...Object.values(medicineTagStats).map(t => t.days));
-    return { days: bottleneckDays, bottleneck: "medicine" };
-  }, [medicineTagStats]);
-  const hasMedicine = Object.keys(medicineTagStats).length > 0;
-
+  const hasInfant = !!specialNeedsStatus?.infant;
+  const hasPet = !!specialNeedsStatus?.pet;
+  const hasMedicine = !!specialNeedsStatus?.medicine;
   const hasSpecial = hasInfant || hasPet || hasMedicine;
 
   const breakdown = household.reduce((acc, curr) => {
@@ -219,15 +209,15 @@ export default function SurvivalAnalysis() {
         {hasSpecial && (
           <div className="flex flex-row gap-3 md:gap-4 h-full">
             <div className={hasInfant ? "flex-1" : "hidden"}>
-              {renderSpecialStatus(`${identityConstants.infant}主食狀態`, specialMemberStatus?.infant || null, "infantStapleFood", <Baby strokeWidth={1.5} size={20} />, feedTagStats)}
+              {renderSpecialStatus(`${identityConstants.infant}主食狀態`, specialNeedsStatus?.infant || null, <Baby strokeWidth={1.5} size={20} />)}
             </div>
             <div className={hasPet ? "flex-1" : "hidden"}>
-              {renderSpecialStatus(`${identityConstants.pet}主食狀態`, specialMemberStatus?.pet || null, "petStapleFood", <PawPrint strokeWidth={1.5} size={20} />, feedTagStats)}
+              {renderSpecialStatus(`${identityConstants.pet}主食狀態`, specialNeedsStatus?.pet || null, <PawPrint strokeWidth={1.5} size={20} />)}
             </div>
             <div className={hasMedicine ? "flex-1" : "hidden"}>
-              {renderSpecialStatus("指定用藥狀態", medicineStatus, "medicine", <Pill strokeWidth={1.5} size={20} />, medicineTagStats)}
+              {renderSpecialStatus("指定用藥狀態", specialNeedsStatus?.medicine || null, <Pill strokeWidth={1.5} size={20} />)}
             </div>
-        </div>
+          </div>
         )}
       </div>
     </div>

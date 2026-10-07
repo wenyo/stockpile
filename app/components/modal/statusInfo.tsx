@@ -55,7 +55,7 @@ export default function StatusInfoModal() {
                   >
                     <td className="px-3 py-2.5">
                       <span className={`inline-flex items-center gap-1.5 font-medium ${level.className}`}>
-                        <span className={`w-2 h-2 rounded-full ${level.bgClassName}`} aria-hidden />
+                        <span className={`w-2 h-2 rounded-full ${level.progressClass}`} aria-hidden />
                         {level.label}
                         {isCurrent && (
                           <CheckCircle2 size={13} className={level.className} aria-label="目前等級" />

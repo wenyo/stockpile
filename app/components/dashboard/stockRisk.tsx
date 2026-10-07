@@ -1,6 +1,5 @@
-import { Droplet, Soup, Activity, AlertTriangle, Baby, PawPrint, HeartPulse, Flame, Zap, PackageOpen, Wrench, ShieldAlert } from 'lucide-react';
+import { Droplet, Soup, Activity, AlertTriangle, Baby, PawPrint, HeartPulse, Flame, Zap, PackageOpen, Wrench, ShieldAlert, BriefcaseMedical } from 'lucide-react';
 import { stockType } from "@/constant/stock";
-import { identityConstants } from "@/constant/family";
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -20,29 +19,30 @@ const typeIconMap: Record<string, React.ReactNode> = {
 const getIcon = (type: string) => typeIconMap[type] || <PackageOpen strokeWidth={1.5} size={20} />;
 
 export default function StockRisk() {
-  const { missingTypeStock, survivalFoodDays, survivalWaterDays, specialMemberStatus, setting } = useDashboardStats();
+  const { missingTypeStock, survivalFoodDays, survivalWaterDays, specialNeedsStatus, setting } = useDashboardStats();
 
   const targetDays = setting?.targetDays || 30;
 
-  const survivalPillars = [
-    { label: "家庭飲用水", icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
-    { label: "家庭食物", icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
-  ];
+  const progressDomAry = {
+    water: { label: stockType.water, icon: <Droplet strokeWidth={1.5} size={18} />, days: survivalWaterDays, barColor: "bg-info", textColor: "text-info" },
+    food: { label: stockType.food, icon: <Soup strokeWidth={1.5} size={18} />, days: survivalFoodDays, barColor: "bg-warning", textColor: "text-warning" },
+    infant: { label: stockType.infantStapleFood, icon: <Baby strokeWidth={1.5} size={18} />, days: specialNeedsStatus?.infant?.days || 0, barColor: "bg-primary", textColor: "text-primary" },
+    pet: { label: stockType.petStapleFood, icon: <PawPrint strokeWidth={1.5} size={18} />, days: specialNeedsStatus?.pet?.days || 0, barColor: "bg-amber-600", textColor: "text-amber-600" },
+    medicine: { label: stockType.medicine, icon: <BriefcaseMedical strokeWidth={1.5} size={18} />, days: specialNeedsStatus?.medicine?.days || 0, barColor: "bg-rose-500", textColor: "text-rose-500" }
+  };
 
-  if (specialMemberStatus?.infant) {
-    survivalPillars.push({ label: `${identityConstants.infant}主食`, icon: <Baby strokeWidth={1.5} size={18} />, days: specialMemberStatus.infant.days, barColor: "bg-primary", textColor: "text-primary" });
-  }
-
-  if (specialMemberStatus?.pet) {
-    survivalPillars.push({ label: `${identityConstants.pet}主食`, icon: <PawPrint strokeWidth={1.5} size={18} />, days: specialMemberStatus.pet.days, barColor: "bg-amber-600", textColor: "text-amber-600" });
-  }
+  type SurvivalPillar = (typeof progressDomAry)[keyof typeof progressDomAry];
+  let survivalPillars: SurvivalPillar[] = [progressDomAry.water, progressDomAry.food];
+  if (specialNeedsStatus?.infant) survivalPillars.push(progressDomAry.infant);
+  if (specialNeedsStatus?.pet) survivalPillars.push(progressDomAry.pet);
+  if (specialNeedsStatus?.medicine) survivalPillars.push(progressDomAry.medicine);
 
   // 排序：最短天數排前面以抓出瓶頸
-  const sortedPillars = [...survivalPillars].sort((a, b) => a.days - b.days);
-  const bottleneck = sortedPillars[0];
+  survivalPillars = [...survivalPillars].sort((a, b) => a.days - b.days);
+  const bottleneck = survivalPillars[0];
 
   // 判斷風險層級
-  const criticalTypes = ['water', 'food', 'infantStapleFood', 'petStapleFood', 'medical'];
+  const criticalTypes = ['water', 'food', 'infantStapleFood', 'petStapleFood', 'medicine', 'medical'];
   const sortedMissingTypes = [...missingTypeStock].sort((a, b) => {
     const isACritical = criticalTypes.includes(a);
     const isBCritical = criticalTypes.includes(b);
