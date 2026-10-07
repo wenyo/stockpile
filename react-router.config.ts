@@ -5,4 +5,7 @@ export default {
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: process.env.NODE_ENV !== "production",
   basename: "/stockpile/",
+  async prerender() {
+    return ["/", "/stock-list", "/setting"];
+  },
 } satisfies Config;

@@ -1,22 +1,31 @@
 import type { Stock } from "@/interfaces/stock";
 import type { HouseholdMember } from "@/interfaces/family";
-import type { FeedTag } from "@/interfaces/stock";
+import type {Tag } from "@/interfaces/stock";
 
-export const sampleFeedTags: FeedTag[] = [
+export const sampleFeedTags: Tag[] = [
   {
     id: "tag_sample_milk",
     label: "配方奶",
     appliesToStockType: "infantStapleFood",
+    unit: "g",
   },
   {
     id: "tag_sample_dogfood",
     label: "一般乾糧",
     appliesToStockType: "petStapleFood",
+    unit: "g",
   },
   {
     id: "tag_sample_dogcan",
     label: "主食罐",
     appliesToStockType: "petStapleFood",
+    unit: "unit",
+  },
+  {
+    id: "tag_sample_medicine",
+    label: "心血管用藥",
+    appliesToStockType: "medicine",
+    unit: "tablet",
   }
 ];
 
@@ -27,6 +36,15 @@ export const sampleHouseholdData: HouseholdMember[] = [
     name: "爸爸",
     dailyKcalNeed: 2200,
     dailyMlWater: 2500,
+    medicineNeeds: [
+      {
+        medicineTagId: "tag_sample_medicine",
+        amount: 1,
+        unit: "tablet",
+        frequencyType: "daysPerTime",
+        frequencyValue: 1, // 頻率數值
+      }
+    ]
   },
   {
     id: "sample_2",
@@ -400,5 +418,19 @@ export const sampleStockData: Stock[] = [
     remark: "年長者用品，如有需要",
     totalCalories: undefined,
     volume: undefined,
+  },
+  {
+    id: "sample-029",
+    name: "心血管用藥",
+    type: "medicine",
+    count: 1,
+    unit: "piece",
+    volumeUnit: "tablet",
+    expirationDate: "2028-08-31",
+    purchaseDate: "",
+    remark: "爸爸的藥",
+    totalCalories: undefined,
+    volume: 30,
+    medicineTagId: "tag_sample_medicine",
   },
 ];

@@ -1,5 +1,5 @@
 import type { Stock, StockStatus } from "@/interfaces/stock";
-import { WARNING_COUNT, WARNING_DAYS } from "@/constant/stock";
+import { WARNING_COUNT, WARNING_DAYS, stockType } from "@/constant/stock";
 
 function isWithinWarningPeriod(date: string | undefined) {
   if (!date) return false;
@@ -7,15 +7,16 @@ function isWithinWarningPeriod(date: string | undefined) {
   return new Date(date).getTime() <= warningDate;
 }
 
-function isLowCount(count: number | undefined) {
-  if (count === undefined) return false;
-  return Number(count) <= WARNING_COUNT;
+function isLowCount(count: number | undefined, type: keyof typeof stockType, volume: number | undefined) {
+  const comparedValue = type === 'medicine' ? volume : count;
+  if (comparedValue === undefined || comparedValue === null) return false;
+  return Number(comparedValue) <= WARNING_COUNT;
 }
 
 export function getStockStatus(stock: Stock): StockStatus {
   const isExpired = !!stock.expirationDate && new Date(stock.expirationDate).getTime() < Date.now();
   const isExpiringSoon = !isExpired && isWithinWarningPeriod(stock.expirationDate);
-  const isLowStock = isLowCount(stock.count);
+  const isLowStock = isLowCount(stock.count, stock.type, stock.volume);
 
   return { isExpired, isExpiringSoon, isLowStock };
 }

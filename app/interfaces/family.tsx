@@ -1,4 +1,4 @@
-import type { FeedPortion } from '@/interfaces/stock';
+import type { FeedPortion, MedicineNeed } from '@/interfaces/stock';
 import { identityConstants } from '@/constant/family';
 
 export type Identity = keyof typeof identityConstants;
@@ -10,6 +10,7 @@ export type HouseholdMember = {
   dailyKcalNeed?: number;        // 成人/兒童/長者用
   dailyMlWater: number;
   feedPortions?: FeedPortion[];  // 嬰兒 / 寵物的飲食組成，支援多品項混食
+  medicineNeeds?: MedicineNeed[];  // 藥品需求
 };
 
 export const initialHouseholdMember: HouseholdMember = {

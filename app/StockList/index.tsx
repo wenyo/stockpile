@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye, Clock, ClipboardCheck } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
-import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
+import { stockType, stockItemUnit, volumeUnit, medicineUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
@@ -16,7 +16,7 @@ import { getStockStatus } from "@/utils/stock";
 export default function Index() {
   const { relativeTime, stockList, showStockList, setDeleteStock, setEditStock, activeTab, setActiveTab } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
-  const { feedTags } = useContext(SettingContext);
+  const { stockTags } = useContext(SettingContext);
 
   const visibleStockList = stockList
     .filter((item) => showStockList.includes(item.id))
@@ -84,12 +84,12 @@ export default function Index() {
 
       <ul className="flex flex-col divide-y divide-border/50 border-y border-border/50 md:hidden">
         {displayList.map((stock) => {
-          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : undefined;
+          const tag = (stock.feedTagId || stock.medicineTagId) ? stockTags.find(t => t.id === (stock.feedTagId || stock.medicineTagId)) : undefined;
           return (
             <MobileStockRow
               key={stock.id}
               stock={stock}
-              feedTag={feedTag}
+              tag={tag}
               onEdit={() => { setEditStock(stock); openModal(modalTypeConstant.STOCK); }}
               onDelete={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }}
             />
@@ -100,7 +100,8 @@ export default function Index() {
       <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {displayList.map((stock) => {
           const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
-          const feedTag = stock.feedTagId ? feedTags.find(t => t.id === stock.feedTagId) : null;
+          const feedTag = stock.feedTagId ? stockTags.find(t => t.id === stock.feedTagId) : null;
+          const medicineTag = stock.medicineTagId ? stockTags.find(t => t.id === stock.medicineTagId) : null;
 
           return (
             <li key={stock.id} id={stock.id.includes("tour-demo-stock") ? "tour-demo-stock-desktop" : undefined}>
@@ -116,6 +117,7 @@ export default function Index() {
                     <div className="flex flex-wrap gap-2">
                       {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
                       {feedTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
+                      {medicineTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {medicineTag.label}</Badge>}
                       {isLowStock && <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"><AlertTriangle size={12} />庫存低於 {WARNING_COUNT}</Badge>}
                       {isExpiringSoon && <Badge variant="destructive" className="flex items-center gap-1 text-warning"><Calendar size={12} />即將到期</Badge>}
                       {isExpired && <Badge variant="destructive" className="flex items-center gap-1 text-danger"><Calendar size={12} />已過期</Badge>}
@@ -128,15 +130,23 @@ export default function Index() {
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-muted-foreground font-medium flex items-center gap-1"><Package2 size={12} /> 總量</span>
                       <span className={`text-lg font-bold ${isLowStock ? "text-warning" : "text-foreground"}`}>
-                        {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+                        {stock.type === "medicine" ? (
+                          <>
+                            {stock.volume ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.volumeUnit ? medicineUnit[stock.volumeUnit as keyof typeof medicineUnit] || volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit : ""}</span>
+                          </>
+                        ) : (
+                          <>
+                            {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+                          </>
+                        )}
                       </span>
                     </div>
 
-                    {stock.volume && (
+                    {stock.volume && stock.type !== "medicine" && (
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground font-medium">單件容量</span>
                         <span className="text-base font-semibold text-foreground">
-                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{stockUnit[stock.volumeUnit as keyof typeof stockUnit]}</span>
+                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit}</span>
                         </span>
                       </div>
                     )}
@@ -190,12 +200,12 @@ export default function Index() {
 
 type MobileStockRowProps = {
   stock: Stock;
-  feedTag?: { id: string; label: string };
+  tag?: { id: string; label: string };
   onEdit: () => void;
   onDelete: () => void;
 };
 
-function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProps) {
+function MobileStockRow({ stock, tag, onEdit, onDelete }: MobileStockRowProps) {
   const [expanded, setExpanded] = useState(false);
   const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
   const statusColor = isExpired ? "bg-danger" : isExpiringSoon || isLowStock ? "bg-warning" : "bg-transparent";
@@ -221,8 +231,19 @@ function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProp
         </span>
 
         <span className="text-sm font-semibold shrink-0">
-          {stock.count ?? "-"}
-          <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+          {stock.type === "medicine" ? (
+            <>
+              {stock.volume ?? "-"}
+              <span className="text-xs font-normal text-muted-foreground ml-0.5">
+                {stock.volumeUnit ? volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit : ""}
+              </span>
+            </>
+          ) : (
+            <>
+              {stock.count ?? "-"}
+              <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+            </>
+          )}
         </span>
 
         <ChevronDown size={16} className={`shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -232,11 +253,11 @@ function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProp
         <div className="px-3 pb-3 pl-6 flex flex-col gap-2 text-sm">
           <div className="flex flex-wrap gap-1.5">
             {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
-            {feedTag && <Badge variant="outline" className="opacity-90 flex items-center gap-1 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
+            {tag && <Badge variant="outline" className="opacity-90 flex items-center gap-1 border-primary/30 text-primary"><Tag size={12} /> {tag.label}</Badge>}
           </div>
 
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-            {stock.volume && (
+            {stock.volume && stock.type !== "medicine" && (
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">單件容量</span>
                 <span className="font-medium">{stock.volume} {stock.volumeUnit}</span>

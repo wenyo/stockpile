@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect, useMemo } from "react";
 import { X, PackagePlus, Edit } from "lucide-react";
-import { type Stock, initialStock, REQUIRED_FIELDS } from "@/interfaces/stock";
-import { stockType, stockItemUnit, stockUnit, stockFieldLabel } from "@/constant/stock";
+import { toast } from "sonner";
+import { type Stock, initialStock, REQUIRED_FIELDS, HIDE_FIELD_TYPE } from "@/interfaces/stock";
+import { stockType, stockItemUnit, medicineUnit, volumeUnit, stockFieldLabel, tagAllowedType } from "@/constant/stock";
 import { getStockStatus } from "@/utils/stock";
 import { StockListContext } from "@/store/stockList";
 import { SettingContext } from "@/store/setting";
 import { ModalContext } from "@/store/modal";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
 import {
@@ -18,41 +18,46 @@ import {
 } from "@/components/ui/select";
 
 export default function CreateModal() {
-  const [newStock, setNewStock] = useState<Stock>(initialStock);
   const { addStock, updateStock, editStock, setEditStock, stockList, activeTab } = useContext(StockListContext);
-  const { feedTags, household } = useContext(SettingContext);
+  const [newStock, setNewStock] = useState<Stock>(() => editStock || initialStock);
+  const { stockTags, household } = useContext(SettingContext);
   const { closeModal } = useContext(ModalContext);
+  const isMedicine = newStock.type === 'medicine';
+  const stockVolumeUnits = isMedicine ? medicineUnit : volumeUnit;
+  const idName = isMedicine ? 'medicineTagId' : 'feedTagId';
+  const isEditing = !!newStock.id;
+  const isTagRequired = tagAllowedType.includes(newStock.type);
+  const availableTags = stockTags.filter(t => t.appliesToStockType === newStock.type);
 
-   useEffect(() => {
-    return () => {
-      setEditStock(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (editStock) {
-      setNewStock(editStock);
-    }
-  }, [editStock]);
+  const handleClose = () => {
+    setNewStock(initialStock);
+    setEditStock(null);
+    closeModal();
+  };
 
   const selectedTagUnit = useMemo(() => {
-    if (!newStock.feedTagId) return null;
+    if (!newStock[idName]) return null;
+    const tag = stockTags.find((t) => t.id === newStock[idName]);
+    if (tag?.unit) {
+      return tag.unit;
+    }
+
     for (const member of household) {
-      if (member.feedPortions) {
-        const portion = member.feedPortions.find(p => p.feedTagId === newStock.feedTagId);
+      if (['petStapleFood', 'infantStapleFood'].includes(newStock.type) && member.feedPortions) {
+        const portion = member.feedPortions.find(p => p.feedTagId === newStock[idName]);
         if (portion && portion.unit) {
           return portion.unit;
         }
       }
+      if (newStock.type === 'medicine' && member.medicineNeeds) {
+        const need = member.medicineNeeds.find(n => n.medicineTagId === newStock[idName]);
+        if (need && need.unit) {
+          return need.unit;
+        }
+      }
     }
     return null;
-  }, [newStock.feedTagId, household]);
-
-  useEffect(() => {
-    if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
-      setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
-    }
-  }, [selectedTagUnit, newStock.volumeUnit]);
+  }, [newStock[idName], stockTags, household]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -62,50 +67,75 @@ export default function CreateModal() {
       parsedValue = value === '' ? undefined : Number(value);
     }
 
-    setNewStock({ ...newStock, [id]: parsedValue });
+    if (id === 'type') {
+      setNewStock(prev => ({
+        ...prev,
+        type: value as any,
+        feedTagId: undefined,
+        medicineTagId: undefined,
+      }));
+      return;
+    }
+
+    setNewStock(prev => ({ ...prev, [id]: parsedValue }));
   };
 
   const handleEditStock = () => {
     const stockToAdd = { ...newStock, id: newStock.id || Date.now().toString() };
-    
-    if (newStock.id) {
-       const oldStock = stockList.find(s => s.id === newStock.id);
-       const oldStatus = oldStock ? getStockStatus(oldStock) : null;
-       const newStatus = getStockStatus(stockToAdd);
-       
-       const oldWasPriority = oldStatus?.isExpired || oldStatus?.isExpiringSoon || oldStatus?.isLowStock;
-       const newIsPriority = newStatus.isExpired || newStatus.isExpiringSoon || newStatus.isLowStock;
-
-       updateStock(stockToAdd.id, stockToAdd);
-
-       if (activeTab === "priority" && oldWasPriority && !newIsPriority) {
-          toast("已更新", {
-            description: "此項目已移出優先處理清單",
-          });
-       }
-    } else {
-       addStock(stockToAdd);
+    if (stockToAdd.type === 'medicine') {
+      if (stockToAdd.count === undefined || stockToAdd.count === null) {
+        stockToAdd.count = 1;
+      }
+      if (!stockToAdd.unit) {
+        stockToAdd.unit = 'piece';
+      }
     }
 
-    setNewStock(initialStock);
-    closeModal();
+    if (newStock.id) {
+      const oldStock = stockList.find(s => s.id === newStock.id);
+      const oldStatus = oldStock ? getStockStatus(oldStock) : null;
+      const newStatus = getStockStatus(stockToAdd);
+
+      const oldWasPriority = oldStatus?.isExpired || oldStatus?.isExpiringSoon || oldStatus?.isLowStock;
+      const newIsPriority = newStatus.isExpired || newStatus.isExpiringSoon || newStatus.isLowStock;
+
+      updateStock(stockToAdd.id, stockToAdd);
+
+      if (activeTab === "priority" && oldWasPriority && !newIsPriority) {
+        toast("已更新", {
+          description: "此項目已移出優先處理清單",
+        });
+      }
+    } else {
+      addStock(stockToAdd);
+    }
+
+    handleClose();
   };
 
   const requiredDom = <span className="text-danger ml-1">*</span>;
   const checkIsRequired = (key: keyof Stock) => {
-    if(!newStock.type) return false;
+    if (!newStock.type) return false;
     const isRequire = REQUIRED_FIELDS[newStock.type]?.includes(key);
     return isRequire ? requiredDom : "";
   }
 
-  const isEditing = !!newStock.id;
-  const isTagRequired = newStock.type === "infantStapleFood" || newStock.type === "petStapleFood";
-  const availableTags = feedTags.filter(t => t.appliesToStockType === newStock.type);
+  const checkIsAble = (key: keyof Stock) => {
+    if (!newStock.type) return true;
+    const isHide = HIDE_FIELD_TYPE[newStock.type]?.includes(key);
+    return !isHide;
+  }
+
+  useEffect(() => {
+    if (selectedTagUnit && newStock.volumeUnit !== selectedTagUnit) {
+      setNewStock(prev => ({ ...prev, volumeUnit: selectedTagUnit as any }));
+    }
+  }, [selectedTagUnit, newStock.volumeUnit]);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-      onClick={closeModal}
+      onClick={handleClose}
     >
       <div
         className="bg-card w-full h-dvh sm:h-auto sm:max-h-[85vh] sm:max-w-2xl sm:rounded-xl border-0 sm:border border-border/50 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
@@ -117,7 +147,7 @@ export default function CreateModal() {
             {isEditing ? <Edit size={20} className="text-info" /> : <PackagePlus size={20} className="text-primary" />}
             {isEditing ? "編輯物資" : "新增物資"}
           </h2>
-          <Button variant="ghost" size="icon" onClick={closeModal} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={handleClose} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>
@@ -125,10 +155,10 @@ export default function CreateModal() {
         {/* Body */}
         <div className="bg-background flex-1 overflow-y-auto p-4 md:p-6">
           <ul className="grid grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
-            <li className="flex flex-col gap-1.5 col-span-2">
+            {checkIsAble('name') && <li className="flex flex-col gap-1.5 col-span-2">
               <label htmlFor="name" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.name}{checkIsRequired("name")}</label>
-              <Input type="text" id="name" value={newStock.name} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 礦泉水, 止痛藥..." />
-            </li>
+              <Input type="text" id="name" value={newStock.name ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 礦泉水, 止痛藥..." />
+            </li>}
 
             <li className="flex flex-col gap-1.5">
               <label htmlFor="type" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.type}{requiredDom}</label>
@@ -146,15 +176,15 @@ export default function CreateModal() {
 
             {isTagRequired && (
               <li className="flex flex-col gap-1.5">
-                <label htmlFor="feedTagId" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.feedTagId}{requiredDom}</label>
+                <label htmlFor={idName} className="text-sm font-semibold text-muted-foreground">{stockFieldLabel[idName]}{requiredDom}</label>
                 {availableTags.length === 0 ? (
                   <div className="flex items-center gap-2 p-3 bg-warning/10 text-warning border border-warning/20 rounded-lg text-sm">
-                    <span>尚未建立相關{stockFieldLabel.feedTagId}，請先至「家庭成員」設定中新增主食。</span>
+                    <span>尚未建立相關{stockFieldLabel[idName]}，請先至「家庭成員」設定中新增{stockType[newStock.type]}設定。</span>
                   </div>
                 ) : (
-                  <Select value={newStock.feedTagId} onValueChange={(value) => handleInputChange({ target: { id: 'feedTagId', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
+                  <Select value={newStock[idName] || ""} onValueChange={(value) => handleInputChange({ target: { id: idName, value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                     <SelectTrigger className="h-10 border-border/60">
-                      <SelectValue placeholder="請選擇餵食標籤..." />
+                      <SelectValue placeholder={`請選擇${stockFieldLabel[idName]}...`} />
                     </SelectTrigger>
                     <SelectContent>
                       {availableTags.map((tag) => (
@@ -165,13 +195,12 @@ export default function CreateModal() {
                 )}
               </li>
             )}
-
-            <li className="flex flex-col gap-1.5">
+            {checkIsAble('count') && <li className="flex flex-col gap-1.5">
               <label htmlFor="count" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.count}{checkIsRequired("count")}</label>
               <Input type="number" id="count" value={newStock.count ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="0" />
-            </li>
+            </li>}
 
-            <li className="flex flex-col gap-1.5">
+            {checkIsAble('unit') && <li className="flex flex-col gap-1.5">
               <label htmlFor="unit" className="text-sm font-semibold text-muted-foreground">單位{checkIsRequired("unit")}</label>
               <Select value={newStock.unit} onValueChange={(value) => handleInputChange({ target: { id: 'unit', value } } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)}>
                 <SelectTrigger className="h-10 border-border/60">
@@ -184,8 +213,8 @@ export default function CreateModal() {
                 </SelectContent>
               </Select>
             </li>
-
-            <li className="flex flex-col gap-1.5">
+            }
+            {checkIsAble('volume') && <li className="flex flex-col gap-1.5">
               <label htmlFor="volume" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.volume}{checkIsRequired("volume")}</label>
               <div className="flex flex-col gap-1.5">
                 <div className="flex gap-2">
@@ -195,7 +224,7 @@ export default function CreateModal() {
                       <SelectValue placeholder="單位" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(stockUnit).map(([key, value]) => {
+                      {Object.entries(stockVolumeUnits).map(([key, value]) => {
                         return <SelectItem key={key} value={key}>{value}</SelectItem>
                       })}
                     </SelectContent>
@@ -205,39 +234,39 @@ export default function CreateModal() {
                   <span className="text-[11px] text-info font-medium tracking-wide">※ 已帶入此標籤在家庭成員中設定的單位，鎖定以防計算錯誤</span>
                 )}
               </div>
-            </li>
+            </li>}
 
-            <li className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+            {checkIsAble('totalCalories') && <li className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
               <label htmlFor="totalCalories" className="text-sm font-semibold text-muted-foreground">熱量 (kcal){checkIsRequired("totalCalories")}</label>
               <Input type="number" id="totalCalories" value={newStock.totalCalories ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="e.g. 250" />
-            </li>
+            </li>}
 
-            <li className="flex flex-col gap-1.5">
+            {checkIsAble('expirationDate') && <li className="flex flex-col gap-1.5">
               <label htmlFor="expirationDate" className="text-sm font-semibold text-muted-foreground">保存期限{checkIsRequired("expirationDate")}</label>
-              <Input type="date" id="expirationDate" value={newStock.expirationDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
-            </li>
+              <Input type="date" id="expirationDate" value={newStock.expirationDate ?? ""} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
+            </li>}
 
-            <li className="flex flex-col gap-1.5">
+            {checkIsAble('purchaseDate') && <li className="flex flex-col gap-1.5">
               <label htmlFor="purchaseDate" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.purchaseDate}{checkIsRequired("purchaseDate")}</label>
-              <Input type="date" id="purchaseDate" value={newStock.purchaseDate} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
-            </li>
+              <Input type="date" id="purchaseDate" value={newStock.purchaseDate ?? ""} onChange={handleInputChange} className="appearance-none h-10 border-border/60 text-sm md:text-base" />
+            </li>}
 
-            <li className="flex flex-col gap-1.5 col-span-2">
+            {checkIsAble('remark') && <li className="flex flex-col gap-1.5 col-span-2">
               <label htmlFor="remark" className="text-sm font-semibold text-muted-foreground">{stockFieldLabel.remark}{checkIsRequired("remark")}</label>
-              <Input type="text" id="remark" value={newStock.remark} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
-            </li>
+              <Input type="text" id="remark" value={newStock.remark ?? ""} onChange={handleInputChange} className="h-10 border-border/60" placeholder="新增一些補充說明..." />
+            </li>}
           </ul>
         </div>
 
         {/* Footer */}
         <div className="shrink-0 p-4 md:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border/40 bg-muted/10 flex justify-end gap-3">
-          <Button variant="outline" onClick={closeModal} className="px-6 border-border/60 hover:bg-muted/50">
+          <Button variant="outline" onClick={handleClose} className="px-6 border-border/60 hover:bg-muted/50">
             取消
           </Button>
-          <Button 
-            onClick={handleEditStock} 
+          <Button
+            onClick={handleEditStock}
             className="px-8 shadow-sm"
-            disabled={isTagRequired && (!newStock.feedTagId || availableTags.length === 0)}
+            disabled={isTagRequired && (!newStock[idName] || availableTags.length === 0)}
           >
             {isEditing ? "儲存更新" : "確認新增"}
           </Button>

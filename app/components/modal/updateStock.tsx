@@ -5,9 +5,10 @@ import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { stockType, stockItemUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, medicineUnit, volumeUnit } from "@/constant/stock";
 import { toast } from "sonner";
 import { modalTypeConstant } from "@/interfaces/modal";
+import type { Stock } from "@/interfaces/stock";
 
 type ActionType = "use" | "add";
 
@@ -57,17 +58,28 @@ export default function UpdateStockModal() {
       const stock = stockList.find(s => s.id === row.stockId);
       if (stock) {
         const rowCount = Number(row.count);
-        let newCount = stock.count || 0;
-        if (row.action === "use") {
-          newCount -= rowCount;
+        const isMed = stock.type === "medicine";
+        if (isMed) {
+          const currentVol = stock.volume ?? 0;
+          const newVol = row.action === "use" ? currentVol - rowCount : currentVol + rowCount;
+          if (newVol <= 0 && row.action === "use") {
+            removeStock(stock.id);
+          } else {
+            updateStock(stock.id, { ...stock, volume: Math.max(0, newVol) });
+          }
         } else {
-          newCount += rowCount;
-        }
+          let newCount = stock.count || 0;
+          if (row.action === "use") {
+            newCount -= rowCount;
+          } else {
+            newCount += rowCount;
+          }
 
-        if (newCount <= 0 && row.action === "use") {
-          removeStock(stock.id);
-        } else {
-          updateStock(stock.id, { ...stock, count: newCount });
+          if (newCount <= 0 && row.action === "use") {
+            removeStock(stock.id);
+          } else {
+            updateStock(stock.id, { ...stock, count: Math.max(0, newCount) });
+          }
         }
       }
     });
@@ -81,21 +93,36 @@ export default function UpdateStockModal() {
     return stockList.filter(s => s.type === type);
   };
 
-  const getStockLabel = (stockId: string) => {
-    const stock = stockList.find(s => s.id === stockId);
+  const getStockUnit = (stock?: Stock) => {
     if (!stock) return "";
-    const unit = stock.unit ? (stockItemUnit[stock.unit] || stock.unit) : "";
-    return `${stock.name} (剩餘 ${stock.count} ${unit})`;
+    if (stock.type === "medicine") {
+      return stock.volumeUnit
+        ? medicineUnit[stock.volumeUnit as keyof typeof medicineUnit] ||
+            volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] ||
+            stock.volumeUnit
+        : "";
+    }
+    return stock.unit ? (stockItemUnit[stock.unit] || stock.unit) : "";
+  };
+
+  const getStockCurrentQty = (stock?: Stock) => {
+    if (!stock) return 0;
+    return stock.type === "medicine" ? (stock.volume ?? 0) : (stock.count ?? 0);
+  };
+
+  const getStockLabel = (stockId: string) => {
+    const stock = stockList.find((s) => s.id === stockId);
+    if (!stock) return "";
+    return `${stock.name} (剩餘 ${getStockCurrentQty(stock)} ${getStockUnit(stock)})`;
   };
 
   const calculateRemaining = (stockId: string, action: ActionType, countInput: string) => {
-    const stock = stockList.find(s => s.id === stockId);
+    const stock = stockList.find((s) => s.id === stockId);
     if (!stock) return null;
-    const currentCount = stock.count || 0;
     const inputCount = Number(countInput) || 0;
-    const newCount = action === "use" ? currentCount - inputCount : currentCount + inputCount;
-    const unit = stock.unit ? (stockItemUnit[stock.unit] || stock.unit) : "";
-    return `計算後剩餘: ${Math.max(0, newCount)} ${unit}`;
+    const currentQty = getStockCurrentQty(stock);
+    const newQty = action === "use" ? currentQty - inputCount : currentQty + inputCount;
+    return `計算後剩餘: ${Math.max(0, newQty)} ${getStockUnit(stock)}`;
   };
 
   return (
@@ -168,13 +195,14 @@ export default function UpdateStockModal() {
                     {getFilteredStocks(row.type).length > 0 && (
                       <SelectContent>
                         {getFilteredStocks(row.type).map(stock => {
-                          const unit = stock.unit ? (stockItemUnit[stock.unit] || stock.unit) : "";
+                          const currentQty = getStockCurrentQty(stock);
+                          const unit = getStockUnit(stock);
                           const dateInfo = stock.expirationDate ? ` - ${stock.expirationDate} 到期` : "";
                           return (
                             <SelectItem key={stock.id} value={stock.id}>
-                              {stock.name} (剩餘 {stock.count} {unit}){dateInfo}
+                              {stock.name} (剩餘 {currentQty} {unit}){dateInfo}
                             </SelectItem>
-                          )
+                          );
                         })}
                       </SelectContent>
                     )}
@@ -192,15 +220,20 @@ export default function UpdateStockModal() {
                       className="w-full"
                     />
                     <span className="text-muted-foreground w-12 shrink-0">
-                      {row.stockId ? (stockItemUnit[stockList.find(s => s.id === row.stockId)?.unit || ""] || stockList.find(s => s.id === row.stockId)?.unit) : ""}
+                      {row.stockId ? getStockUnit(stockList.find(s => s.id === row.stockId)) : ""}
                     </span>
                   </div>
-                  {row.stockId && row.count && (
-                    <div className={`text-xs mt-1 font-medium ${row.action === 'use' && (stockList.find(s => s.id === row.stockId)?.count || 0) - Number(row.count) <= 0 ? 'text-danger' : 'text-primary'}`}>
-                      {calculateRemaining(row.stockId, row.action, row.count)}
-                      {row.action === 'use' && (stockList.find(s => s.id === row.stockId)?.count || 0) - Number(row.count) <= 0 && " (庫存將被清空)"}
-                    </div>
-                  )}
+                  {row.stockId && row.count && (() => {
+                    const stock = stockList.find(s => s.id === row.stockId);
+                    const currentQty = getStockCurrentQty(stock);
+                    const isExhausted = row.action === 'use' && currentQty - Number(row.count) <= 0;
+                    return (
+                      <div className={`text-xs mt-1 font-medium ${isExhausted ? 'text-danger' : 'text-primary'}`}>
+                        {calculateRemaining(row.stockId, row.action, row.count)}
+                        {isExhausted && " (庫存將被清空)"}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

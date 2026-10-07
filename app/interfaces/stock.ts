@@ -1,4 +1,4 @@
-import { stockType, stockItemUnit, stockUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, volumeUnit, medicineUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
@@ -11,8 +11,9 @@ export interface Stock {
   remark?: string;
   totalCalories: number | undefined;
   volume: number | undefined;
-  volumeUnit?: keyof typeof stockUnit;
-  feedTagId?: string; // 只有 type 為 petFood/babyFood/babyMilk 時才會用到
+  volumeUnit?: keyof typeof volumeUnit | keyof typeof medicineUnit | string;
+  feedTagId?: string; // only for tagAllowedType
+  medicineTagId?: string; // only for tagAllowedType
   updatedAt?: string | null;
 }
 
@@ -80,6 +81,13 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
     "expirationDate",
   ],
+  medicine: [
+    "name",
+    "volume",
+    "volumeUnit",
+    "expirationDate",
+    "medicineTagId",
+  ],
   tool: [
     "name",
     "count",
@@ -98,6 +106,22 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
   ],
 };
 
+export const HIDE_FIELD_TYPE: Record<StockTypeField, StockField[]> = {
+  food: [],
+  infantStapleFood: [],
+  infantNonStapleFood: [],
+  petStapleFood: [],
+  petNonStapleFood: [],
+  water: ['totalCalories'],
+  medical: ['totalCalories'],
+  medicine: ['count', 'totalCalories', 'unit'],
+  tool: ['totalCalories'],
+  light: ['totalCalories'],
+  communication: ['totalCalories'],
+  other: ['totalCalories'],
+};
+
+
 export type MissingInfoItem = {
   stock: Stock;
   missingFields: StockField[];
@@ -109,17 +133,34 @@ export type StockStatus = {
   isLowStock: boolean;
 };
 
-export type FeedTag = {
+// 一天幾次 / 幾天一次
+export const frequencyType = {
+  TIMES_PER_DAY: "timesPerDay",
+  DAYS_PER_TIME: "daysPerTime",
+} as const;
+
+export type FrequencyType = (typeof frequencyType)[keyof typeof frequencyType];
+
+export type Tag = {
   id: string;
   label: string; // 使用者自訂，如「乾糧」「罐頭」「凍乾乳鼠」
-  appliesToStockType: "infantStapleFood" | "petStapleFood"; // 這個 tag 屬於哪個 stockType 底下
+  appliesToStockType: keyof typeof stockType;
+  unit?: string; // 標籤唯一的標準單位
 };
 
 export type FeedPortion = {
   feedTagId: string;
   amount: number;
-  unit: "g" | "ml" | "unit"; // 克 / 毫升 / 份或隻
+  unit?: "g" | "ml" | "unit" | string; // 漸進式相容：優先以 tag.unit 為準
   waterAmount?: number; // 單次搭配水量 ml (主要給嬰兒泡奶用)
-  frequencyType: "timesPerDay" | "daysPerTime"; // 一天幾次 / 幾天一次
+  frequencyType: FrequencyType;
+  frequencyValue: number;
+};
+
+export type MedicineNeed = {
+  medicineTagId: string;
+  amount: number;
+  unit?: keyof typeof medicineUnit | string; // 漸進式相容：優先以 tag.unit 為準
+  frequencyType: FrequencyType;
   frequencyValue: number; // 頻率數值
 };

@@ -73,6 +73,11 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   const addStock = (stock: Stock) => {
     const newStock = {...stock, updatedAt: new Date().toISOString()};
+    // medicine will be count as 1 and unit as piece when created
+    if (newStock.type === 'medicine') {
+      newStock.count = 1;
+      newStock.unit = 'piece';
+    }
     setStockList((prev) => [...prev, newStock]);
   };
 
@@ -82,6 +87,10 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   const updateStock = (id: string, updatedStock: Stock) => {
     const newStock = {...updatedStock, updatedAt: new Date().toISOString()};
+    if (newStock.type === 'medicine') {
+      newStock.count = 1;
+      newStock.unit = 'piece';
+    }
     setStockList((prev) =>
       prev.map((item) => (item.id === id ? newStock : item))
     );
@@ -163,7 +172,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
       (searchParams.count && item.count ? Number(item.count) <= Number(searchParams.count) : true) &&
       (searchParams.expirationDate && item.expirationDate ? new Date(item.expirationDate) <= new Date(searchParams.expirationDate) : true) &&
       (searchParams.purchaseDate && item.purchaseDate ? new Date(item.purchaseDate) <= new Date(searchParams.purchaseDate) : true) &&
-      (searchParams.feedTagId && (searchParams.feedTagId as string) !== "all" ? item.feedTagId === searchParams.feedTagId : true) 
+      (searchParams.feedTagId && (searchParams.feedTagId as string) !== "all" ? (item.feedTagId === searchParams.feedTagId || item.medicineTagId === searchParams.feedTagId) : true) 
     }).map(item => item.id));
   }, [stockList, searchParams]);
 

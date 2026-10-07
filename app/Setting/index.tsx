@@ -4,7 +4,7 @@ import { getIdentityIcon } from "@/utils/family";
 import { type HouseholdMember } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
-import { SettingContext } from "@/store/setting";
+import { SettingContext, migrateTagsWithUnits } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function SettingComponent() {
-  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, feedTags, replaceFeedTags } = useContext(SettingContext);
+  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, stockTags, replaceStockTags } = useContext(SettingContext);
   const { isDemo, setIsDemo, stockList, replaceStockList } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,7 +25,7 @@ export default function SettingComponent() {
       setting,
       household,
       stockList,
-      feedTags,
+      stockTags,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -60,7 +60,15 @@ export default function SettingComponent() {
         if (data.setting) replaceSetting(data.setting);
         if (data.household) replaceHousehold(data.household);
         if (data.stockList) replaceStockList(data.stockList);
-        if (data.feedTags) replaceFeedTags(data.feedTags);
+        const tagsToImport = data.stockTags || data.feedTags;
+        if (tagsToImport) {
+          const { migratedTags } = migrateTagsWithUnits(
+            tagsToImport,
+            data.household || [],
+            data.stockList || []
+          );
+          replaceStockTags(migratedTags);
+        }
         toast.success("資料匯入成功");
       } catch (err) {
         toast.error("資料匯入失敗，檔案格式不正確");

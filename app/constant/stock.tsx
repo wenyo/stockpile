@@ -1,22 +1,24 @@
 export const WARNING_COUNT = 10;
 export const WARNING_DAYS = 30;
 export const stockType = {
-  food: "一般食物",
+  food: "家庭食物",
   infantStapleFood: "嬰幼兒主食", // 列入生存必要計算
   infantNonStapleFood: "嬰幼兒副食品", // 不列入生存必要計算
   petStapleFood: "寵物主食", // 列入生存必要計算
   petNonStapleFood: "寵物副食品", // 不列入生存必要計算
   medical: "醫療",
-  water: "飲用水",
+  medicine: "藥品", // 列入生存必要計算
+  water: "家庭飲用水", // 列入生存必要計算
   light: "照明",
   communication: "通訊",
   tool: "工具",
   other: "其他",
 } as const;
 
-export const notRequiredType = ["infantNonStapleFood", "petNonStapleFood", "other"];
+export const notRequiredType: Array<keyof typeof stockType> = ["infantNonStapleFood", "petNonStapleFood", "other"];
+export const tagAllowedType: Array<keyof typeof stockType> = ["infantStapleFood", "petStapleFood", "medicine"];
 
-export const stockUnit: Record<string, string> = {
+export const volumeUnit: Record<string, string> = {
   g: 'g',
   ml: 'ml',
   unit: '份',
@@ -32,11 +34,22 @@ export const stockItemUnit: Record<string, string> = {
   other: "其他",
 } as const;
 
+export const medicineUnit: Record<string, string> = {
+  g: 'g',
+  ml: 'ml',
+  tablet: '錠',
+  pack: '包',
+  ampoule: '瓶',
+  stick: '支',
+  unit: '份',
+  other: "其他",
+} as const;
+
 export const stockFieldLabel = {
   name: "名稱",
   count: "數量",
   totalCalories: "總熱量",
-  volume: "單件容量/重量",
+  volume: "單件含量",
   volumeUnit: "容量/重量單位",
   unit: "計數單位",
   type: "類別",
@@ -44,6 +57,7 @@ export const stockFieldLabel = {
   purchaseDate: "購買日期",
   remark: "備註",
   feedTagId: "庫存標籤",
+  medicineTagId: "藥品標籤",
 } as const;
 
 export const preparednessLevels = [
@@ -51,30 +65,35 @@ export const preparednessLevels = [
     minPercentage: 200,
     label: "高度準備",
     className: "text-primary",
-    bgClassName: "bg-primary",
+    progressClass: "bg-primary",
+    progressBgClass: "bg-primary/30",
   },
   {
     minPercentage: 100,
     label: "充足準備",
     className: "text-success",
-    bgClassName: "bg-success",
+    progressClass: "bg-success",
+    progressBgClass: "bg-success/30",
   },
   {
     minPercentage: 50,
     label: "中度準備",
     className: "text-info",
-    bgClassName: "bg-info",
+    progressClass: "bg-info",
+    progressBgClass: "bg-info/30",
   },
   {
     minPercentage: 25,
     label: "基礎準備",
     className: "text-warning",
-    bgClassName: "bg-warning",
+    progressClass: "bg-warning",
+    progressBgClass: "bg-warning/30",
   },
   {
     minPercentage: 0,
     label: "準備不足",
     className: "text-danger",
-    bgClassName: "bg-danger",
+    progressClass: "bg-danger",
+    progressBgClass: "bg-danger/30",
   },
 ] as const;
