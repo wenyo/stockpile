@@ -31,6 +31,8 @@ const typeIconMap: Record<string, React.ReactNode> = {
   infantStapleFood: <Baby strokeWidth={1.8} size={18} />,
   petStapleFood: <PawPrint strokeWidth={1.8} size={18} />,
   medicine: <BriefcaseMedical strokeWidth={1.8} size={18} />,
+  infant: <Baby strokeWidth={1.8} size={18} />,
+  pet: <PawPrint strokeWidth={1.8} size={18} />,
 };
 
 const getIcon = (type: string) => typeIconMap[type] || <PackageOpen strokeWidth={1.8} size={18} />;

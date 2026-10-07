@@ -88,8 +88,8 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   const updateStock = (id: string, updatedStock: Stock) => {
     const newStock = {...updatedStock, updatedAt: new Date().toISOString()};
     if (newStock.type === 'medicine') {
-      if (!newStock.count) newStock.count = 1;
-      if (!newStock.unit) newStock.unit = 'piece';
+      newStock.count = 1;
+      newStock.unit = 'piece';
     }
     setStockList((prev) =>
       prev.map((item) => (item.id === id ? newStock : item))

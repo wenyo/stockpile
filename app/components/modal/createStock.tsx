@@ -82,6 +82,14 @@ export default function CreateModal() {
 
   const handleEditStock = () => {
     const stockToAdd = { ...newStock, id: newStock.id || Date.now().toString() };
+    if (stockToAdd.type === 'medicine') {
+      if (stockToAdd.count === undefined || stockToAdd.count === null) {
+        stockToAdd.count = 1;
+      }
+      if (!stockToAdd.unit) {
+        stockToAdd.unit = 'piece';
+      }
+    }
 
     if (newStock.id) {
       const oldStock = stockList.find(s => s.id === newStock.id);

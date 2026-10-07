@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye, Clock, ClipboardCheck } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
-import { stockType, stockItemUnit, volumeUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
+import { stockType, stockItemUnit, volumeUnit, medicineUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
@@ -130,15 +130,23 @@ export default function Index() {
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-muted-foreground font-medium flex items-center gap-1"><Package2 size={12} /> 總量</span>
                       <span className={`text-lg font-bold ${isLowStock ? "text-warning" : "text-foreground"}`}>
-                        {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+                        {stock.type === "medicine" ? (
+                          <>
+                            {stock.volume ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.volumeUnit ? medicineUnit[stock.volumeUnit as keyof typeof medicineUnit] || volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit : ""}</span>
+                          </>
+                        ) : (
+                          <>
+                            {stock.count ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+                          </>
+                        )}
                       </span>
                     </div>
 
-                    {stock.volume && (
+                    {stock.volume && stock.type !== "medicine" && (
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground font-medium">單件容量</span>
                         <span className="text-base font-semibold text-foreground">
-                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{volumeUnit[stock.volumeUnit as keyof typeof volumeUnit]}</span>
+                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit}</span>
                         </span>
                       </div>
                     )}

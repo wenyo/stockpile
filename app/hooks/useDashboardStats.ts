@@ -234,7 +234,9 @@ export function useDashboardStats() {
     stockList.forEach((stock) => {
       const tagId = stock[idName];
       if (stock.type === stockTypeTarget && tagId && tags[tagId]) {
-        const count = Number(stock.count) || 0;
+        const count = stock.type === "medicine"
+          ? (stock.count !== undefined && stock.count !== null ? Number(stock.count) : 1)
+          : (Number(stock.count) || 0);
         const vol = Number(stock.volume) || 1;
         tags[tagId].stockTotal += count * vol;
       }

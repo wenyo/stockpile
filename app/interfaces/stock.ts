@@ -11,7 +11,7 @@ export interface Stock {
   remark?: string;
   totalCalories: number | undefined;
   volume: number | undefined;
-  volumeUnit?: keyof typeof volumeUnit;
+  volumeUnit?: keyof typeof volumeUnit | keyof typeof medicineUnit | string;
   feedTagId?: string; // only for tagAllowedType
   medicineTagId?: string; // only for tagAllowedType
   updatedAt?: string | null;
