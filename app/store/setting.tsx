@@ -60,7 +60,7 @@ export function migrateTagsWithUnits(
         (s) => s.feedTagId === tag.id || s.medicineTagId === tag.id
       );
       if (stock) {
-        foundUnit = stock.type === "medicine" ? stock.unit : stock.volumeUnit;
+        foundUnit = stock.volumeUnit;
       }
     }
 

@@ -238,12 +238,12 @@ export default function CreateFamilyModal() {
       });
       replaceHousehold(updatedHousehold);
 
-      // 3. 更新庫存物資 stockList (藥品改 unit，食品改 volumeUnit)
+      // 3. 更新庫存物資 stockList
       const updatedStockList = stockList.map((stock) => {
         let changed = false;
         let updated = { ...stock };
         if (stock.medicineTagId && modifiedTagUnits[stock.medicineTagId]) {
-          updated.unit = modifiedTagUnits[stock.medicineTagId] as any;
+          updated.volumeUnit = modifiedTagUnits[stock.medicineTagId] as any;
           changed = true;
         }
         if (stock.feedTagId && modifiedTagUnits[stock.feedTagId]) {

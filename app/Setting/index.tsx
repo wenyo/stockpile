@@ -60,9 +60,10 @@ export default function SettingComponent() {
         if (data.setting) replaceSetting(data.setting);
         if (data.household) replaceHousehold(data.household);
         if (data.stockList) replaceStockList(data.stockList);
-        if (data.stockTags) {
+        const tagsToImport = data.stockTags || data.feedTags;
+        if (tagsToImport) {
           const { migratedTags } = migrateTagsWithUnits(
-            data.stockTags,
+            tagsToImport,
             data.household || [],
             data.stockList || []
           );

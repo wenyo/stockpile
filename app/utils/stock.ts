@@ -8,10 +8,9 @@ function isWithinWarningPeriod(date: string | undefined) {
 }
 
 function isLowCount(count: number | undefined, type: keyof typeof stockType, volume: number | undefined) {
-  let comparedCount = count;
-  if (count === undefined) return false;
-  if (type === 'medicine') comparedCount = volume;
-  return Number(comparedCount) <= WARNING_COUNT;
+  const comparedValue = type === 'medicine' ? volume : count;
+  if (comparedValue === undefined || comparedValue === null) return false;
+  return Number(comparedValue) <= WARNING_COUNT;
 }
 
 export function getStockStatus(stock: Stock): StockStatus {

@@ -84,12 +84,12 @@ export default function Index() {
 
       <ul className="flex flex-col divide-y divide-border/50 border-y border-border/50 md:hidden">
         {displayList.map((stock) => {
-          const feedTag = stock.feedTagId ? stockTags.find(t => t.id === stock.feedTagId) : undefined;
+          const tag = (stock.feedTagId || stock.medicineTagId) ? stockTags.find(t => t.id === (stock.feedTagId || stock.medicineTagId)) : undefined;
           return (
             <MobileStockRow
               key={stock.id}
               stock={stock}
-              feedTag={feedTag}
+              tag={tag}
               onEdit={() => { setEditStock(stock); openModal(modalTypeConstant.STOCK); }}
               onDelete={() => { setDeleteStock(stock); openModal(modalTypeConstant.DELETE_CHECK); }}
             />
@@ -192,12 +192,12 @@ export default function Index() {
 
 type MobileStockRowProps = {
   stock: Stock;
-  feedTag?: { id: string; label: string };
+  tag?: { id: string; label: string };
   onEdit: () => void;
   onDelete: () => void;
 };
 
-function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProps) {
+function MobileStockRow({ stock, tag, onEdit, onDelete }: MobileStockRowProps) {
   const [expanded, setExpanded] = useState(false);
   const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
   const statusColor = isExpired ? "bg-danger" : isExpiringSoon || isLowStock ? "bg-warning" : "bg-transparent";
@@ -223,8 +223,19 @@ function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProp
         </span>
 
         <span className="text-sm font-semibold shrink-0">
-          {stock.count ?? "-"}
-          <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+          {stock.type === "medicine" ? (
+            <>
+              {stock.volume ?? "-"}
+              <span className="text-xs font-normal text-muted-foreground ml-0.5">
+                {stock.volumeUnit ? volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit : ""}
+              </span>
+            </>
+          ) : (
+            <>
+              {stock.count ?? "-"}
+              <span className="text-xs font-normal text-muted-foreground ml-0.5">{stock.unit ? stockItemUnit[stock.unit] : ""}</span>
+            </>
+          )}
         </span>
 
         <ChevronDown size={16} className={`shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -234,11 +245,11 @@ function MobileStockRow({ stock, feedTag, onEdit, onDelete }: MobileStockRowProp
         <div className="px-3 pb-3 pl-6 flex flex-col gap-2 text-sm">
           <div className="flex flex-wrap gap-1.5">
             {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
-            {feedTag && <Badge variant="outline" className="opacity-90 flex items-center gap-1 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
+            {tag && <Badge variant="outline" className="opacity-90 flex items-center gap-1 border-primary/30 text-primary"><Tag size={12} /> {tag.label}</Badge>}
           </div>
 
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-            {stock.volume && (
+            {stock.volume && stock.type !== "medicine" && (
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">單件容量</span>
                 <span className="font-medium">{stock.volume} {stock.volumeUnit}</span>
