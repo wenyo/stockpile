@@ -63,19 +63,18 @@ export default function NeedItemCard({
 }: NeedItemCardProps) {
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [newTagLabel, setNewTagLabel] = useState("");
-  const [newTagUnit, setNewTagUnit] = useState(item.unit || unitOptions[0]?.value || "g");
   const [isEditingUnit, setIsEditingUnit] = useState(false);
   const [pendingUnit, setPendingUnit] = useState<string | null>(null);
 
   const handleConfirmCreateTag = () => {
     const trimmed = newTagLabel.trim();
     if (!trimmed) return;
-    const selectedUnit = newTagUnit || item.unit || unitOptions[0]?.value || "g";
-    const createdId = onCreateTag(trimmed, selectedUnit);
+    const currentUnit = item.unit || unitOptions[0]?.value || "g";
+    const createdId = onCreateTag(trimmed, currentUnit);
     if (typeof createdId === "string" && createdId) {
       onUpdate("tagId", createdId);
     }
-    onUpdate("unit", selectedUnit);
+    onUpdate("unit", currentUnit);
     setIsCreatingTag(false);
     setNewTagLabel("");
   };
@@ -135,18 +134,6 @@ export default function NeedItemCard({
               }}
               required={isRequired}
             />
-            <Select value={newTagUnit} onValueChange={setNewTagUnit}>
-              <SelectTrigger className="h-9 w-20 shrink-0 border-border/60">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {unitOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Button type="button" size="sm" className="h-9" onClick={handleConfirmCreateTag}>
               確定
             </Button>
