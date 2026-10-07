@@ -18,8 +18,8 @@ export default defineConfig({
       suppressWarnings: true
     },
     manifest: {
-      "name": "Stockpile",
-      "short_name": "Stockpile",
+      "name": "Stockpile｜家庭防災物資管理系統・計算可支撐天數",
+      "short_name": "防災物資管理",
       "icons": [
         {
           "src": "pwa-192x192.png",
@@ -50,7 +50,7 @@ export default defineConfig({
       "display": "standalone",
       "background_color": "#373839",
       "theme_color": "#212222",
-      "description": "Know how long your supplies can support you."
+      "description": "Stockpile 是免費的家庭防災物資管理工具，可依家庭成員需求計算食物、飲水、嬰幼兒與寵物主食、必要用藥的可支撐天數，掌握物資短缺與保存期限，協助你知道目前還能撐多久、接下來最需要補充什麼。"
     },
     workbox: {
       runtimeCaching: [

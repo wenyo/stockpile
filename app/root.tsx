@@ -34,13 +34,32 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="zh-TW">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
         <link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.webmanifest`} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <link rel="canonical" href="https://wenyo.github.io/stockpile/" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Stockpile｜家庭防災物資管理系統・計算可支撐天數",
+              url: "https://wenyo.github.io/stockpile/",
+              description: "Stockpile 是免費的家庭防災物資管理工具，可依家庭成員需求計算食物、飲水、嬰幼兒與寵物主食、必要用藥的可支撐天數，掌握物資短缺與保存期限，協助你知道目前還能撐多久、接下來最需要補充什麼。",
+              applicationCategory: "UtilitiesApplication",
+              operatingSystem: "All",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "TWD",
+              },
+            }),
+          }}
+        />
         <Meta />
         <Links />
       </head>
