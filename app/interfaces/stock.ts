@@ -1,4 +1,4 @@
-import { stockType, stockItemUnit, stockUnit, medicineUnit } from "@/constant/stock";
+import { stockType, stockItemUnit, volumeUnit, medicineUnit } from "@/constant/stock";
 
 export interface Stock {
   id: string;
@@ -11,7 +11,7 @@ export interface Stock {
   remark?: string;
   totalCalories: number | undefined;
   volume: number | undefined;
-  volumeUnit?: keyof typeof stockUnit;
+  volumeUnit?: keyof typeof volumeUnit;
   feedTagId?: string; // only for tagAllowedType
   medicineTagId?: string; // only for tagAllowedType
   updatedAt?: string | null;
@@ -83,8 +83,8 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
   ],
   medicine: [
     "name",
-    "count",
-    "unit",
+    "volume",
+    "volumeUnit",
     "expirationDate",
     "medicineTagId",
   ],
@@ -105,6 +105,22 @@ export const REQUIRED_FIELDS: Record<StockTypeField, StockField[]> = {
     "count",
   ],
 };
+
+export const HIDE_FIELD_TYPE: Record<StockTypeField, StockField[]> = {
+  food: [],
+  infantStapleFood: [],
+  infantNonStapleFood: [],
+  petStapleFood: [],
+  petNonStapleFood: [],
+  water: ['totalCalories'],
+  medical: ['totalCalories'],
+  medicine: ['count', 'totalCalories', 'unit'],
+  tool: ['totalCalories'],
+  light: ['totalCalories'],
+  communication: ['totalCalories'],
+  other: ['totalCalories'],
+};
+
 
 export type MissingInfoItem = {
   stock: Stock;

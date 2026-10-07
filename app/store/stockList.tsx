@@ -73,6 +73,11 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   const addStock = (stock: Stock) => {
     const newStock = {...stock, updatedAt: new Date().toISOString()};
+    // medicine will be count as 1 and unit as piece when created
+    if (newStock.type === 'medicine') {
+      newStock.count = 1;
+      newStock.unit = 'piece';
+    }
     setStockList((prev) => [...prev, newStock]);
   };
 

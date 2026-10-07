@@ -4,7 +4,7 @@ import { type FeedPortion, type MedicineNeed, frequencyType } from "@/interfaces
 import { type HouseholdMember, initialHouseholdMember, REQUIRED_FIELDS } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
-import { stockFieldLabel, stockType, medicineUnit, stockUnit } from "@/constant/stock";
+import { stockFieldLabel, stockType, medicineUnit, volumeUnit } from "@/constant/stock";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
@@ -37,7 +37,7 @@ export default function CreateFamilyModal() {
     value: key,
     label: value,
   }));
-  const feedUnitOptions = Object.entries(stockUnit).map(([key, value]) => ({
+  const feedUnitOptions = Object.entries(volumeUnit).map(([key, value]) => ({
     value: key,
     label: value,
   }));

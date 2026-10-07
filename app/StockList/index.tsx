@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { X, Edit2, Plus, Calendar, AlertTriangle, Package2, ChevronDown, Tag, Eye, Clock, ClipboardCheck } from "lucide-react";
 import type { Stock } from "@/interfaces/stock";
 import { modalTypeConstant } from "@/interfaces/modal";
-import { stockType, stockItemUnit, stockUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
+import { stockType, stockItemUnit, volumeUnit, WARNING_COUNT, stockFieldLabel } from "@/constant/stock";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { SettingContext } from "@/store/setting";
@@ -101,6 +101,7 @@ export default function Index() {
         {displayList.map((stock) => {
           const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(stock);
           const feedTag = stock.feedTagId ? stockTags.find(t => t.id === stock.feedTagId) : null;
+          const medicineTag = stock.medicineTagId ? stockTags.find(t => t.id === stock.medicineTagId) : null;
 
           return (
             <li key={stock.id} id={stock.id.includes("tour-demo-stock") ? "tour-demo-stock-desktop" : undefined}>
@@ -116,6 +117,7 @@ export default function Index() {
                     <div className="flex flex-wrap gap-2">
                       {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
                       {feedTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
+                      {medicineTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {medicineTag.label}</Badge>}
                       {isLowStock && <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"><AlertTriangle size={12} />庫存低於 {WARNING_COUNT}</Badge>}
                       {isExpiringSoon && <Badge variant="destructive" className="flex items-center gap-1 text-warning"><Calendar size={12} />即將到期</Badge>}
                       {isExpired && <Badge variant="destructive" className="flex items-center gap-1 text-danger"><Calendar size={12} />已過期</Badge>}
@@ -136,7 +138,7 @@ export default function Index() {
                       <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground font-medium">單件容量</span>
                         <span className="text-base font-semibold text-foreground">
-                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{stockUnit[stock.volumeUnit as keyof typeof stockUnit]}</span>
+                          {stock.volume} <span className="text-sm font-normal text-muted-foreground">{volumeUnit[stock.volumeUnit as keyof typeof volumeUnit]}</span>
                         </span>
                       </div>
                     )}

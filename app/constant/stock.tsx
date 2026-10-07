@@ -18,7 +18,7 @@ export const stockType = {
 export const notRequiredType: Array<keyof typeof stockType> = ["infantNonStapleFood", "petNonStapleFood", "other"];
 export const tagAllowedType: Array<keyof typeof stockType> = ["infantStapleFood", "petStapleFood", "medicine"];
 
-export const stockUnit: Record<string, string> = {
+export const volumeUnit: Record<string, string> = {
   g: 'g',
   ml: 'ml',
   unit: '份',
@@ -49,7 +49,7 @@ export const stockFieldLabel = {
   name: "名稱",
   count: "數量",
   totalCalories: "總熱量",
-  volume: "單件容量/重量",
+  volume: "單件含量",
   volumeUnit: "容量/重量單位",
   unit: "計數單位",
   type: "類別",
