@@ -61,6 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <Meta />
+        <meta name="google-site-verification" content="xx5BYzrsRiV0CG0aplj_megYBM_KYdEA2WF0ARkrkM4" />
         <Links />
       </head>
       <body>
