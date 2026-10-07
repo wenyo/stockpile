@@ -35,8 +35,16 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy 404 fallback
-        run: cp build/client/index.html build/client/404.html
+      - name: Copy 404 fallback and flatten prerendered pages
+        run: |
+          if [ -d "build/client/stockpile" ]; then
+            cp -r build/client/stockpile/* build/client/
+          fi
+          if [ -f "build/client/__spa-fallback.html" ]; then
+            cp build/client/__spa-fallback.html build/client/404.html
+          elif [ -f "build/client/index.html" ]; then
+            cp build/client/index.html build/client/404.html
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
