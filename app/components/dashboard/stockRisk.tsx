@@ -40,46 +40,45 @@ export default function StockRisk() {
 
   const targetDays = setting?.targetDays || 30;
 
-  // 基礎支柱資料
-  const rawPillars = [
-    {
+  const rawPillarSetting = {
+    water: {
       key: 'water',
       label: stockType.water,
-      icon: <Droplet strokeWidth={1.8} size={18} />,
+      icon: typeIconMap.water,
       days: survivalWaterDays,
     },
-    {
+    food: {
       key: 'food',
       label: stockType.food,
-      icon: <Soup strokeWidth={1.8} size={18} />,
+      icon: typeIconMap.food,
       days: survivalFoodDays,
     },
-  ];
-
-  if (specialNeedsStatus?.infant) {
-    rawPillars.push({
+    infant: {
       key: 'infant',
       label: stockType.infantStapleFood,
-      icon: <Baby strokeWidth={1.8} size={18} />,
-      days: specialNeedsStatus.infant.days,
-    });
-  }
-  if (specialNeedsStatus?.pet) {
-    rawPillars.push({
+      icon: typeIconMap.infant,
+      days: specialNeedsStatus?.infant?.days || 0,
+    },
+    pet: {
       key: 'pet',
       label: stockType.petStapleFood,
-      icon: <PawPrint strokeWidth={1.8} size={18} />,
-      days: specialNeedsStatus.pet.days,
-    });
-  }
-  if (specialNeedsStatus?.medicine) {
-    rawPillars.push({
+      icon: typeIconMap.pet,
+      days: specialNeedsStatus?.pet?.days || 0,
+    },
+    medicine: {
       key: 'medicine',
       label: stockType.medicine,
-      icon: <BriefcaseMedical strokeWidth={1.8} size={18} />,
-      days: specialNeedsStatus.medicine.days,
-    });
+      icon: typeIconMap.medicine,
+      days: specialNeedsStatus?.medicine?.days || 0,
+    },
   }
+
+  // 基礎支柱資料
+  type RawPillarsType = (typeof rawPillarSetting)[keyof typeof rawPillarSetting];
+  const rawPillars: RawPillarsType[] = [ rawPillarSetting.water, rawPillarSetting.food ];
+  if (specialNeedsStatus?.infant) rawPillars.push(rawPillarSetting.infant);
+  if (specialNeedsStatus?.pet) rawPillars.push(rawPillarSetting.pet);
+  if (specialNeedsStatus?.medicine) rawPillars.push(rawPillarSetting.medicine);
 
   // 排序：最短天數排在最前（短板優先）
   const survivalPillars = [...rawPillars].sort((a, b) => a.days - b.days);

@@ -42,7 +42,7 @@ export default function SurvivalAnalysis() {
             : "border-border/50 bg-card/40 backdrop-blur-sm hover:border-border/80"
         }`}
       >
-        <CardHeader className="p-3.5 sm:p-4 pb-3 border-b border-border/30">
+        <CardHeader className="p-2 pb-3 border-b border-border/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className={`p-2 rounded-xl shrink-0 ${theme.iconBg} ${theme.accentColor}`}>
@@ -181,7 +181,7 @@ export default function SurvivalAnalysis() {
 
       <Card className="flex flex-col h-full border-border/50 bg-card/40 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 sm:pb-4">
-          <CardTitle className="text-muted-foreground text-base sm:text-lg font-semibold flex items-center justify-between w-full">
+          <CardTitle className="p-2 text-muted-foreground text-base sm:text-lg font-semibold flex items-center justify-between w-full">
             <div className="flex items-center gap-2 text-foreground">
               <span>備戰狀態</span>
               <Box strokeWidth={1.8} size={20} className="text-primary" />
