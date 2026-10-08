@@ -365,7 +365,7 @@ export default function CreateFamilyModal() {
             <li className="col-span-full">
                 <div className="my-4 border-b border-border/40"></div>
                 <div className="flex justify-between items-center mb-3 text-muted-foreground">
-                  <h3 className="text-sm font-semibold">指定用藥需求</h3>
+                  <h3 className="text-sm font-semibold">必要用藥需求</h3>
                   <div className="flex justify-center items-center gap-2">
                     <span className="font-normal text-sm">
                       適用類別：<span className="text-foreground font-bold">{stockType.medicine}</span>

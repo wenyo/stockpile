@@ -270,7 +270,7 @@ export function useDashboardStats() {
     };
   };
 
-  // 三大特殊需求狀態：嬰兒主食、寵物主食、指定用藥
+  // 三大特殊需求狀態：嬰兒主食、寵物主食、必要用藥
   const specialNeedsStatus = useMemo<SpecialNeedsStatus>(() => {
     return {
       infant: computeCategorySummary({

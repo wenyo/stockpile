@@ -231,7 +231,7 @@ export default function CreateModal() {
                   </Select>
                 </div>
                 {selectedTagUnit && (
-                  <span className="text-[11px] text-info font-medium tracking-wide">※ 已帶入此標籤在家庭成員中設定的單位，鎖定以防計算錯誤</span>
+                  <span className="text-[11px] text-info font-medium tracking-wide">※ 單位依藥品標籤設定</span>
                 )}
               </div>
             </li>}

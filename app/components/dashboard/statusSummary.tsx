@@ -363,7 +363,7 @@ export default function SurvivalAnalysis() {
           {hasMedicine && (
             <div>
               {renderSpecialStatus(
-                "指定用藥狀態",
+                "必要用藥狀態",
                 specialNeedsStatus?.medicine || null,
                 <Pill strokeWidth={1.8} size={20} />,
                 {
