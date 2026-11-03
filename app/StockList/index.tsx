@@ -23,8 +23,8 @@ export default function Index() {
     .sort((a,b) => Number(b.id) - Number(a.id));
 
   const priorityItems = visibleStockList.filter((item) => {
-    const { isExpired, isExpiringSoon, isLowStock } = getStockStatus(item);
-    return isExpired || isExpiringSoon || isLowStock;
+    const { isExpired, isExpiringSoon } = getStockStatus(item);
+    return isExpired || isExpiringSoon;
   });
 
   const currentTab = priorityItems.length === 0 ? "all" : activeTab;
@@ -115,10 +115,10 @@ export default function Index() {
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-xl font-bold pr-14 leading-tight">{stock.name}</CardTitle>
                     <div className="flex flex-wrap gap-2">
-                      {stock.type && <Badge variant="secondary" className="opacity-80">{stockType[stock.type]}</Badge>}
+                      {stock.type && <Badge variant="secondary" className="opacity-80 px-0">{stockType[stock.type]}</Badge>}
                       {feedTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {feedTag.label}</Badge>}
                       {medicineTag && <Badge variant="outline" className="flex items-center gap-1 opacity-90 border-primary/30 text-primary"><Tag size={12} /> {medicineTag.label}</Badge>}
-                      {isLowStock && <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"><AlertTriangle size={12} />庫存低於 {WARNING_COUNT}</Badge>}
+                      {/* {isLowStock && <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"><AlertTriangle size={12} />庫存低於 {WARNING_COUNT}</Badge>} */}
                       {isExpiringSoon && <Badge variant="destructive" className="flex items-center gap-1 text-warning"><Calendar size={12} />即將到期</Badge>}
                       {isExpired && <Badge variant="destructive" className="flex items-center gap-1 text-danger"><Calendar size={12} />已過期</Badge>}
                     </div>
@@ -129,7 +129,7 @@ export default function Index() {
                   <div className="grid grid-cols-2 gap-3 bg-muted/30 p-3 rounded-lg border border-border/40">
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-muted-foreground font-medium flex items-center gap-1"><Package2 size={12} /> 總量</span>
-                      <span className={`text-lg font-bold ${isLowStock ? "text-warning" : "text-foreground"}`}>
+                      <span className={`text-lg font-bold text-warning`}>
                         {stock.type === "medicine" ? (
                           <>
                             {stock.volume ?? "-"} <span className="text-sm font-normal text-muted-foreground">{stock.volumeUnit ? medicineUnit[stock.volumeUnit as keyof typeof medicineUnit] || volumeUnit[stock.volumeUnit as keyof typeof volumeUnit] || stock.volumeUnit : ""}</span>
