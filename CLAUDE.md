@@ -13,9 +13,23 @@ npm run dev        # 開發伺服器（開發環境啟用 SSR，Service Worker �
 npm run build      # 正式建置：SPA + 預先算繪，輸出至 build/client
 npm run typecheck  # react-router typegen && tsc（修改路由後務必執行）
 npm run serve      # vite preview
+npm test           # vitest run（執行全部測試）
+npx vitest run app/components/modal/demoCheck.test.tsx   # 執行單一測試檔
+npx vitest run -t "使用範例"                              # 依測試名稱篩選
 ```
 
-專案目前**沒有測試框架與 linter**，驗證變更的方式為 `npm run typecheck` 與 `npm run build`。
+專案**沒有 linter**。驗證變更請執行 `npm test`、`npm run typecheck` 與 `npm run build`。
+
+### 測試
+- **測試框架**：Vitest（環境為 jsdom）。設定檔是獨立的 `vitest.config.ts`，刻意不沿用 `vite.config.ts`，避免載入 React Router 與 PWA 外掛。
+- **檔案位置**：測試檔命名為 `*.test.ts(x)`，放在被測檔案的同一層。
+- **共用設定與假資料**：共用設定放在 `test/setup.ts`，假資料放在 `test/fixtures/`。
+  - 目前這兩者都還沒建立。第一次建立 `test/setup.ts` 時，要在 `vitest.config.ts` 的 `test.setupFiles` 加入它。
+  - 也要把現有測試檔中重複的前置設定移進去，例如 `IS_REACT_ACT_ENVIRONMENT = true` 與 `localStorage.clear()`。
+- **規則**：修改計算邏輯時，必須同步補上測試。計算邏輯包含 `app/hooks/useDashboardStats.ts`、`app/utils/stock.ts`、`app/store/setting.tsx` 的 `migrateTagsWithUnits`。
+- **算繪方式**：沒有使用 Testing Library，而是直接用 `react-dom/client` 的 `createRoot` 搭配 React 的 `act`。
+- **測試 Context 的寫法**：用一個 Probe 元件以 `useContext` 取出狀態，再做斷言。
+- **範例**：`app/components/modal/demoCheck.test.tsx`。這支測試驗證的就是示範模式的行為，所以直接使用 `app/constant/sampleData.tsx` 的範例資料；其他測試的假資料應放在 `test/fixtures/`。
 
 ## 專案概要
 

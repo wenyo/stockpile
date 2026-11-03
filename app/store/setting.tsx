@@ -107,7 +107,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const { isDemo } = useContext(StockListContext);
+  const { isDemo, demoExitMode } = useContext(StockListContext);
 
   // init
   useEffect(() => {    
@@ -169,7 +169,8 @@ export function SettingProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (isDemo) {
+    // demoExitMode 與 isDemo 在同一次更新中設定，這裡讀到的是本次退出的模式
+    if (isDemo || demoExitMode === "keepSample") {
       setSetting(defaultSetting);
       setHousehold(sampleHouseholdData);
       setFeedTags(sampleFeedTags);

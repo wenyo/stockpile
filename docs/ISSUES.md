@@ -19,7 +19,8 @@
 ### 1. 選擇「使用範例」退出示範模式後，家庭成員與標籤會被清空
 - **嚴重度**：高
 - **類型**：功能
-- **狀態**：已確認
+- **狀態**：已修正（2026-11-03）
+- **修正說明**：`StockListProvider` 新增 `demoExitMode`（`"clear"` / `"keepSample"`），與 `isDemo` 在同一次更新中設定；`SettingProvider` 在 `keepSample` 時保留範例設定、家庭成員與標籤，並寫入 `localStorage`。測試：`app/components/modal/demoCheck.test.tsx`。
 - **位置**：`app/store/stockList.tsx` 的 `startFromDemoData`；`app/store/setting.tsx` 中監聽 `isDemo` 的 `useEffect`
 - **說明**：`startFromDemoData` 會執行 `setIsDemo(false)`，並把物資設為 `sampleStockData`。但 `SettingProvider` 偵測到 `isDemo` 變成 `false` 時，會進入 else 分支，把設定還原成預設值，家庭成員與標籤也都設為空陣列。
 - **影響**：使用者以為自己拿到「一份可以修改的完整範例」，實際上只剩範例物資。沒有家庭成員，所有天數都是 0；範例物資的 `feedTagId` / `medicineTagId` 也指向不存在的標籤，會顯示「未知標籤」或不列入計算。

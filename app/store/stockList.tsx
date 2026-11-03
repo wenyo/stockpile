@@ -5,11 +5,15 @@ import { sampleStockData } from "@/constant/sampleData";
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
 const rtf1 = new Intl.RelativeTimeFormat("zh-TW", { style: "short" });
 
+// 退出 Demo 模式時，設定與家庭成員要清空（clear）或保留範例資料（keepSample）
+export type DemoExitMode = "clear" | "keepSample";
+
 export type StockListContextType = {
   relativeTime: {timeFormat: string, status: string} | null;
   updateLastInventoryConfirmedAt: () => void;
   isDemo: boolean;
   setIsDemo: (isDemo: boolean) => void;
+  demoExitMode: DemoExitMode;
   isInitialized: boolean;
   deleteStock: Stock | null;
   setDeleteStock: (stock: Stock | null) => void;
@@ -35,6 +39,7 @@ export const StockListContext = createContext<StockListContextType>({
   updateLastInventoryConfirmedAt: () => {},
   isDemo: false,
   setIsDemo: () => {},
+  demoExitMode: "clear",
   isInitialized: false,
   deleteStock: null,
   setDeleteStock: () => {},
@@ -58,6 +63,7 @@ export const StockListContext = createContext<StockListContextType>({
 export function StockListProvider({ children }: { children: ReactNode }) {
   const [lastInventoryConfirmedAt, setLastInventoryConfirmedAt] = useState<Date | null>(null);
   const [isDemo, setIsDemo] = useState(false);
+  const [demoExitMode, setDemoExitMode] = useState<DemoExitMode>("clear");
   const [isInitialized, setIsInitialized] = useState(false);
   const [deleteStock, setDeleteStock] = useState<Stock | null>(null);
   const [editStock, setEditStock] = useState<Stock | null>(null);
@@ -102,12 +108,14 @@ export function StockListProvider({ children }: { children: ReactNode }) {
 
   // start from clearing data
   const startFromClearingData = () => {
+    setDemoExitMode("clear");
     setStockList([]);
     setIsDemo(false);
   }
 
-  // start from using demo data
+  // start from using demo data（SettingProvider 會依 demoExitMode 保留範例家庭成員與標籤）
   const startFromDemoData = () => {
+    setDemoExitMode("keepSample");
     setIsDemo(false);
     setStockList(sampleStockData);
   }
@@ -116,6 +124,8 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if(isDemo) {
       setStockList(sampleStockData);
+      // 進入 Demo 時重設，避免其他退出途徑（例如匯入檔案）沿用上一次的模式
+      setDemoExitMode("clear");
     }
   }, [isDemo]);
 
@@ -206,7 +216,7 @@ export function StockListProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StockListContext.Provider value={{ relativeTime, updateLastInventoryConfirmedAt, isDemo, setIsDemo, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
+    <StockListContext.Provider value={{ relativeTime, updateLastInventoryConfirmedAt, isDemo, setIsDemo, demoExitMode, isInitialized, deleteStock, setDeleteStock, stockList, showStockList, addStock, removeStock, updateStock, searchStock, editStock, setEditStock, startFromDemoData, startFromClearingData, hasSeenTour, markTourAsSeen, activeTab, setActiveTab, replaceStockList }}>
       {children}
     </StockListContext.Provider>
   );
