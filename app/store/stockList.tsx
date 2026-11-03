@@ -3,7 +3,7 @@ import type { Stock } from "@/interfaces/stock";
 import { sampleStockData } from "@/constant/sampleData";
 
 const checkStockIsEmpty = (obj: Stock) => Object.values(obj).every(value => !value)
-const rtf1 = new Intl.RelativeTimeFormat("cn", { style: "short" });
+const rtf1 = new Intl.RelativeTimeFormat("zh-TW", { style: "short" });
 
 export type StockListContextType = {
   relativeTime: {timeFormat: string, status: string} | null;
