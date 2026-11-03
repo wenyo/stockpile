@@ -222,12 +222,12 @@ export default function SettingComponent() {
           <CardDescription>備份您的資料或將資料移轉到其他裝置 (例如 PWA App)</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="outline" className="w-full border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={handleExport}>
+          <div className="flex flex-row sm:flex-col gap-4">
+            <Button variant="outline" className="border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={handleExport}>
               <Download size={18} />
               備份資料
             </Button>
-            <div className="flex-1 relative">
+            <div className="relative">
               <input 
                 type="file" 
                 accept=".json" 
@@ -235,7 +235,7 @@ export default function SettingComponent() {
                 ref={fileInputRef} 
                 onChange={handleImport}
               />
-              <Button variant="outline" className="w-full border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={() => fileInputRef.current?.click()}>
+              <Button variant="outline" className="border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={() => fileInputRef.current?.click()}>
                 <Upload size={18} />
                 資料匯入
               </Button>
