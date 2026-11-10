@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { markOnboarded } from "@/utils/onboarding";
 
 export default function SettingComponent() {
   const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, stockTags, replaceStockTags } = useContext(SettingContext);
@@ -69,6 +70,7 @@ export default function SettingComponent() {
           );
           replaceStockTags(migratedTags);
         }
+        markOnboarded();
         toast.success("資料匯入成功");
       } catch (err) {
         toast.error("資料匯入失敗，檔案格式不正確");

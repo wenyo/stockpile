@@ -81,6 +81,7 @@ describe("退出 Demo 模式（ISSUE-001）", () => {
     expect(JSON.parse(localStorage.getItem("stockpile_household") ?? "[]")).toEqual(sampleHouseholdData);
     expect(JSON.parse(localStorage.getItem("stockpile_stockTags") ?? "[]")).toEqual(sampleFeedTags);
     expect(JSON.parse(localStorage.getItem("stockList") ?? "[]")).toEqual(sampleStockData);
+    expect(localStorage.getItem("has-onboarded")).toBe("true");
   });
 
   it("選擇「開始建立」時，仍會清空物資、家庭成員與標籤", async () => {
@@ -93,5 +94,6 @@ describe("退出 Demo 模式（ISSUE-001）", () => {
     expect(latest.stock.stockList).toEqual([]);
     expect(latest.setting.household).toEqual([]);
     expect(latest.setting.stockTags).toEqual([]);
+    expect(localStorage.getItem("has-onboarded")).toBe("true");
   });
 });

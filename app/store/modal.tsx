@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 import { type ModalType, modalTypeConstant } from "@/interfaces/modal";
+import { hasOnboarded, hasStoredUserData, markOnboarded } from "@/utils/onboarding";
 
 export type Modal = {
   isModalOpen: boolean;
@@ -33,8 +34,13 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setModalType(null);
   }
 
-  useEffect(() => {    
-    if (localStorage.getItem("stockList")) {
+  useEffect(() => {
+    if (hasOnboarded()) {
+      return;
+    }
+    // 舊使用者沒有旗標：有真實資料就補寫，避免進入 Demo 後資料被覆蓋
+    if (hasStoredUserData()) {
+      markOnboarded();
       return;
     }
     openModal("welcome");

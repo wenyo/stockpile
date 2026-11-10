@@ -29,7 +29,14 @@
 ### 2. 還沒新增任何物資前，歡迎視窗每次都會出現；此時進入再退出示範模式，會清掉已設定的家庭成員
 - **嚴重度**：高
 - **類型**：功能
-- **狀態**：已確認（「每次都會出現」與「資料被清掉」兩點都可從程式碼推得；實際操作流程仍建議在瀏覽器中重現一次）
+- **狀態**：已修正（2026-11-10；修正前已在瀏覽器中重現兩個症狀）
+- **修正說明**：
+  - 兩個症狀是同一個根因：歡迎視窗是進入示範模式的唯一入口，只要已有真實資料的使用者看不到歡迎視窗，就不會進入示範模式，退出時也就沒有資料可被覆蓋。因此只修正歡迎視窗的判斷，`StockListProvider`、`SettingProvider` 與 `demoExitMode` 都沒有更動，下方建議的「退出時從 `localStorage` 重新載入」沒有採用。
+  - 新增 `has-onboarded` 旗標（`app/utils/onboarding.ts`）。`ModalProvider` 在已有旗標時不顯示歡迎視窗；沒有旗標但已有真實資料時（舊使用者）也不顯示，並補寫旗標。
+  - 「已有真實資料」的定義：`stockList`、`stockpile_household`、`stockpile_stockTags`（含舊名 `stockpile_feedTags`）任一為非空陣列。只有 `stockpile_setting`、其他資料皆為空時不算。
+  - 寫入旗標的時機：歡迎視窗按「直接開始」、按 X 或點背景關閉；退出示範模式（「開始建立」或「使用範例」）；匯入備份成功。按「探索範例」不寫入，因為示範模式不會保存，重新整理後要能再從歡迎視窗進入。
+  - 測試：`app/store/modal.test.tsx`、`app/components/modal/demoCheck.test.tsx`。
+  - 已知限制：同時開兩個分頁，其中一個停在示範模式、另一個建立了真實資料，再回到前者退出示範模式時，資料仍會被覆蓋。這需要跨分頁同步才能解決，未處理。
 - **位置**：`app/store/modal.tsx`（以 `localStorage.getItem("stockList")` 判斷是否顯示歡迎視窗）、`app/store/stockList.tsx`（儲存用的 effect）、`app/store/setting.tsx`
 - **說明**：
   1. 第一次使用時 `stockList` 一直是 `[]`。初始化時儲存用的 effect 還在 `isInitialized === false` 的階段，所以不會寫入；之後 `stockList` 也沒有變化，effect 不會再執行，`stockList` 這個 key 就一直不存在，直到使用者新增第一筆物資。

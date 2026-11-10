@@ -9,3 +9,5 @@
 prompt.md
 
 /dev-dist/*
+
+/.claude/*

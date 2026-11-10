@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
+import { markOnboarded } from "@/utils/onboarding";
 
 export default function DemoCheckModal() {
   const { startFromClearingData, startFromDemoData } = useContext(StockListContext);
@@ -10,11 +11,13 @@ export default function DemoCheckModal() {
   
     function handleStart() {
       startFromClearingData();
+      markOnboarded();
       closeModal();
     }
-  
+
     function handleDemo() {
       startFromDemoData();
+      markOnboarded();
       closeModal();
     }
   return (

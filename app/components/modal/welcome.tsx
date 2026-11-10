@@ -3,6 +3,7 @@ import { X, Package } from "lucide-react";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Button } from "@/components/ui/button";
+import { markOnboarded } from "@/utils/onboarding";
 
 export default function WelcomeModal() {
   const { setIsDemo } = useContext(StockListContext);
@@ -18,18 +19,26 @@ export default function WelcomeModal() {
     }
   }
 
+  // X 或點背景關閉
+  function handleDismiss() {
+    markOnboarded();
+    closeModal();
+  }
+
   function handleStart() {
     setIsDemo(false);
+    markOnboarded();
     finishWelcome();
   }
 
+  // 不寫入旗標：Demo 不保存，重新整理後要能再進入
   function handleDemo() {
     setIsDemo(true);
     finishWelcome();
   }
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={closeModal}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={handleDismiss}>
       <div 
         className="bg-card w-full max-w-lg rounded-xl border border-border/50 shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -40,7 +49,7 @@ export default function WelcomeModal() {
             <Package size={22} className="text-primary" />
             Stockpile 物資管理系統 👋
           </h2>
-          <Button variant="ghost" size="icon" onClick={() => closeModal()} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={handleDismiss} className="text-muted-foreground hover:bg-muted/50 rounded-full h-8 w-8">
             <X size={18} />
           </Button>
         </div>

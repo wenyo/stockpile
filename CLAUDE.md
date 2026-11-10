@@ -55,7 +55,7 @@ Stockpile 是離線優先（local-first）的家庭防災物資管理 PWA：依�
 ### localStorage 保存模式
 每個 Provider 都是同一套寫法：掛載時讀取 → 設 `isInitialized` → 之後由 `useEffect` 在狀態變動時自動寫回。**示範模式（`isDemo`）時不寫入**，避免覆蓋使用者真實資料。修改這些 effect 時要保留 `isInitialized && !isDemo` 的判斷。
 
-使用中的 key：`stockList`、`stockpile_setting`、`stockpile_household`、`stockpile_stockTags`（舊名 `stockpile_feedTags`，啟動時會自動遷移）、`lastInventoryConfirmedAt`、`has-seen-tour`。變更資料結構時須在 Provider 初始化階段加入向下相容的遷移邏輯（參考 `migrateTagsWithUnits`），因為使用者裝置上已有舊資料，也可能匯入舊版備份 JSON（`app/Setting/index.tsx` 的匯入／匯出）。
+使用中的 key：`stockList`、`stockpile_setting`、`stockpile_household`、`stockpile_stockTags`（舊名 `stockpile_feedTags`，啟動時會自動遷移）、`lastInventoryConfirmedAt`、`has-seen-tour`、`has-onboarded`（是否已完成新手流程，決定要不要顯示歡迎視窗；讀寫集中在 `app/utils/onboarding.ts`）。變更資料結構時須在 Provider 初始化階段加入向下相容的遷移邏輯（參考 `migrateTagsWithUnits`），因為使用者裝置上已有舊資料，也可能匯入舊版備份 JSON（`app/Setting/index.tsx` 的匯入／匯出）。
 
 ### 計算核心：`app/hooks/useDashboardStats.ts`
 儀表板所有指標都集中在這支 hook，從兩個 Context 衍生計算：
