@@ -1,10 +1,10 @@
 import { useContext, useRef } from "react";
-import { Plus, Target, RotateCw, UsersRound, Baby, PawPrint, User, Smile, Download, Upload, ShieldCheck, Smartphone, Info, MessageCircleQuestionMark } from "lucide-react";
+import { Plus, Target, RotateCw, UsersRound, Download, Upload, ShieldCheck, Smartphone, Info, MessageCircleQuestionMark } from "lucide-react";
 import { getIdentityIcon } from "@/utils/family";
 import { type HouseholdMember } from "@/interfaces/family";
 import { modalTypeConstant } from "@/interfaces/modal";
 import { identityConstants } from "@/constant/family";
-import { SettingContext, migrateTagsWithUnits } from "@/store/setting";
+import { SettingContext } from "@/store/setting";
 import { StockListContext } from "@/store/stockList";
 import { ModalContext } from "@/store/modal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,17 +12,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { markOnboarded } from "@/utils/onboarding";
+import { BACKUP_VERSION, parseBackup } from "@/utils/backup";
 
 export default function SettingComponent() {
-  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, replaceSetting, replaceHousehold, stockTags, replaceStockTags } = useContext(SettingContext);
-  const { isDemo, setIsDemo, stockList, replaceStockList } = useContext(StockListContext);
+  const { setting, updateSetting, household, setEditHousehold, setDeleteHousehold, stockTags, setPendingImport } = useContext(SettingContext);
+  const { isDemo, stockList } = useContext(StockListContext);
   const { openModal } = useContext(ModalContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     const data = {
-      version: 1,
+      version: BACKUP_VERSION,
       setting,
       household,
       stockList,
@@ -37,47 +37,24 @@ export default function SettingComponent() {
     URL.revokeObjectURL(url);
   };
 
+  // 驗證通過才開啟確認視窗，實際覆蓋在 importConfirm 進行
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (isDemo) {
-      if (!confirm("匯入檔案將會覆蓋目前的內容，且因為目前在 Demo 模式，將會結束 Demo 狀態，確定要繼續嗎？")) {
-        e.target.value = '';
-        return;
-      }
-      setIsDemo(false);
-    } else {
-      if (!confirm("警告：匯入檔案將會「完全覆蓋」目前的儲備資料與家庭成員設定。確定要繼續嗎？")) {
-        e.target.value = '';
-        return;
-      }
-    }
+    e.target.value = '';
+    if (!file || isDemo) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (data.setting) replaceSetting(data.setting);
-        if (data.household) replaceHousehold(data.household);
-        if (data.stockList) replaceStockList(data.stockList);
-        const tagsToImport = data.stockTags || data.feedTags;
-        if (tagsToImport) {
-          const { migratedTags } = migrateTagsWithUnits(
-            tagsToImport,
-            data.household || [],
-            data.stockList || []
-          );
-          replaceStockTags(migratedTags);
-        }
-        markOnboarded();
-        toast.success("資料匯入成功");
-      } catch (err) {
-        toast.error("資料匯入失敗，檔案格式不正確");
+      const result = parseBackup(String(event.target?.result ?? ""));
+      if (!result.ok) {
+        toast.error(result.message);
+        return;
       }
+      setPendingImport({ fileName: file.name, data: result.data });
+      openModal(modalTypeConstant.IMPORT_CONFIRM);
     };
+    reader.onerror = () => toast.error("資料匯入失敗：無法讀取檔案");
     reader.readAsText(file);
-    e.target.value = '';
   };
 
   const editMember = (member: HouseholdMember) => {
@@ -224,7 +201,7 @@ export default function SettingComponent() {
           <CardDescription>備份您的資料或將資料移轉到其他裝置 (例如 PWA App)</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-row sm:flex-col gap-4">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             <Button variant="outline" className="border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={handleExport}>
               <Download size={18} />
               備份資料
@@ -237,12 +214,15 @@ export default function SettingComponent() {
                 ref={fileInputRef} 
                 onChange={handleImport}
               />
-              <Button variant="outline" className="border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={() => fileInputRef.current?.click()}>
+              <Button variant="outline" disabled={isDemo} className="w-full border-border/60 gap-2 h-12 text-primary hover:text-primary hover:border-primary/50 hover:bg-primary/5" onClick={() => fileInputRef.current?.click()}>
                 <Upload size={18} />
                 資料匯入
               </Button>
             </div>
           </div>
+          {isDemo && (
+            <p className="mt-3 text-sm text-muted-foreground">目前在 Demo 模式，請先退出 Demo 模式再匯入資料。</p>
+          )}
         </CardContent>
       </Card>
     </div>

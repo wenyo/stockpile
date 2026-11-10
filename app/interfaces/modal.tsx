@@ -9,6 +9,7 @@ export const modalTypeConstant = {
   UPDATE_STOCK: "updateStock",
   CALCULATOR_INFO: "calculatorInfo",
   INVENTORY_CONFIRM: "inventoryConfirm",
+  IMPORT_CONFIRM: "importConfirm",
 } as const;
 
 export type ModalType = typeof modalTypeConstant[keyof typeof modalTypeConstant] | null;

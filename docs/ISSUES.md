@@ -48,7 +48,22 @@
 ### 3. 匯入檔案沒有驗證資料結構，格式不正確時可能讓整個 App 崩潰
 - **嚴重度**：高
 - **類型**：功能／技術
-- **狀態**：崩潰本身已確認；崩潰後錯誤資料是否已寫入 `localStorage`、導致重新整理後仍然壞掉，**待驗證**
+- **狀態**：已修正（2026-11-10；修正後已在瀏覽器中確認格式錯誤的檔案會被拒絕、正確的檔案要按確認才覆蓋）
+- **修正說明**：
+  - 匯入流程改為「選檔 → 驗證 → 確認視窗 → 確認後才覆蓋」。驗證集中在 `app/utils/backup.ts` 的 `parseBackup`，確認視窗是 `app/components/modal/importConfirm.tsx`，通過驗證的內容暫存在 `SettingContext` 的 `pendingImport`。
+  - 驗證只擋會讓 App 崩潰的結構問題，任何一筆不合格就整份拒絕，並以 toast 說明是哪一筆的什麼問題：
+    - 最外層必須是物件；`stockList`、`household`、`stockTags` 必須是陣列，`setting` 必須是物件，天數若有提供必須是數字。
+    - 物資要有字串的 `id`、`name`，且 `type` 是已知類別；成員要有字串的 `id`、`name`，且 `identity` 是已知身分，`feedPortions`、`medicineNeeds` 若有提供必須是物件陣列；標籤要有字串的 `id`、`label`。
+    - 上述以外的欄位不可以是物件或陣列。數值欄位是字串、必填欄位缺漏等不會崩潰的情況不擋。
+  - `version` 抽成常數 `BACKUP_VERSION = 1`，匯出與匯入共用。`version` 不是數字（包含缺少）時拒絕；高於目前版本時拒絕，並提示「請連上網路並重新整理頁面以更新，再匯入一次」。匯出功能從第一版就會寫入 `version`，所以不存在沒有 `version` 的舊備份。
+  - 舊欄位名稱 `feedTags` 仍可匯入，匯入後一律存成 `stockTags`。
+  - 確認視窗顯示檔名、各區塊的摘要（物資、家庭成員、標籤、目標／輪替天數）與覆蓋警告；檔案沒有的區塊標示「維持現有資料」。
+  - 示範模式下停用「資料匯入」按鈕，並提示先退出 Demo 模式（原本會直接結束示範模式再匯入）。
+  - 測試：`app/utils/backup.test.ts`、`app/components/modal/importConfirm.test.tsx`。
+  - 沒有採用下方建議的「覆蓋前自動保留一份舊資料」，改由確認視窗讓使用者在覆蓋前看到內容。
+  - 未驗證的部分：
+    - 原本列為待驗證的「崩潰後錯誤資料是否已寫入 `localStorage`」沒有實際重現。修正後格式錯誤的檔案不會再寫入，但修正前已經因此壞掉的裝置不會自動復原，見第 23 項。
+    - 版本過新的提示所描述的更新方式，是依 `vite.config.ts` 的 `registerType: 'autoUpdate'` 判斷，沒有實際測試過版本更新的過程。目前備份格式只有版本 1，這個提示在格式第一次升版之前不會出現。
 - **位置**：`app/Setting/index.tsx` 的 `handleImport`
 - **說明**：`try/catch` 只包住 `JSON.parse` 與 `replace*` 的呼叫。只要 JSON 語法正確，內容就會原樣寫進狀態，沒有任何檢查。例如 `{"stockList": {}}` 或 `{"household": "x"}`，會在 `useDashboardStats` 執行 `.reduce` / `.forEach` 時於算繪階段丟出錯誤，進入根層的 `ErrorBoundary`。成員或物資缺少欄位時（例如 `feedPortions` 格式錯誤）也可能出錯。
 - **影響**：整個畫面變成錯誤頁。另外，匯入是「完全覆蓋」，原本的資料沒有備份可以還原。
@@ -71,6 +86,19 @@
 - **說明**：每一列都是從同一份 `stockList` 取出 `stock`，再呼叫 `updateStock(stock.id, { ...stock, count })`。如果有兩列都操作同一個物資（例如分兩次使用），每一列都是用舊的數量去計算，後面那列會覆蓋前面的結果。如果某一列觸發了 `removeStock`，後面的列仍可能把物資用 `updateStock` 寫回去（實際結果取決於更新的順序）。
 - **影響**：庫存數量與實際狀況不符，畫面卻顯示「庫存更新成功」。
 - **建議**：先依 `stockId` 合併各列的增減量，再一次套用；或是不允許兩列選到同一個物資。
+
+### 23. `localStorage` 裡的資料格式錯誤時，App 每次開啟都會崩潰，使用者無法自行復原
+- **嚴重度**：高
+- **類型**：功能／技術
+- **狀態**：待驗證（2026-11-10 新增；從程式碼推得，未在瀏覽器中重現）
+- **位置**：`app/store/stockList.tsx` 與 `app/store/setting.tsx` 的初始化 effect；`app/root.tsx` 的 `ErrorBoundary`
+- **說明**：
+  - Provider 啟動時讀取 `localStorage` 後直接放進狀態，沒有驗證結構。`stockList`、`stockpile_setting`、`stockpile_household` 的 `JSON.parse` 也沒有 `try/catch`（只有 `SettingProvider` 讀取 `stockList` 的那一處有）。
+  - 內容不是合法 JSON 時，初始化就會丟出錯誤；是合法 JSON 但結構不對時（例如 `stockList` 是 `{}`），會在算繪到使用它的畫面時崩潰。兩種情況都會進入錯誤頁，重新整理也一樣。
+  - 錯誤頁只顯示「Oops!」，沒有清除或還原資料的入口。
+  - 錯誤資料的可能來源：第 3 項修正前匯入過格式錯誤的檔案、手動修改 `localStorage`、其他問題寫入了錯誤資料。第 3 項修正後，匯入不再是來源。
+- **影響**：使用者只能自己清除網站資料，等於全部資料遺失；匯入正確的備份來覆蓋也不一定可行，因為設定頁可能同樣崩潰。
+- **建議**：Provider 讀取時套用 `app/utils/backup.ts` 的驗證，不合格的區塊改用空值啟動；要先決定壞掉的原始內容如何處理（例如另存到備用的 key，避免被之後的自動寫回覆蓋），並告知使用者。錯誤頁也可以提供「匯出原始資料」與「清除資料」的入口。
 
 ---
 

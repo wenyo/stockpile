@@ -84,7 +84,7 @@ export default function App() {
             <Modal />
             <Header />
             <Outlet />
-            <Toaster />
+            <Toaster position="top-right" offset={{top:96, right:12}} mobileOffset={{top: "calc(env(safe-area-inset-top) + 100px)"}}/>
           </SettingProvider>
         </StockListProvider>
       </ModalProvider>

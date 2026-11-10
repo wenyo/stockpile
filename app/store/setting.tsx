@@ -4,10 +4,17 @@ import { type Tag, type Stock } from "@/interfaces/stock";
 
 import { sampleHouseholdData, sampleFeedTags } from "@/constant/sampleData";
 import { StockListContext } from "@/store/stockList";
+import type { BackupData } from "@/utils/backup";
 
 export type SettingConfig = {
   targetDays: number;
   rotationDays: number;
+};
+
+// 已通過驗證、等待使用者在確認視窗決定是否覆蓋的備份
+export type PendingImport = {
+  fileName: string;
+  data: BackupData;
 };
 
 type SettingContextType = {
@@ -26,6 +33,8 @@ type SettingContextType = {
   replaceSetting: (newSetting: SettingConfig) => void;
   replaceHousehold: (newHousehold: HouseholdMember[]) => void;
   replaceStockTags: (newTags:Tag[]) => void;
+  pendingImport: PendingImport | null;
+  setPendingImport: (pending: PendingImport | null) => void;
 };
 
 export function migrateTagsWithUnits(
@@ -97,6 +106,8 @@ export const SettingContext = createContext<SettingContextType>({
   replaceSetting: () => {},
   replaceHousehold: () => {},
   replaceStockTags: () => {},
+  pendingImport: null,
+  setPendingImport: () => {},
 });
 
 export function SettingProvider({ children }: { children: ReactNode }) {
@@ -105,6 +116,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
   const [stockTags, setFeedTags] = useState<Tag[]>([]);
   const [editHousehold, setEditHousehold] = useState<HouseholdMember | null>(null);
   const [deleteHousehold, setDeleteHousehold] = useState<HouseholdMember | null>(null);
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const { isDemo, demoExitMode } = useContext(StockListContext);
@@ -232,7 +244,7 @@ export function SettingProvider({ children }: { children: ReactNode }) {
   const replaceStockTags = (newTags:Tag[]) => setFeedTags(newTags);
 
   return (
-    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, stockTags, addStockTag, replaceSetting, replaceHousehold, replaceStockTags }}>
+    <SettingContext.Provider value={{ setting, updateSetting, household, updateHousehold, addHousehold, removeHousehold, editHousehold, setEditHousehold, deleteHousehold, setDeleteHousehold, stockTags, addStockTag, replaceSetting, replaceHousehold, replaceStockTags, pendingImport, setPendingImport }}>
       {children}
     </SettingContext.Provider>
   );
